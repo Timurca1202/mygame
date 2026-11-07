@@ -1,10 +1,18 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/room_shell_v01.png" id="1_shell"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/desk_with_props_v01.png" id="2_desk"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/stool_v01.png" id="3_stool"]
 [ext_resource type="PackedScene" path="res://scenes/characters/window_seated_hero.tscn" id="4_hero"]
 [ext_resource type="PackedScene" path="res://scenes/room/window_dust.tscn" id="5_dust"]
+[ext_resource type="Shader" path="res://src/ui/neon_backdrop.gdshader" id="6_grid"]
+[ext_resource type="Shader" path="res://src/room/room_silhouette.gdshader" id="7_mask"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_grid"]
+shader = ExtResource("6_grid")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mask"]
+shader = ExtResource("7_mask")
 
 [sub_resource type="Gradient" id="Gradient_lamp"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -24,10 +32,13 @@ blend_mode = 1
 [node name="StartRoom" type="Node2D"]
 
 [node name="Backdrop" type="Polygon2D" parent="."]
+material = SubResource("ShaderMaterial_grid")
 polygon = PackedVector2Array(0, 0, 540, 0, 540, 960, 0, 960)
-color = Color(0.25, 0.263, 0.275, 1)
+uv = PackedVector2Array(0, 0, 1, 0, 1, 1, 0, 1)
+color = Color(1, 1, 1, 1)
 
 [node name="RoomShell" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_mask")
 texture_filter = 1
 position = Vector2(270, 460)
 scale = Vector2(0.430622, 0.430622)

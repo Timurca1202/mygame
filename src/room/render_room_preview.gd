@@ -54,6 +54,12 @@ func _render_room() -> void:
 	idle.seek(0.0, true)
 	var dust_changes := 0
 	var dust_area := Rect2i(286, 342, 90, 100)
+	var frame_directory := "/tmp/hypster_window_dust_preview"
+	var directory_error := DirAccess.make_dir_recursive_absolute(frame_directory)
+	if directory_error != OK:
+		push_error("Failed to create temporary ambience frame directory")
+		quit(1)
+		return
 	for frame in range(36):
 		dust.seek(float(frame) * 0.5, true)
 		await process_frame
@@ -68,7 +74,7 @@ func _render_room() -> void:
 							push_error("Window dust changed pixels outside its area")
 							quit(1)
 							return
-		error = dust_image.save_png("res://source_art/rooms/start_room/dust_frame_%02d.png" % frame)
+		error = dust_image.save_png(frame_directory + "/dust_frame_%02d.png" % frame)
 		if error != OK:
 			quit(1)
 			return

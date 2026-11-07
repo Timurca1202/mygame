@@ -1,0 +1,58 @@
+{
+  "device_name": "Кирпич 3300",
+  "device_capacity_seconds": 1200.0,
+  "base_speed": 2.0,
+  "max_speed": 4.0,
+  "speed_acceleration": 0.5,
+  "speed_deceleration": 0.25,
+  "tap_window_seconds": 1.0,
+  "tap_saturation": 6.0,
+  "tap_grace_seconds": 2.0,
+  "hype_per_tap": 2.5,
+  "hype_decay_per_second": 0.6,
+  "heat_exponent": 1.3,
+  "heat_thresholds": [
+    70.0,
+    85.0,
+    95.0
+  ],
+  "durations": [
+    {
+      "label": "Быстрая проверка / 1 игровая минута",
+      "seconds": 60.0
+    },
+    {
+      "label": "Обычный эфир / 15 игровых минут",
+      "seconds": 900.0
+    }
+  ],
+  "text": {
+    "title": "HYPSTER / ПЕРВЫЙ ЭФИР",
+    "ready": "ГОТОВ К ЭФИРУ",
+    "live": "В ЭФИРЕ",
+    "paused": "ПАУЗА",
+    "completed": "ЭФИР ЗАВЕРШЁН",
+    "overheated": "ОБРЫВ: ПЕРЕГРЕВ",
+    "timer": "%s / %s",
+    "hype": "ХАЙП %d%%",
+    "heat": "НАГРЕВ",
+    "ready_hint": "Тапай по комнате — поднимай хайп.\nРазгон ускоряет эфир и нагрев телефона.",
+    "live_hint": "Тапай по комнате — разгоняй эфир.\nСледи за нагревом телефона.",
+    "warm_hint": "Телефон нагревается. Сбавь темп тапов.",
+    "hot_hint": "Телефон тормозит. Нагрев выше 85%.",
+    "critical_hint": "Критический нагрев! На 100% эфир оборвётся.",
+    "paused_hint": "Эфир приостановлен.\nПродолжи, когда будешь готов.",
+    "results": "В эфире: %s / Реальное время: %s\nПик хайпа: %d%% / Тапов: %d / Нагрев: %d%%",
+    "start": "НАЧАТЬ СТРИМ",
+    "pause": "ПАУЗА",
+    "resume": "ПРОДОЛЖИТЬ",
+    "again": "НОВЫЙ ЭФИР",
+    "prototype": "Прототип · без сохранений и наград",
+    "studio": "СТУДИЯ ЗАПУСКА / ПЕРВЫЙ ЭФИР",
+    "badge_live": "● LIVE",
+    "badge_idle": "OFFLINE",
+    "tap_gain": "+%.1f ХАЙП",
+    "tap_max": "ХАЙП MAX",
+    "live_detail": "ТАПОВ: %d    /    РАЗГОН: ×%.1f"
+  }
+}

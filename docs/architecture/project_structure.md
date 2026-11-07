@@ -38,3 +38,7 @@
 - `tests/unit/`, `tests/integration/`, `tests/fixtures/`: тесты при реализации систем; фреймворк пока не выбран.
 
 Не помещать сохранения игрока в каталоги проекта: для них используется `user://`.
+
+## Реализованный прототип стрима
+
+`src/stream/stream_session.gd` — независимая симуляция эфира; `data/stream/prototype.json` — параметры и строки первого русского интерфейса. `scenes/ui/stream_prototype.tscn` и `src/ui/stream_prototype.gd` подключены к главной сцене через CanvasLayer. Новые autoload-сервисы не требуются. Проверки находятся в `tests/stream/`, описание границ прототипа — `docs/production/stream_prototype.md`.
