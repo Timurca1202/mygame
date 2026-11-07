@@ -497,6 +497,12 @@ func _action_pressed() -> void:
 	_refresh()
 
 func _refresh() -> void:
+	var room: Node = null
+	# Resolve the main scene both in-game and inside a preview SubViewport.
+	if get_parent() is CanvasLayer:
+		room = get_parent().get_parent().get_node_or_null("StartRoom")
+	if room != null and room.has_method("sync_session"):
+		room.sync_session(session)
 	var ready: bool = session.state == Session.State.READY
 	_mode.visible = ready
 	var planned: float = float(config.durations[_mode.selected].seconds) if ready else session.duration

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/room_shell_v01.png" id="1_shell"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/desk_with_props_v01.png" id="2_desk"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/room/window_dust.tscn" id="5_dust"]
 [ext_resource type="Shader" path="res://src/ui/neon_backdrop.gdshader" id="6_grid"]
 [ext_resource type="Shader" path="res://src/room/room_silhouette.gdshader" id="7_mask"]
+[ext_resource type="Script" path="res://src/room/stream_atmosphere.gd" id="8_atmosphere"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_grid"]
 shader = ExtResource("6_grid")
@@ -30,6 +31,7 @@ fill_to = Vector2(1, 0.5)
 blend_mode = 1
 
 [node name="StartRoom" type="Node2D"]
+script = ExtResource("8_atmosphere")
 
 [node name="Backdrop" type="Polygon2D" parent="."]
 material = SubResource("ShaderMaterial_grid")
