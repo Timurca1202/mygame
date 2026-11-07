@@ -1,0 +1,96 @@
+{
+  "viewer_cap": 10.0,
+  "first_stream_score": 50.0,
+  "organic_base": 3.0,
+  "organic_factor": 0.8,
+  "organic_exponent": 0.55,
+  "online_tiers": [
+    [
+      100,
+      0.2
+    ],
+    [
+      1000,
+      0.12
+    ],
+    [
+      10000,
+      0.08
+    ],
+    [
+      100000,
+      0.06
+    ],
+    [
+      1000000,
+      0.045
+    ],
+    [
+      9007199254740991,
+      0.035
+    ]
+  ],
+  "growth_base": 0.002,
+  "growth_factor": 0.088,
+  "growth_exponent": 1.5,
+  "cap_exponent": 1.5,
+  "length_reference_minutes": 60.0,
+  "equipment_quality": 0.2,
+  "epoch_quality_reference": 1.0,
+  "starter_packaging_score": 0.0,
+  "starting_reputation_score": 50.0,
+  "vibe_for_full_score": 10.0,
+  "tap_activity_per_second": 1.0,
+  "activity_weights": {
+    "chat": 0.5,
+    "taps": 0.3,
+    "thanks": 0.2
+  },
+  "score_weights": {
+    "activity": 0.35,
+    "equipment": 0.25,
+    "packaging": 0.2,
+    "decor": 0.1,
+    "reputation": 0.1
+  },
+  "items": [
+    {
+      "id": "thrift_rug",
+      "name": "КОВЁР С БАРАХОЛКИ",
+      "description": "Потёртый, зато свой.\nПервый уют в пустой комнате.",
+      "price_units": 12500,
+      "vibe": 1,
+      "texture": "res://assets/art/decor/thrift_rug_v01.png",
+      "position": [
+        218,
+        563
+      ],
+      "scale": 0.13
+    }
+  ],
+  "sale_ratio": 0.5,
+  "text": {
+    "followers": "ПОДПИСЧИКИ %d",
+    "audience": "ЗРИТЕЛИ %.1f / ЛИМИТ %d",
+    "result": "+%d ПОДП. / ОЦЕНКА %d",
+    "shop": "БАРАХОЛКА",
+    "shop_title": "ПЕРВОЕ УЛУЧШЕНИЕ",
+    "room": "В КОМНАТУ",
+    "buy": "КУПИТЬ ЗА $%s",
+    "sell": "ПРОДАТЬ ЗА $%s",
+    "effect": "VIBE +%d / УЮТ ДЛЯ ЭФИРА",
+    "owned": "УЖЕ В КОМНАТЕ / VIBE +%d",
+    "shortfall": "НЕ ХВАТАЕТ $%s",
+    "balance": "НА КОШЕЛЬКЕ $%s",
+    "bought": "КУПЛЕНО / −$%s / VIBE +%d",
+    "sold": "ПРОДАНО / +$%s",
+    "save_failed": "НЕ УДАЛОСЬ СОХРАНИТЬ / ПОПРОБУЙ СНОВА",
+    "score_note": "PS: ЧАТ, ТАПЫ, СПАСИБО И КОМНАТА",
+    "future_note": "Превью и название пока без оценки.",
+    "receipt": "Покупка сразу появится в комнате.\nПродажа вернёт 50% цены.",
+    "result_saved": "СОХРАНЕНО / +%d ПОДП. / PS %d",
+    "done": "ГОТОВО",
+    "sale_hint": "ПРОДАЖА ВЕРНЁТ 50% ЦЕНЫ",
+    "buy_hint": "ПОКУПКА СРАЗУ ПОЯВИТСЯ В КОМНАТЕ"
+  }
+}

@@ -11,6 +11,7 @@ var _taps := 0
 var _answers := 0
 var _thanks := 0
 var _activity: Node2D
+var _decor: Dictionary = {}
 class PhoneActivity extends Node2D:
 	func _draw() -> void:
 		get_parent().draw_activity(self)
@@ -23,6 +24,23 @@ func _ready() -> void:
 	_activity = PhoneActivity.new()
 	_activity.name = "PhoneActivity"
 	add_child(_activity)
+
+func apply_inventory(inventory: Array, items: Array) -> void:
+	for item in items:
+		var id := str(item.id)
+		if inventory.has(id) and not _decor.has(id):
+			var sprite := Sprite2D.new()
+			sprite.name = id.to_pascal_case()
+			sprite.texture = load(item.texture)
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			sprite.position = Vector2(float(item.position[0]), float(item.position[1]))
+			sprite.scale = Vector2.ONE * float(item.scale)
+			add_child(sprite)
+			move_child(sprite, $Furniture.get_index())
+			_decor[id] = sprite
+		elif not inventory.has(id) and _decor.has(id):
+			_decor[id].queue_free()
+			_decor.erase(id)
 
 func sync_session(session: RefCounted) -> void:
 	if _session != session or session.tap_count < _taps:

@@ -17,6 +17,7 @@ var hype := 0.0
 var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
+var viewers := 3.0
 var chat: RefCounted
 var income: RefCounted
 var _config: Dictionary
@@ -26,6 +27,7 @@ var _last_activity := -INF
 
 func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []) -> void:
 	_config = config.duplicate(true)
+	viewers = float(config.economy.viewers)
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
 		chat = Chat.new(config.chat, chat_content)

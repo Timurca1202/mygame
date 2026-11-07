@@ -1,0 +1,203 @@
+{
+  "scenarios": [
+    {
+      "first_purchase_real_minutes": 7.49999999999786,
+      "streams": [
+        {
+          "balance_dollars": 0.25,
+          "followers": 3.0,
+          "gain": 3.0,
+          "game_minutes": 15.0,
+          "income_dollars": 1.5,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 10.0,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 1.7691,
+          "followers": 7.47169978315027,
+          "gain": 4.47169978315027,
+          "game_minutes": 15.0,
+          "income_dollars": 1.5191,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 11.0,
+          "stream": 2,
+          "viewers": 3.03833042637281
+        },
+        {
+          "balance_dollars": 3.8773,
+          "followers": 12.9092453984953,
+          "gain": 5.43754561534498,
+          "game_minutes": 15.0,
+          "income_dollars": 2.1082,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 11.0,
+          "stream": 3,
+          "viewers": 4.21657617134468
+        },
+        {
+          "balance_dollars": 6.576,
+          "followers": 19.2093981904594,
+          "gain": 6.30015279196418,
+          "game_minutes": 15.0,
+          "income_dollars": 2.6987,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 11.0,
+          "stream": 4,
+          "viewers": 5.39750576501443
+        },
+        {
+          "balance_dollars": 9.9024,
+          "followers": 26.3240877839029,
+          "gain": 7.11468959344349,
+          "game_minutes": 15.0,
+          "income_dollars": 3.3264,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 11.0,
+          "stream": 5,
+          "viewers": 6.65297964980985
+        }
+      ],
+      "style": "quiet"
+    },
+    {
+      "first_purchase_real_minutes": 6.57212888889,
+      "streams": [
+        {
+          "balance_dollars": 0.7714,
+          "followers": 3.0,
+          "gain": 3.0,
+          "game_minutes": 15.0,
+          "income_dollars": 2.0214,
+          "overheated": false,
+          "real_minutes": 6.57212888889,
+          "score": 39.2397122799369,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 3.8166,
+          "followers": 7.50057832789985,
+          "gain": 4.50057832789985,
+          "game_minutes": 15.0,
+          "income_dollars": 3.0452,
+          "overheated": false,
+          "real_minutes": 6.57212888889,
+          "score": 40.2397122799369,
+          "stream": 2,
+          "viewers": 4.51899555101479
+        },
+        {
+          "balance_dollars": 8.0278,
+          "followers": 13.0155369552737,
+          "gain": 5.51495862737381,
+          "game_minutes": 15.0,
+          "income_dollars": 4.2112,
+          "overheated": false,
+          "real_minutes": 6.57212888889,
+          "score": 40.2397122799369,
+          "stream": 3,
+          "viewers": 6.24759443419188
+        },
+        {
+          "balance_dollars": 13.4308,
+          "followers": 19.4560219414185,
+          "gain": 6.44048498614489,
+          "game_minutes": 15.0,
+          "income_dollars": 5.403,
+          "overheated": false,
+          "real_minutes": 6.57212888889,
+          "score": 40.2397122799369,
+          "stream": 4,
+          "viewers": 8.01725137973387
+        },
+        {
+          "balance_dollars": 20.1121,
+          "followers": 26.7872604687231,
+          "gain": 7.33123852730458,
+          "game_minutes": 15.0,
+          "income_dollars": 6.6813,
+          "overheated": false,
+          "real_minutes": 6.57212888889,
+          "score": 40.2397122799369,
+          "stream": 5,
+          "viewers": 9.91235230460523
+        }
+      ],
+      "style": "engaged"
+    },
+    {
+      "first_purchase_real_minutes": 4.12173318085299,
+      "streams": [
+        {
+          "balance_dollars": 0.8177,
+          "followers": 3.0,
+          "gain": 3.0,
+          "game_minutes": 8.17712413948376,
+          "income_dollars": 0.8177,
+          "overheated": true,
+          "real_minutes": 2.06086659042649,
+          "score": 20.5,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 0.5407,
+          "followers": 7.47514511355777,
+          "gain": 4.47514511355777,
+          "game_minutes": 8.17712413948376,
+          "income_dollars": 0.973,
+          "overheated": true,
+          "real_minutes": 2.06086659042649,
+          "score": 20.5,
+          "stream": 2,
+          "viewers": 3.57003825098805
+        },
+        {
+          "balance_dollars": 1.8692,
+          "followers": 12.9235669185834,
+          "gain": 5.44842180502558,
+          "game_minutes": 8.17712413948376,
+          "income_dollars": 1.3285,
+          "overheated": true,
+          "real_minutes": 2.06086659042649,
+          "score": 21.5,
+          "stream": 3,
+          "viewers": 4.87417416210077
+        },
+        {
+          "balance_dollars": 3.5945,
+          "followers": 19.2434775380659,
+          "gain": 6.31991061948252,
+          "game_minutes": 8.17712413948376,
+          "income_dollars": 1.7253,
+          "overheated": true,
+          "real_minutes": 2.06086659042649,
+          "score": 21.5,
+          "stream": 4,
+          "viewers": 6.33005733855881
+        },
+        {
+          "balance_dollars": 5.7221,
+          "followers": 26.3886176328863,
+          "gain": 7.14514009482042,
+          "game_minutes": 8.17712413948376,
+          "income_dollars": 2.1276,
+          "overheated": true,
+          "real_minutes": 2.06086659042649,
+          "score": 21.5,
+          "stream": 5,
+          "viewers": 7.8058726428256
+        }
+      ],
+      "style": "forced"
+    }
+  ],
+  "scope": "first five 15-minute streams, P1, one rug; prototype score, no campaign expenses"
+}

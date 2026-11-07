@@ -1,9 +1,13 @@
 extends RefCounted
-## The small persistent part implemented now: earned money and duplicate-credit protection.
+## Atomic profile transactions: money, audience progress and room purchases.
 ## Checksum + atomic rename + previous valid backup. No autoload is needed.
-const SCHEMA_VERSION := 1
+const SCHEMA_VERSION := 2
 const RECENT_LIMIT := 100
 var balance_units := 0
+var followers := 0.0
+var completed_streams := 0
+var last_score := 0.0
+var inventory: Array[String] = []
 var load_error: Error = OK
 var recovered_from_backup := false
 var _path: String
@@ -41,7 +45,7 @@ func _read(path: String) -> Dictionary:
 		return {}
 	if int(version) > SCHEMA_VERSION:
 		return {"future": true}
-	if int(version) != SCHEMA_VERSION or (not payload.get("balance_units") is float and not payload.get("balance_units") is int):
+	if int(version) < 1 or (not payload.get("balance_units") is float and not payload.get("balance_units") is int):
 		return {}
 	var amount := float(payload.balance_units)
 	if not is_finite(amount) or amount < 0.0 or amount != floor(amount) or amount > 9007199254740991.0:
@@ -51,6 +55,23 @@ func _read(path: String) -> Dictionary:
 	for id in payload.credited_sessions:
 		if not id is String or id.is_empty():
 			return {}
+	if int(version) == 1:
+		payload.merge({"followers": 0.0, "completed_streams": 0, "last_score": 0.0, "inventory": []}, true)
+	else:
+		for key in ["followers", "completed_streams", "last_score"]:
+			if not payload.get(key) is float and not payload.get(key) is int:
+				return {}
+			if not is_finite(float(payload[key])) or float(payload[key]) < 0.0 or float(payload[key]) > 9007199254740991.0:
+				return {}
+		if float(payload.completed_streams) != floor(float(payload.completed_streams)) or float(payload.last_score) > 100.0:
+			return {}
+		if not payload.get("inventory") is Array or payload.inventory.size() > 1000:
+			return {}
+		var seen := {}
+		for id in payload.inventory:
+			if not id is String or id.is_empty() or seen.has(id):
+				return {}
+			seen[id] = true
 	return payload
 
 func _load() -> void:
@@ -68,14 +89,28 @@ func _load() -> void:
 		if FileAccess.file_exists(_path) or FileAccess.file_exists(_path + ".bak"):
 			load_error = ERR_FILE_CORRUPT
 		return
+	_apply(payload)
+
+func _apply(payload: Dictionary) -> void:
 	balance_units = int(payload.balance_units)
-	for id in payload.credited_sessions:
-		_credited.append(str(id))
+	followers = float(payload.followers)
+	completed_streams = int(payload.completed_streams)
+	last_score = float(payload.last_score)
+	inventory.assign(payload.inventory)
+	_credited.assign(payload.credited_sessions)
+
+func _payload() -> Dictionary:
+	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate()}
 
 func credit(session_id: String, amount_units: int) -> Error:
+	return settle_stream(session_id, amount_units, 0.0, last_score, false)
+
+func settle_stream(session_id: String, amount_units: int, follower_gain: float, score: float, count_stream: bool = true) -> Error:
 	if load_error != OK:
 		return load_error
 	if session_id.is_empty() or amount_units < 0 or amount_units > 9007199254740991 - balance_units:
+		return ERR_INVALID_PARAMETER
+	if not is_finite(follower_gain) or follower_gain < 0.0 or followers + follower_gain > 9007199254740991.0 or not is_finite(score) or score < 0.0 or score > 100.0:
 		return ERR_INVALID_PARAMETER
 	if _credited.has(session_id):
 		return OK
@@ -83,7 +118,39 @@ func credit(session_id: String, amount_units: int) -> Error:
 	recent.append(session_id)
 	if recent.size() > RECENT_LIMIT:
 		recent.pop_front()
-	var payload := {"version": SCHEMA_VERSION, "balance_units": balance_units + amount_units, "credited_sessions": recent}
+	var payload := _payload()
+	payload.balance_units += amount_units
+	payload.credited_sessions = recent
+	payload.followers += follower_gain
+	payload.last_score = score
+	payload.completed_streams += 1 if count_stream else 0
+	return _persist(payload)
+
+func buy(item_id: String, price_units: int) -> Error:
+	if load_error != OK:
+		return load_error
+	if item_id.is_empty() or price_units <= 0:
+		return ERR_INVALID_PARAMETER
+	if inventory.has(item_id):
+		return ERR_ALREADY_EXISTS
+	if balance_units < price_units:
+		return ERR_UNAVAILABLE
+	var payload := _payload()
+	payload.balance_units -= price_units
+	payload.inventory.append(item_id)
+	return _persist(payload)
+
+func sell(item_id: String, refund_units: int) -> Error:
+	if load_error != OK:
+		return load_error
+	if not inventory.has(item_id) or refund_units < 0 or refund_units > 9007199254740991 - balance_units:
+		return ERR_INVALID_PARAMETER
+	var payload := _payload()
+	payload.balance_units += refund_units
+	payload.inventory.erase(item_id)
+	return _persist(payload)
+
+func _persist(payload: Dictionary) -> Error:
 	var file := FileAccess.open(_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
@@ -103,7 +170,6 @@ func credit(session_id: String, amount_units: int) -> Error:
 	var error := DirAccess.rename_absolute(_path + ".tmp", _path)
 	if error != OK:
 		return error
-	balance_units = int(payload.balance_units)
-	_credited.assign(recent)
+	_apply(payload)
 	recovered_from_backup = false
 	return OK

@@ -54,7 +54,7 @@ func run() -> void:
 	viewport.add_child(main)
 	ui.set_process(false)
 	await process_frame
-	await capture("stream_ready_v05.png")
+	await capture("stream_ready_v06.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.LIVE, "Start button must launch the stream")
 	check(ui.session.tap_count == 0, "Start click must not leak into room tapping")
@@ -67,30 +67,30 @@ func run() -> void:
 	for effect in ui._effects.get_children():
 		effect.queue_free()
 	await process_frame
-	await capture("stream_live_v05.png")
+	await capture("stream_live_v06.png")
 	click(Vector2(340, 470))
 	check(ui.session.tap_count == 19 and ui._effects.get_child_count() == 1, "Each live click must create exactly one feedback effect")
 	ui._effects.get_child(0)._process(0.12)
-	await capture("stream_tap_v05.png")
+	await capture("stream_tap_v06.png")
 	ui._effects.get_child(0)._process(1.0)
 	await process_frame
 	check(ui._effects.get_child_count() == 0, "Tap feedback must clean itself up")
 	check(not ui.session.chat.active.is_empty() and ui._chat_view.visible, "Live room must expose its interactive chat")
-	await capture("stream_question_v05.png")
+	await capture("stream_question_v06.png")
 	var tap_count_before_answer: int = ui.session.tap_count
 	var answer_index: int = ui.session.chat.active.correct
 	click(ui._chat_buttons[answer_index].get_global_rect().get_center())
 	check(ui.session.chat.correct_answers == 1, "Clicking a correct answer must resolve the current quiz")
 	check(ui.session.tap_count == tap_count_before_answer, "Answer button must never leak into room tapping")
 	check(ui.session.chat.combo == 1, "Quiz streak must reach the UI")
-	await capture("stream_chat_correct_v05.png")
+	await capture("stream_chat_correct_v06.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.PAUSED, "Pause button must pause the stream")
-	await capture("stream_paused_v05.png")
+	await capture("stream_paused_v06.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.LIVE, "Resume button must resume the stream")
 	ui.session.advance(60.0)
-	await capture("stream_completed_v05.png")
+	await capture("stream_completed_v06.png")
 	check(ui.session.end_reason == Session.EndReason.COMPLETED, "Quick UI session must finish normally")
 	var earned: int = ui.session.income.total_units()
 	check(ui.wallet.balance_units == earned and earned > 0, "Completed UI stream must credit earned money to the wallet")
@@ -111,16 +111,16 @@ func run() -> void:
 	ui.session.advance(6.1)
 	ui._refresh()
 	check(ui._donation_panel.visible, "Donation must have a visible banner")
-	await capture("stream_donation_v05.png")
+	await capture("stream_donation_v06.png")
 	var taps_before_thanks: int = ui.session.tap_count
 	click(ui._thanks_button.get_global_rect().get_center())
 	check(ui.session.income.thanked_count == 1 and ui.session.income.thanks_units > 0, "Thanks button must grant one bonus")
 	check(ui.session.tap_count == taps_before_thanks and ui._effects.get_child_count() == 0, "Thanks must not leak into tapping or tap feedback")
-	await capture("stream_thanked_v05.png")
+	await capture("stream_thanked_v06.png")
 	ui.session.advance(5.9)
 	ui._refresh()
 	check(ui.session.chat.active.kind == "poll", "Poll must appear in the regular stream")
-	await capture("stream_poll_v05.png")
+	await capture("stream_poll_v06.png")
 	click(ui._chat_buttons[0].get_global_rect().get_center())
 	check(ui.session.chat.reactions == 1, "Poll button must register engagement")
 	for i in range(3000):
@@ -128,13 +128,13 @@ func run() -> void:
 		ui.session.advance(1.0 / 6.0)
 		if ui.session.heat >= 95.0:
 			break
-	await capture("stream_critical_v05.png")
+	await capture("stream_critical_v06.png")
 	for i in range(300):
 		ui.session.tap()
 		ui.session.advance(1.0 / 6.0)
 		if ui.session.state == Session.State.FINISHED:
 			break
-	await capture("stream_overheated_v05.png")
+	await capture("stream_overheated_v06.png")
 	check(ui.session.end_reason == Session.EndReason.OVERHEATED, "UI session must display overheating results")
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(ui.wallet_path + suffix):
