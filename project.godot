@@ -1,12 +1,23 @@
-; Open this file in Godot 4. Engine version will be pinned after first validation.
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
 config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
 config/name="Hypster"
 config/description="Portrait pixel-art streamer life simulation"
 run/main_scene="res://scenes/app/main.tscn"
-config/features=PackedStringArray("4.0", "GL Compatibility")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]
 
@@ -19,8 +30,7 @@ window/handheld/orientation=1
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/default_filters/use_nearest_mipmap_filter=false
-textures/canvas_textures/default_texture_filter=0
-environment/defaults/default_clear_color=Color(0.09, 0.10, 0.12, 1)
+environment/defaults/default_clear_color=Color(0.09, 0.1, 0.12, 1)

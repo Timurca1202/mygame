@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/rooms/e1/poor_corner_expanded_v01.png" id="1_art"]
+
+[node name="StartRoom" type="Node2D"]
+
+[node name="Backdrop" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, 0, 540, 0, 540, 960, 0, 960)
+color = Color(0.25, 0.263, 0.275, 1)
+
+[node name="RoomArtwork" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(270, 460)
+scale = Vector2(0.430622, 0.430622)
+texture = ExtResource("1_art")
