@@ -12,12 +12,15 @@ func _render_room() -> void:
 	var scene := load("res://scenes/room/start_room.tscn") as PackedScene
 	var room := scene.instantiate()
 	viewport.add_child(room)
+	var dust := room.get_node("WindowDust/DriftAnimation") as AnimationPlayer
+	dust.pause()
+	dust.seek(0.0, true)
 	var idle := room.get_node("Furniture/SeatedHero/IdleAnimation") as AnimationPlayer
 	idle.pause()
 	idle.seek(0.0, true)
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var output_path := "res://source_art/rooms/start_room/room_idle_preview_v06.png"
+	var output_path := "res://source_art/rooms/start_room/room_idle_preview_v08.png"
 	var resting_image := viewport.get_texture().get_image()
 	var error := resting_image.save_png(output_path)
 	if error != OK:
@@ -28,7 +31,7 @@ func _render_room() -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var inhaling_image := viewport.get_texture().get_image()
-	error = inhaling_image.save_png("res://source_art/rooms/start_room/room_inhale_preview_v06.png")
+	error = inhaling_image.save_png("res://source_art/rooms/start_room/room_inhale_preview_v08.png")
 	if error != OK:
 		push_error("Failed to save breathing preview")
 		quit(1)
@@ -47,11 +50,39 @@ func _render_room() -> void:
 		push_error("Breathing must affect the upper body while preserving hands, seat and room")
 		quit(1)
 		return
+	# Check ambience independently from breathing and export a full drift cycle.
+	idle.seek(0.0, true)
+	var dust_changes := 0
+	var dust_area := Rect2i(286, 342, 90, 100)
+	for frame in range(36):
+		dust.seek(float(frame) * 0.5, true)
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var dust_image := viewport.get_texture().get_image()
+		if frame == 18:
+			for y in range(960):
+				for x in range(540):
+					if resting_image.get_pixel(x, y) != dust_image.get_pixel(x, y):
+						dust_changes += 1
+						if not dust_area.has_point(Vector2i(x, y)):
+							push_error("Window dust changed pixels outside its area")
+							quit(1)
+							return
+		error = dust_image.save_png("res://source_art/rooms/start_room/dust_frame_%02d.png" % frame)
+		if error != OK:
+			quit(1)
+			return
+	print("Window dust changed pixels at half cycle: ", dust_changes)
+	if dust_changes == 0:
+		push_error("Window dust did not animate")
+		quit(1)
+		return
+	dust.seek(0.0, true)
 	viewport.size = Vector2i(400, 400)
 	viewport.canvas_transform = Transform2D(Vector2(4, 0), Vector2(0, 4), Vector2(-1100, -1780))
 	await process_frame
 	await RenderingServer.frame_post_draw
-	error = viewport.get_texture().get_image().save_png("res://source_art/rooms/start_room/seating_detail_v06.png")
+	error = viewport.get_texture().get_image().save_png("res://source_art/rooms/start_room/seating_detail_v08.png")
 	if error != OK:
 		quit(1)
 		return

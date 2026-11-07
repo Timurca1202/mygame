@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Shader" path="res://src/room/window_dust.gdshader" id="1_dust"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dust"]
+resource_local_to_scene = true
+shader = ExtResource("1_dust")
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Motes:material:shader_parameter/cycle")
+tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0]}
+
+[sub_resource type="Animation" id="Animation_drift"]
+resource_name = "drift"
+length = 18.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Motes:material:shader_parameter/cycle")
+tracks/0/keys = {"times": PackedFloat32Array(0, 18), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [0.0, 1.0]}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dust"]
+_data = {&"RESET": SubResource("Animation_reset"), &"drift": SubResource("Animation_drift")}
+
+[node name="WindowDust" type="Node2D"]
+
+[node name="Motes" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_dust")
+offset_right = 90.0
+offset_bottom = 100.0
+mouse_filter = 2
+
+[node name="DriftAnimation" type="AnimationPlayer" parent="."]
+libraries = {&"": SubResource("AnimationLibrary_dust")}
+autoplay = "drift"

@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/room_shell_v01.png" id="1_shell"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/desk_with_props_v01.png" id="2_desk"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/stool_v01.png" id="3_stool"]
 [ext_resource type="PackedScene" path="res://scenes/characters/window_seated_hero.tscn" id="4_hero"]
+[ext_resource type="PackedScene" path="res://scenes/room/window_dust.tscn" id="5_dust"]
 
 [sub_resource type="Gradient" id="Gradient_lamp"]
 offsets = PackedFloat32Array(0, 0.25, 1)
@@ -47,6 +48,28 @@ scale = Vector2(0.421875, 0.421875)
 texture = ExtResource("2_desk")
 flip_h = true
 
+[node name="SeatingContactShadows" type="Node2D" parent="Furniture"]
+
+[node name="LeftStoolFoot" type="Polygon2D" parent="Furniture/SeatingContactShadows"]
+polygon = PackedVector2Array(289, 526, 294, 525, 298, 527, 295, 529, 289, 528)
+color = Color(0.12, 0.10, 0.08, 0.22)
+
+[node name="FrontStoolFoot" type="Polygon2D" parent="Furniture/SeatingContactShadows"]
+polygon = PackedVector2Array(306, 537, 312, 536, 316, 538, 313, 540, 306, 539)
+color = Color(0.12, 0.10, 0.08, 0.22)
+
+[node name="RightStoolFoot" type="Polygon2D" parent="Furniture/SeatingContactShadows"]
+polygon = PackedVector2Array(326, 528, 331, 527, 334, 529, 331, 531, 326, 530)
+color = Color(0.12, 0.10, 0.08, 0.18)
+
+[node name="LeftShoe" type="Polygon2D" parent="Furniture/SeatingContactShadows"]
+polygon = PackedVector2Array(319, 523, 328, 521, 334, 522, 334, 524, 328, 526, 319, 525)
+color = Color(0.12, 0.10, 0.08, 0.18)
+
+[node name="RightShoe" type="Polygon2D" parent="Furniture/SeatingContactShadows"]
+polygon = PackedVector2Array(334, 529, 346, 527, 352, 529, 352, 531, 344, 533, 334, 532)
+color = Color(0.12, 0.10, 0.08, 0.18)
+
 [node name="Stool" type="Sprite2D" parent="Furniture"]
 texture_filter = 1
 position = Vector2(348, 496)
@@ -55,3 +78,6 @@ texture = ExtResource("3_stool")
 
 [node name="SeatedHero" parent="Furniture" instance=ExtResource("4_hero")]
 position = Vector2(327, 478)
+
+[node name="WindowDust" parent="." instance=ExtResource("5_dust")]
+position = Vector2(286, 342)
