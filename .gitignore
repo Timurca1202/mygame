@@ -1,0 +1,30 @@
+# Godot-generated cache. Keep .uid and .import sidecars with source assets.
+.godot/
+.import/
+export.cfg
+export_credentials.cfg
+
+# Exported builds; retain directory skeleton.
+/builds/**
+!/builds/**/
+!/builds/**/.gitkeep
+!/builds/.gdignore
+
+# Local machine and editor state.
+.DS_Store
+**/.DS_Store
+.idea/
+.vscode/
+*.tmp
+*.log
+*.bak
+
+# Signing credentials and local environment.
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.mobileprovision
+*.keystore
+*.jks
