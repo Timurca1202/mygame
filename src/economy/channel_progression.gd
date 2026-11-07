@@ -35,6 +35,14 @@ func vibe(inventory: Array) -> int:
 			total += int(item.vibe)
 	return total
 
+func cooling(inventory: Array) -> float:
+	# Cooling equipment uses the strongest owned tier; duplicates never stack.
+	var ratio := 0.0
+	for entry in config.items:
+		if inventory.has(str(entry.id)):
+			ratio = maxf(ratio, float(entry.get("cooling_ratio", 0.0)))
+	return clampf(ratio, 0.0, float(config.get("cooling_cap", 0.6)))
+
 func performance(session: RefCounted, inventory: Array) -> float:
 	var quizzes: int = session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions
 	var accuracy := float(session.chat.correct_answers) / quizzes if quizzes > 0 else 0.0

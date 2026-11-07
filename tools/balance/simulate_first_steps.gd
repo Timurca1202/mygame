@@ -2,7 +2,7 @@ extends SceneTree
 ## Small deterministic balance audit, not a campaign-scale calibration.
 const Session = preload("res://src/stream/stream_session.gd")
 const Progression = preload("res://src/economy/channel_progression.gd")
-const OUTPUT := "res://source_art/prototypes/stream/first_steps_balance_v06.json"
+const OUTPUT := "res://source_art/prototypes/stream/first_steps_balance_v07.json"
 
 func _initialize() -> void:
 	var parameters: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/progression/first_steps.json"))

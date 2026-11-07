@@ -18,6 +18,7 @@ var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
 var viewers := 3.0
+var cooling_ratio := 0.0
 var chat: RefCounted
 var income: RefCounted
 var _config: Dictionary
@@ -28,6 +29,7 @@ var _last_activity := -INF
 func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []) -> void:
 	_config = config.duplicate(true)
 	viewers = float(config.economy.viewers)
+	cooling_ratio = clampf(float(config.get("cooling_ratio", 0.0)), 0.0, float(config.get("max_cooling_ratio", 0.6)))
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
 		chat = Chat.new(config.chat, chat_content)
@@ -119,6 +121,7 @@ func _step(delta: float) -> void:
 		speed = move_toward(speed, target, float(_config.speed_deceleration) * delta)
 	var heat_per_game_second := 100.0 / float(_config.device_capacity_seconds) * pow(
 		speed / base, float(_config.heat_exponent))
+	heat_per_game_second *= 1.0 - cooling_ratio
 	var game_step := speed * delta
 	var to_overheat := maxf(0.0, (100.0 - heat) / heat_per_game_second)
 	var to_completion := maxf(0.0, duration - elapsed_game)

@@ -109,6 +109,7 @@ func _new_session() -> void:
 	var run_config := config.duplicate(true)
 	var score: float = wallet.last_score if wallet.completed_streams > 0 else float(progression.config.first_stream_score)
 	run_config.economy.viewers = progression.audience(wallet.followers, score)
+	run_config.cooling_ratio = progression.cooling(wallet.inventory)
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
 
@@ -134,6 +135,9 @@ func _refresh_progression() -> void:
 	_shop_button.visible = offline
 	_shop_button.disabled = _save_pending or wallet.load_error != OK
 	_channel_label.text = _progress_text.followers % int(floor(wallet.followers))
+	var cooling: float = progression.cooling(wallet.inventory)
+	if cooling > 0.0:
+		_channel_label.text = _progress_text.followers_cooled % [int(floor(wallet.followers)), roundi(cooling * 100.0)]
 	_channel_detail.text = _progress_text.audience % [session.viewers, int(progression.config.viewer_cap)]
 	if session.state == Session.State.FINISHED and _result_score >= 0.0:
 		_channel_detail.text = _progress_text.result % [_visible_gain, roundi(_result_score)]
@@ -219,7 +223,8 @@ func _bar(parent: Node, rect: Rect2, colors: PackedColorArray) -> ProgressBar:
 func _build_interface() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var top := _panel(Rect2(20, 18, 500, 184))
-	_label(top, _text.studio, Rect2(18, 10, 350, 20), 20, MUTED)
+	var studio := _label(top, _text.studio, Rect2(18, 10, 344, 20), 18, MUTED)
+	studio.clip_text = true
 	_live_badge = _label(top, "", Rect2(380, 10, 100, 20), 20, MUTED)
 	_live_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_status = _label(top, "", Rect2(18, 32, 464, 40), 40)

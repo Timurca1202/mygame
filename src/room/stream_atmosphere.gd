@@ -12,6 +12,7 @@ var _answers := 0
 var _thanks := 0
 var _activity: Node2D
 var _decor: Dictionary = {}
+var _air_origins: Array[Vector2] = []
 class PhoneActivity extends Node2D:
 	func _draw() -> void:
 		get_parent().draw_activity(self)
@@ -26,6 +27,7 @@ func _ready() -> void:
 	add_child(_activity)
 
 func apply_inventory(inventory: Array, items: Array) -> void:
+	_air_origins.clear()
 	for item in items:
 		var id := str(item.id)
 		if inventory.has(id) and not _decor.has(id):
@@ -34,13 +36,21 @@ func apply_inventory(inventory: Array, items: Array) -> void:
 			sprite.texture = load(item.texture)
 			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			sprite.position = Vector2(float(item.position[0]), float(item.position[1]))
-			sprite.scale = Vector2.ONE * float(item.scale)
+			if item.has("display_height"):
+				sprite.region_enabled = true
+				sprite.region_rect = sprite.texture.get_image().get_used_rect()
+				sprite.scale = Vector2.ONE * float(item.display_height) / sprite.region_rect.size.y
+			else:
+				sprite.scale = Vector2.ONE * float(item.scale)
+			sprite.flip_h = bool(item.get("flip_h", false))
 			add_child(sprite)
 			move_child(sprite, $Furniture.get_index())
 			_decor[id] = sprite
 		elif not inventory.has(id) and _decor.has(id):
 			_decor[id].queue_free()
 			_decor.erase(id)
+		if inventory.has(id) and item.has("air_origin"):
+			_air_origins.append(Vector2(float(item.air_origin[0]), float(item.air_origin[1])))
 
 func sync_session(session: RefCounted) -> void:
 	if _session != session or session.tap_count < _taps:
@@ -82,6 +92,11 @@ func _process(delta: float) -> void:
 func draw_activity(canvas: Node2D) -> void:
 	if not live and not frozen:
 		return
+	for origin in _air_origins:
+		for i in range(3):
+			var phase := fmod(clock * 0.8 + i / 3.0, 1.0)
+			var point := origin + Vector2(24, -19) * phase + Vector2(0, (i - 1) * 3)
+			canvas.draw_line(point.round(), (point + Vector2(5, -3)).round(), Color(0.72, 0.85, 0.87, sin(PI * phase) * 0.35), 1.0)
 	# Reflected screen light on the existing phone, with a tiny audio meter.
 	var hot := smoothstep(60.0, 95.0, heat)
 	var tint := Color("6ee8f3").lerp(Color("ff805c"), hot)

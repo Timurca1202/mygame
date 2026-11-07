@@ -65,16 +65,56 @@
         218,
         563
       ],
-      "scale": 0.13
+      "scale": 0.13,
+      "category": "ДЕКОР",
+      "benefit": "VIBE +1 / УЮТ ДЛЯ ЭФИРА"
+    },
+    {
+      "id": "old_cactus",
+      "name": "СТАРЫЙ КАКТУС",
+      "category": "ДЕКОР",
+      "description": "Колючий сосед в глиняном горшке.\nПочти не просит воды.",
+      "price_units": 50000,
+      "vibe": 1,
+      "benefit": "VIBE +1 / ЖИВОЙ УГОЛОК",
+      "texture": "res://assets/art/decor/old_cactus_v01.png",
+      "position": [
+        101,
+        488
+      ],
+      "display_height": 54,
+      "reference": "ref/items/Unknown-2.webp / F2"
+    },
+    {
+      "id": "desk_fan",
+      "name": "ВЕНТИЛЯТОР",
+      "category": "ОХЛАЖДЕНИЕ",
+      "description": "Маленький, зато честно дует.\nЗамедляет нагрев телефона.",
+      "price_units": 800000,
+      "vibe": 0,
+      "cooling_ratio": 0.15,
+      "benefit": "НАГРЕВ −15% / КАЖДЫЙ ЭФИР",
+      "texture": "res://assets/art/equipment/desk_fan_v01.png",
+      "position": [
+        253,
+        499
+      ],
+      "display_height": 46,
+      "flip_h": true,
+      "air_origin": [
+        267,
+        488
+      ],
+      "reference": "ref/device/wind/Gemini_Generated_Image_z1lscpz1lscpz1ls-2.jpg / верхний ряд, №2"
     }
   ],
   "sale_ratio": 0.5,
   "text": {
     "followers": "ПОДПИСЧИКИ %d",
-    "audience": "ЗРИТЕЛИ %.1f / ЛИМИТ %d",
+    "audience": "ЗР. %.1f / ЛИМИТ %d",
     "result": "+%d ПОДП. / ОЦЕНКА %d",
     "shop": "БАРАХОЛКА",
-    "shop_title": "ПЕРВОЕ УЛУЧШЕНИЕ",
+    "shop_title": "БАРАХОЛКА / ДЛЯ КОМНАТЫ",
     "room": "В КОМНАТУ",
     "buy": "КУПИТЬ ЗА $%s",
     "sell": "ПРОДАТЬ ЗА $%s",
@@ -91,6 +131,14 @@
     "result_saved": "СОХРАНЕНО / +%d ПОДП. / PS %d",
     "done": "ГОТОВО",
     "sale_hint": "ПРОДАЖА ВЕРНЁТ 50% ЦЕНЫ",
-    "buy_hint": "ПОКУПКА СРАЗУ ПОЯВИТСЯ В КОМНАТЕ"
-  }
+    "buy_hint": "ПОКУПКА СРАЗУ ПОЯВИТСЯ В КОМНАТЕ",
+    "catalog_position": "%s / %d ИЗ %d",
+    "installed": "УСТАНОВЛЕНО / %s",
+    "bought_item": "КУПЛЕНО / −$%s",
+    "previous": "<",
+    "next": ">",
+    "cooling_badge": " / ОХЛ. −%d%%",
+    "followers_cooled": "ПОДП. %d / ОХЛ. −%d%%"
+  },
+  "cooling_cap": 0.6
 }

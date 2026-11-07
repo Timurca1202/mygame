@@ -115,5 +115,6 @@
     "chat_bonus_cap_ratio": 0.25,
     "combo_bonus_step": 0.1,
     "combo_multiplier_cap": 1.5
-  }
+  },
+  "max_cooling_ratio": 0.6
 }

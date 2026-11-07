@@ -33,7 +33,7 @@ func capture(name: String) -> void:
 	for frame in range(2):
 		await process_frame
 		await RenderingServer.frame_post_draw
-	check(viewport.get_texture().get_image().save_png(OUTPUT + "/" + name + "_v06.png") == OK, "Screenshot: " + name)
+	check(viewport.get_texture().get_image().save_png(OUTPUT + "/" + name + "_v07.png") == OK, "Screenshot: " + name)
 
 func mount() -> void:
 	main = load("res://scenes/app/main.tscn").instantiate()
