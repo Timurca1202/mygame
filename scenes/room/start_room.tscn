@@ -1,8 +1,24 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/room_shell_v01.png" id="1_shell"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/desk_with_props_v01.png" id="2_desk"]
 [ext_resource type="Texture2D" path="res://assets/art/rooms/e1/stool_v01.png" id="3_stool"]
+[ext_resource type="PackedScene" path="res://scenes/characters/window_seated_hero.tscn" id="4_hero"]
+
+[sub_resource type="Gradient" id="Gradient_lamp"]
+offsets = PackedFloat32Array(0, 0.25, 1)
+colors = PackedColorArray(1, 0.83, 0.5, 0.10, 1, 0.80, 0.45, 0.035, 1, 0.8, 0.45, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_lamp"]
+gradient = SubResource("Gradient_lamp")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_lamp"]
+blend_mode = 1
 
 [node name="StartRoom" type="Node2D"]
 
@@ -16,16 +32,26 @@ position = Vector2(270, 460)
 scale = Vector2(0.430622, 0.430622)
 texture = ExtResource("1_shell")
 
+[node name="LampGlow" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_lamp")
+position = Vector2(240, 324)
+texture = SubResource("GradientTexture2D_lamp")
+
 [node name="Furniture" type="Node2D" parent="."]
 
 [node name="DeskWithProps" type="Sprite2D" parent="Furniture"]
 texture_filter = 1
-position = Vector2(281, 461)
+position = Vector2(256, 493)
 scale = Vector2(0.421875, 0.421875)
 texture = ExtResource("2_desk")
+flip_h = true
 
 [node name="Stool" type="Sprite2D" parent="Furniture"]
 texture_filter = 1
-position = Vector2(274, 460)
-scale = Vector2(0.421875, 0.421875)
+position = Vector2(348, 496)
+scale = Vector2(0.34, 0.34)
 texture = ExtResource("3_stool")
+
+[node name="SeatedHero" parent="Furniture" instance=ExtResource("4_hero")]
+position = Vector2(327, 478)

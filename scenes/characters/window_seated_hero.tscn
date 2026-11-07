@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/characters/hero/seated_window_v04.png" id="1_pose"]
+[ext_resource type="Shader" path="res://src/characters/seated_breathing.gdshader" id="2_breathing"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_breathing"]
+resource_local_to_scene = true
+shader = ExtResource("2_breathing")
+shader_parameter/breath = 0.0
+shader_parameter/rise_source_pixels = 5.0
+
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Body:material:shader_parameter/breath")
+tracks/0/keys = {"times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0]}
+
+[sub_resource type="Animation" id="Animation_breathe"]
+resource_name = "breathe"
+length = 4.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Body:material:shader_parameter/breath")
+tracks/0/interp = 2
+tracks/0/keys = {"times": PackedFloat32Array(0, 2.4, 4.8), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [0.0, 1.0, 0.0]}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_idle"]
+_data = {&"RESET": SubResource("Animation_reset"), &"breathe": SubResource("Animation_breathe")}
+
+[node name="WindowSeatedHero" type="Node2D"]
+
+[node name="Body" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_breathing")
+scale = Vector2(0.14, 0.14)
+texture = ExtResource("1_pose")
+
+[node name="IdleAnimation" type="AnimationPlayer" parent="."]
+libraries = {&"": SubResource("AnimationLibrary_idle")}
+autoplay = "breathe"
