@@ -3,6 +3,8 @@ extends RefCounted
 var active: Dictionary = {}
 var feed: Array[Dictionary] = []
 var elapsed := 0.0
+var real_elapsed := 0.0
+var _next_allowed_real := 0.0
 var event_serial := 0
 var resolution_serial := 0
 var feed_serial := 0
@@ -32,6 +34,8 @@ func reset() -> void:
 	active = {}
 	feed.clear()
 	elapsed = 0.0
+	real_elapsed = 0.0
+	_next_allowed_real = 0.0
 	event_serial = 0
 	resolution_serial = 0
 	feed_serial = 0
@@ -56,17 +60,18 @@ func is_calm() -> bool:
 	return fmod(elapsed, cycle) >= cycle - float(_config.calm_seconds) - 0.000001
 
 func seconds_left() -> float:
-	return maxf(0.0, _deadline - elapsed) if not active.is_empty() else 0.0
+	return maxf(0.0, _deadline - real_elapsed) if not active.is_empty() else 0.0
 
 func next_event_in() -> float:
 	return maxf(0.0, _next_event - elapsed)
 
-func advance(game_delta: float, allow_spawn: bool = true) -> float:
+func advance(game_delta: float, real_delta: float, allow_spawn: bool = true) -> float:
 	if _stopped or game_delta <= 0.0:
 		return 0.0
 	elapsed += game_delta
+	real_elapsed += real_delta
 	var hype_delta := 0.0
-	if not active.is_empty() and elapsed >= _deadline - 0.000001:
+	if not active.is_empty() and real_elapsed >= _deadline - 0.000001:
 		var was_quiz: bool = active.kind == "quiz"
 		if was_quiz:
 			combo = 0
@@ -80,7 +85,7 @@ func advance(game_delta: float, allow_spawn: bool = true) -> float:
 		_push_feed(messages[_ambient_index % messages.size()])
 		_ambient_index += 1
 		_next_ambient = elapsed + float(_config.ambient_interval_seconds) * (2.0 if is_calm() else 1.0)
-	if active.is_empty() and elapsed >= _next_event and not is_calm():
+	if active.is_empty() and elapsed >= _next_event and real_elapsed >= _next_allowed_real and not is_calm():
 		_spawn_event()
 	return hype_delta
 
@@ -120,11 +125,12 @@ func _spawn_event() -> void:
 	active = pool[index % pool.size()].duplicate(true)
 	event_serial += 1
 	active["serial"] = event_serial
-	_deadline = elapsed + float(_config.answer_seconds)
+	_deadline = real_elapsed + float(_config.answer_seconds)
 	_next_event = elapsed + float(_config.event_interval_seconds)
 	_push_feed({"author": active.author, "text": active.text})
 
 func _resolve(outcome: String, hype_delta: float) -> void:
+	_next_allowed_real = real_elapsed + float(_config.reply_cooldown_real_seconds)
 	resolution_serial += 1
 	last_result = {"outcome": outcome, "hype_delta": hype_delta, "correct_text": "", "combo": combo, "resolved_at": elapsed}
 	if active.kind == "quiz":

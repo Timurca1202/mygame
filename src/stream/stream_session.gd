@@ -2,6 +2,7 @@ extends RefCounted
 ## Pure session simulation. No nodes, UI, wall clock, or persistent rewards.
 
 const Chat = preload("res://src/stream/stream_chat.gd")
+const Income = preload("res://src/economy/stream_income.gd")
 
 enum State { READY, LIVE, PAUSED, FINISHED }
 enum EndReason { NONE, COMPLETED, OVERHEATED }
@@ -17,16 +18,18 @@ var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
 var chat: RefCounted
+var income: RefCounted
 var _config: Dictionary
 var _taps: Array[float] = []
 var _last_tap := -INF
 var _last_activity := -INF
 
-func _init(config: Dictionary, chat_content: Dictionary = {}) -> void:
+func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []) -> void:
 	_config = config.duplicate(true)
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
 		chat = Chat.new(config.chat, chat_content)
+	income = Income.new(config.economy, donors)
 
 func start(planned_seconds: float) -> bool:
 	if state == State.LIVE or state == State.PAUSED:
@@ -46,6 +49,7 @@ func start(planned_seconds: float) -> bool:
 	_last_activity = -INF
 	if chat != null:
 		chat.reset()
+	income.start(planned_seconds)
 	end_reason = EndReason.NONE
 	state = State.LIVE
 	return true
@@ -66,6 +70,14 @@ func answer_chat(serial: int, choice: int) -> bool:
 	var before := hype
 	_change_hype(float(chat.last_result.hype_delta))
 	chat.last_result.hype_delta = hype - before
+	if chat.last_result.outcome == "correct":
+		income.reward_correct_answer(chat.combo)
+	return true
+
+func thank_donation(serial: int) -> bool:
+	if state != State.LIVE or not income.thank(serial):
+		return false
+	_last_activity = elapsed_real
 	return true
 
 func is_hype_cooling() -> bool:
@@ -114,6 +126,7 @@ func _step(delta: float) -> void:
 	heat = minf(100.0, heat + heat_per_game_second * game_step)
 	var decay := float(_config.hype_idle_decay_per_second) if is_hype_cooling() else float(_config.hype_decay_per_second)
 	_change_hype(-decay * game_step / speed)
+	income.advance(game_step, game_step / speed)
 	if heat >= 100.0 - 0.000001:
 		heat = 100.0
 		end_reason = EndReason.OVERHEATED
@@ -124,9 +137,11 @@ func _step(delta: float) -> void:
 		state = State.FINISHED
 	if chat != null:
 		var before := hype
-		var change: float = chat.advance(game_step, state == State.LIVE)
+		var change: float = chat.advance(game_step, game_step / speed, state == State.LIVE)
 		_change_hype(change)
 		if change != 0.0:
 			chat.last_result.hype_delta = hype - before
 		if state == State.FINISHED:
 			chat.finish()
+	if state == State.FINISHED:
+		income.finish()

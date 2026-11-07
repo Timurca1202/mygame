@@ -71,14 +71,27 @@
     "chat_type_decor": "КОМНАТА",
     "hot_status": "ТЕЛЕФОН ТОРМОЗИТ",
     "critical_status": "ПЕРЕГРЕВ БЛИЗКО",
-    "chat_clock": "%d с / СЕРИЯ %d"
+    "chat_clock": "%d с / СЕРИЯ %d",
+    "income_live": "+$%s / %d ЗР.",
+    "wallet_ready": "БАЛАНС $%s",
+    "donation_title": "%s / +$%s",
+    "donation_thanks": "СПАСИБО +10%",
+    "donation_received": "ДОНАТ +$%s",
+    "donation_thanked": "СПАСИБО! БОНУС +10%",
+    "income_result": "ДОНАТЫ $%s / ЧАТ $%s\nБЛАГОДАРНОСТЬ $%s / ИТОГО $%s",
+    "wallet_saved": "НА КОШЕЛЬКЕ $%s",
+    "save_retry": "ПОВТОРИТЬ СОХРАНЕНИЕ",
+    "save_failed": "ДОХОД НЕ СОХРАНЁН / НАЖМИ ПОВТОРИТЬ",
+    "results_short": "ЭФИР %s / ПИК %d%% / ТАПОВ %d",
+    "save_read_error": "КОШЕЛЁК НЕ ПРОЧИТАН / ПРОГРЕСС НЕ ЗАПИСАН",
+    "results_title": "ИТОГИ ЭФИРА"
   },
   "hype_idle_delay_seconds": 1.5,
   "hype_idle_decay_per_second": 1.5,
   "chat": {
     "first_event_seconds": 8.0,
     "event_interval_seconds": 24.0,
-    "answer_seconds": 8.0,
+    "answer_seconds": 12.0,
     "ambient_interval_seconds": 10.0,
     "activity_cycle_seconds": 180.0,
     "calm_seconds": 36.0,
@@ -87,6 +100,20 @@
     "poll_hype_reward": 1.5,
     "decor_hype_reward": 2.0,
     "first_ambient_seconds": 2.0,
-    "feedback_seconds": 6.0
+    "feedback_seconds": 6.0,
+    "reply_cooldown_real_seconds": 3.0
+  },
+  "economy": {
+    "viewers": 3,
+    "money_per_viewer_hour": 2.0,
+    "units_per_dollar": 10000,
+    "first_donation_game_seconds": 20.0,
+    "donation_interval_game_seconds": 32.0,
+    "thanks_real_seconds": 5.0,
+    "thanks_bonus_ratio": 0.1,
+    "quiz_bonus_ratio": 0.015,
+    "chat_bonus_cap_ratio": 0.25,
+    "combo_bonus_step": 0.1,
+    "combo_multiplier_cap": 1.5
   }
 }

@@ -44,7 +44,7 @@ func _run() -> void:
 	check(session.chat.active.is_empty(), "Questions must not appear before their scheduled game time")
 	session.advance(0.2)
 	check(session.chat.active.kind == "quiz", "First event must be a quiz")
-	check(session.chat.seconds_left() <= 8.0 and session.chat.seconds_left() > 7.7, "Question must expose the eight-game-second deadline")
+	check(session.chat.seconds_left() <= 12.0 and session.chat.seconds_left() > 11.7, "Question must expose the twelve-real-second deadline")
 	var serial: int = session.chat.event_serial
 	var correct: int = session.chat.active.correct
 	var before: float = session.hype
@@ -82,7 +82,7 @@ func _run() -> void:
 	check(session.elapsed_game == frozen_game and session.chat.seconds_left() == frozen_deadline and session.hype == frozen_hype, "Pause must freeze chat deadlines, pacing, and hype decay")
 	session.resume()
 	session.chat.combo = 3
-	session.advance(4.1)
+	session.advance(12.1)
 	check(session.chat.missed_questions == 1 and session.chat.combo == 0, "Quiz expiry must count one miss and reset the streak")
 	check(session.chat.active.is_empty(), "Expired question must disappear")
 	check(session.chat.last_result.outcome == "timeout", "Expiry must be visible to the UI")
@@ -94,18 +94,29 @@ func _run() -> void:
 	accelerated.advance(2.01)
 	check(not accelerated.chat.active.is_empty(), "At x4 the same first message must arrive in about two real seconds")
 	check(accelerated.chat.event_serial == 1, "Acceleration must not spawn overlapping questions")
+	var accelerated_remaining: float = accelerated.chat.seconds_left()
+	accelerated.advance(3.0)
+	check(absf(accelerated.chat.seconds_left() - (accelerated_remaining - 3.0)) < 0.001, "Acceleration must not shorten the real answer timer")
+	check(accelerated.chat.seconds_left() > 8.9, "Fast stream must still allow time to read after three real seconds")
+	accelerated.advance(9.1)
+	check(accelerated.chat.active.is_empty(), "Timed-out event must leave a real-time breathing gap")
+	var cooldown_serial: int = accelerated.chat.event_serial
+	accelerated.advance(2.0)
+	check(accelerated.chat.event_serial == cooldown_serial, "No next event may arrive during the reply cooldown")
+	accelerated.advance(1.1)
+	check(accelerated.chat.event_serial > cooldown_serial, "Event scheduling must resume after the cooldown")
 
 	var idle_chat := Chat.new(config.chat, content)
 	for i in range(7200):
-		idle_chat.advance(0.02)
+		idle_chat.advance(0.02, 0.01)
 	check(idle_chat.is_calm(), "Activity waves must enter the configured calm window")
 	var calm_serial: int = idle_chat.event_serial
 	for i in range(1700):
-		idle_chat.advance(0.02)
+		idle_chat.advance(0.02, 0.01)
 	check(idle_chat.event_serial == calm_serial, "Calm window must not spawn interactive events")
 	check(idle_chat.feed.size() <= 3, "Ambient message history must remain bounded")
 	for i in range(200):
-		idle_chat.advance(0.02)
+		idle_chat.advance(0.02, 0.01)
 	check(idle_chat.event_serial > calm_serial, "Interactive events must resume after the calm window")
 
 	var finished := fresh(60.0)

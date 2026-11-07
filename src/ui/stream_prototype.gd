@@ -2,6 +2,8 @@ extends Control
 
 const Session = preload("res://src/stream/stream_session.gd")
 const Feedback = preload("res://scenes/ui/tap_feedback.tscn")
+const Wallet = preload("res://src/economy/player_wallet.gd")
+const Coins = preload("res://src/ui/donation_coins.gd")
 const CONFIG_PATH := "res://data/stream/prototype.json"
 const INK := Color("f4efff")
 const MUTED := Color("aaa4c5")
@@ -10,6 +12,8 @@ const CYAN := Color("6ee8f3")
 const AMBER := Color("ffd36c")
 const RED := Color("ff8093")
 const PURPLE := Color("a94fec")
+
+@export var wallet_path := "user://profile.json"
 
 var session: RefCounted
 var config: Dictionary
@@ -43,6 +47,22 @@ var _displayed_event_id := -1
 var _last_chat_visual := -999
 var _chat_tween: Tween
 var _bolt: TextureRect
+var wallet: RefCounted
+var _donors: Array
+var _wallet_label: Label
+var _income_result: Label
+var _donation_panel: Panel
+var _donation_title: Label
+var _donation_message: Label
+var _donation_clock: Label
+var _thanks_button: Button
+var _donation_effects: Node2D
+var _displayed_donation_id := -1
+var _last_donation_serial := 0
+var _run_id := ""
+var _settled_id := ""
+var _save_attempted_id := ""
+var _save_pending := false
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH))
@@ -53,7 +73,10 @@ func _ready() -> void:
 	config = parsed
 	_text = config.text
 	_chat_content = JSON.parse_string(FileAccess.get_file_as_string("res://data/chat/first_stream.json"))
-	session = Session.new(config, _chat_content)
+	var donation_content: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/chat/donations.json"))
+	_donors = donation_content.donors
+	wallet = Wallet.new(wallet_path)
+	session = Session.new(config, _chat_content, _donors)
 	var font_file := load("res://assets/fonts/tiny5/Tiny5-Variable.ttf") as FontFile
 	font_file.antialiasing = TextServer.FONT_ANTIALIASING_NONE
 	font_file.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
@@ -68,6 +91,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if session != null:
 		session.advance(delta)
+		_settle_income()
 		_refresh()
 
 func _notification(what: int) -> void:
@@ -155,7 +179,7 @@ func _build_interface() -> void:
 	var heat_value := _label(top, "", Rect2(403, 110, 78, 24), 20, AMBER)
 	heat_value.name = "HeatValue"
 	heat_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_label(top, config.device_name, Rect2(18, 148, 190, 24), 20, MUTED)
+	_wallet_label = _label(top, "", Rect2(18, 148, 208, 24), 20, AMBER)
 	_timer = _label(top, "", Rect2(222, 144, 260, 28), 20, CYAN)
 	_timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
@@ -197,6 +221,7 @@ func _build_interface() -> void:
 	_mode.get_popup().add_theme_color_override("font_color", INK)
 	bottom.add_child(_mode)
 	_live_detail = _label(bottom, "", Rect2(20, 116, 460, 28), 20, CYAN)
+	_income_result = _label(bottom, "", Rect2(20, 106, 460, 42), 20, AMBER)
 	_action = Button.new()
 	_action.position = Vector2(20, 160)
 	_action.size = Vector2(460, 52)
@@ -228,6 +253,88 @@ func _build_interface() -> void:
 	add_child(_effects)
 	_chat_feedback = _label(self, "", Rect2(28, 692, 484, 24), 20, CYAN)
 	_chat_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_build_donation()
+
+func _build_donation() -> void:
+	_donation_panel = _panel(Rect2(28, 242, 286, 142))
+	_donation_panel.add_theme_stylebox_override("panel", _style(Color("1c1031"), AMBER, 10))
+	_donation_title = _label(_donation_panel, "", Rect2(12, 8, 262, 28), 24, AMBER)
+	_donation_message = _label(_donation_panel, "", Rect2(12, 40, 262, 42), 20)
+	_donation_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_thanks_button = Button.new()
+	_thanks_button.position = Vector2(12, 88)
+	_thanks_button.size = Vector2(214, 44)
+	_thanks_button.text = _text.donation_thanks
+	_thanks_button.focus_mode = Control.FOCUS_NONE
+	_thanks_button.add_theme_font_size_override("font_size", 20)
+	_thanks_button.add_theme_color_override("font_color", INK)
+	for style_name in ["normal", "hover", "pressed", "disabled"]:
+		var tint := AMBER if style_name == "hover" else PURPLE
+		_thanks_button.add_theme_stylebox_override(style_name, _style(Color("342042"), tint, 6))
+	_thanks_button.pressed.connect(_thank_pressed)
+	_donation_panel.add_child(_thanks_button)
+	_donation_clock = _label(_donation_panel, "", Rect2(232, 96, 42, 24), 20, GREEN)
+	_donation_clock.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_donation_effects = Node2D.new()
+	add_child(_donation_effects)
+
+func _thank_pressed() -> void:
+	if session.thank_donation(_displayed_donation_id):
+		var effect := Feedback.instantiate()
+		_donation_effects.add_child(effect)
+		effect.setup(Vector2(172, 384), _text.donation_thanked, _font, AMBER)
+		_refresh()
+
+func _money(units: int) -> String:
+	return "%.2f" % (float(units) / float(config.economy.units_per_dollar))
+
+func _settle_income(retry: bool = false) -> void:
+	if session.state != Session.State.FINISHED or _run_id.is_empty() or _settled_id == _run_id:
+		return
+	if _save_attempted_id == _run_id and not retry:
+		return
+	_save_attempted_id = _run_id
+	for effect in _donation_effects.get_children():
+		effect.queue_free()
+	if retry and wallet.load_error != OK:
+		wallet = Wallet.new(wallet_path)
+	var error: Error = wallet.credit(_run_id, session.income.total_units())
+	_save_pending = error != OK
+	if error == OK:
+		_settled_id = _run_id
+
+func _refresh_income() -> void:
+	var income: RefCounted = session.income
+	var finished: bool = session.state == Session.State.FINISHED
+	_bottom_title.text = _text.results_title if finished else _text.title
+	_wallet_label.text = _text.income_live % [_money(income.total_units()), int(config.economy.viewers)] if session.state == Session.State.LIVE or session.state == Session.State.PAUSED else _text.wallet_ready % _money(wallet.balance_units)
+	_income_result.visible = finished
+	if finished:
+		_hint.text = _text.results_short % [_clock(session.elapsed_game), roundi(session.peak_hype), session.tap_count] + "\n" + _text.chat_result % [session.chat.correct_answers, session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions, session.chat.best_combo]
+		_live_detail.visible = false
+		_income_result.text = _text.income_result % [_money(income.base_units), _money(income.chat_units), _money(income.thanks_units), _money(income.total_units())]
+		_chat_feedback.visible = true
+		_chat_feedback.text = _text.save_failed if _save_pending else _text.wallet_saved % _money(wallet.balance_units)
+		_chat_feedback.add_theme_color_override("font_color", RED if _save_pending else GREEN)
+		if _save_pending:
+			_action.text = _text.save_retry
+	elif wallet.load_error != OK and session.state == Session.State.READY:
+		_chat_feedback.visible = true
+		_chat_feedback.text = _text.save_read_error
+	var donation: Dictionary = income.donation
+	_donation_panel.visible = not donation.is_empty() and (session.state == Session.State.LIVE or session.state == Session.State.PAUSED)
+	if _donation_panel.visible:
+		_displayed_donation_id = int(donation.id)
+		_donation_title.text = _text.donation_title % [donation.author, _money(int(donation.amount_units))]
+		_donation_message.text = donation.text
+		_donation_clock.text = "%dс" % ceili(income.seconds_left())
+		_donation_clock.add_theme_color_override("font_color", RED if income.seconds_left() <= 2.0 else GREEN)
+		_thanks_button.disabled = session.state != Session.State.LIVE
+		if income.donation_serial != _last_donation_serial:
+			_last_donation_serial = income.donation_serial
+			var burst := Coins.new()
+			burst.position = Vector2(172, 358)
+			_donation_effects.add_child(burst)
 
 func _build_chat(bottom: Control) -> void:
 	_chat_view = Control.new()
@@ -371,14 +478,21 @@ func _tap(point: Vector2) -> void:
 func _action_pressed() -> void:
 	match session.state:
 		Session.State.READY:
-			session.start(float(config.durations[_mode.selected].seconds))
+			if session.start(float(config.durations[_mode.selected].seconds)):
+				_run_id = Crypto.new().generate_random_bytes(16).hex_encode()
+				_save_pending = false
+				_last_donation_serial = 0
 		Session.State.LIVE:
 			session.pause()
 		Session.State.PAUSED:
 			session.resume()
 		Session.State.FINISHED:
+			_settle_income(true)
+			if _save_pending:
+				_refresh()
+				return
 			# Return to setup so the next duration can be chosen deliberately.
-			session = Session.new(config, _chat_content)
+			session = Session.new(config, _chat_content, _donors)
 			_last_chat_visual = -999
 	_refresh()
 
@@ -424,6 +538,7 @@ func _refresh() -> void:
 	_live_detail.text = _text.live_detail % [session.tap_count, session.speed]
 	_status.add_theme_color_override("font_color", RED if session.end_reason == Session.EndReason.OVERHEATED else INK)
 	_refresh_chat()
+	_refresh_income()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

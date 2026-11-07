@@ -44,3 +44,5 @@
 `src/stream/stream_session.gd` — независимая симуляция эфира; `data/stream/prototype.json` — параметры и строки первого русского интерфейса. `scenes/ui/stream_prototype.tscn` и `src/ui/stream_prototype.gd` подключены к главной сцене через CanvasLayer. Новые autoload-сервисы не требуются. Проверки находятся в `tests/stream/`, описание границ прототипа — `docs/production/stream_prototype.md`.
 
 `src/stream/stream_chat.gd` реализует независимую от сцен ленту и интерактивные события. `StreamSession` передаёт игровое время и применяет изменения хайпа; UI только отображает состояние и отправляет ID вопроса с выбранным ответом. Контент — `data/chat/first_stream.json`, проверка — `tests/stream/test_stream_chat.gd`.
+
+`src/economy/stream_income.gd` считает заработанный бюджет и бонусы, `src/economy/player_wallet.gd` сохраняет кошелёк в `user://profile.json`. `StreamSession` владеет доходом одного эфира; контроллер UI инициирует единственное зачисление по ID завершённого эфира. Проверки — `tests/economy/`. Службы-заглушки и autoload не добавлялись.
