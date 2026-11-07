@@ -49,11 +49,39 @@ func _run() -> void:
 	hot.speed = 4.0
 	hot.advance(0.5)
 	check(absf(hot.heat / hot.elapsed_game / (100.0 / 1200.0) - pow(2.0, 1.3)) < 0.00001, "Heat multiplier at x4 must match GDD exponent")
-	for i in range(100):
+	for i in range(ceili(100.0 / float(config.hype_per_tap))):
 		hot.tap()
 	check(hot.hype == 100.0 and hot.peak_hype == 100.0, "Hype must cap at 100")
 	hot.advance(1.0)
 	check(hot.hype < 100.0 and hot.peak_hype == 100.0, "Peak hype must survive decay")
+
+	var slower := fresh()
+	for i in range(10):
+		slower.tap()
+	check(is_equal_approx(slower.hype, 3.5), "Ten taps must add only 3.5 hype instead of 25")
+	var before_idle: float = slower.hype
+	slower.advance(1.0)
+	check(absf(slower.hype - (before_idle - 0.15)) < 0.001, "Activity grace must use gentle decay")
+	slower.advance(3.0)
+	check(slower.hype < 0.1, "Inactivity must noticeably drain hype")
+	check(slower.peak_hype == before_idle, "Inactivity must preserve peak statistics")
+	for i in range(100):
+		slower.tap()
+	slower.advance(2.0)
+	check(slower.is_hype_cooling(), "Idle state must be visible to the UI")
+	slower.tap()
+	check(not slower.is_hype_cooling(), "A new tap must leave idle decay immediately")
+
+	var measured := fresh()
+	for i in range(180):
+		measured.tap()
+		measured.advance(1.0 / 6.0)
+	check(measured.hype > 55.0 and measured.hype < 65.0, "Thirty seconds of six taps per second must not instantly fill hype")
+	var calm_player := fresh()
+	for i in range(90):
+		calm_player.tap()
+		calm_player.advance(1.0 / 3.0)
+	check(calm_player.hype > 20.0 and calm_player.hype < 35.0, "Moderate tapping must build hype gradually")
 
 	var paused := fresh()
 	paused.tap()

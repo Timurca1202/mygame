@@ -29,6 +29,20 @@ var _action: Button
 var _tap_area: Control
 var _effects: Node2D
 var _font: Font
+var _chat_content: Dictionary
+var _bottom_title: Label
+var _bottom_line: TextureRect
+var _chat_view: Control
+var _chat_heading: Label
+var _chat_message: Label
+var _chat_clock: Label
+var _chat_time_bar: ProgressBar
+var _chat_buttons: Array[Button] = []
+var _chat_feedback: Label
+var _displayed_event_id := -1
+var _last_chat_visual := -999
+var _chat_tween: Tween
+var _bolt: TextureRect
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH))
@@ -38,7 +52,8 @@ func _ready() -> void:
 		return
 	config = parsed
 	_text = config.text
-	session = Session.new(config)
+	_chat_content = JSON.parse_string(FileAccess.get_file_as_string("res://data/chat/first_stream.json"))
+	session = Session.new(config, _chat_content)
 	var font_file := load("res://assets/fonts/tiny5/Tiny5-Variable.ttf") as FontFile
 	font_file.antialiasing = TextServer.FONT_ANTIALIASING_NONE
 	font_file.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
@@ -121,6 +136,7 @@ func _bar(parent: Node, rect: Rect2, colors: PackedColorArray) -> ProgressBar:
 	fill.set_expand_margin_all(-3)
 	bar.add_theme_stylebox_override("fill", fill)
 	parent.add_child(bar)
+	bar.size = rect.size
 	return bar
 
 func _build_interface() -> void:
@@ -151,8 +167,9 @@ func _build_interface() -> void:
 	add_child(_tap_area)
 
 	var bottom := _panel(Rect2(20, 720, 500, 224))
-	_label(bottom, _text.title, Rect2(20, 12, 420, 30), 30)
+	_bottom_title = _label(bottom, _text.title, Rect2(20, 12, 420, 30), 30)
 	var line := TextureRect.new()
+	_bottom_line = line
 	line.texture = _gradient(PackedColorArray([Color("e84adc"), CYAN, Color("6ee8f300")]))
 	line.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	line.position = Vector2(20, 44)
@@ -198,15 +215,137 @@ func _build_interface() -> void:
 	_action.pressed.connect(_action_pressed)
 	bottom.add_child(_action)
 	var bolt := TextureRect.new()
+	_bolt = bolt
 	bolt.texture = load("res://assets/art/ui/bolt.svg")
 	bolt.position = Vector2(432, -22)
 	bolt.size = Vector2(52, 56)
 	bolt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom.add_child(bolt)
+	_build_chat(bottom)
 
 	_effects = Node2D.new()
 	_effects.name = "TapEffects"
 	add_child(_effects)
+	_chat_feedback = _label(self, "", Rect2(28, 692, 484, 24), 20, CYAN)
+	_chat_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+func _build_chat(bottom: Control) -> void:
+	_chat_view = Control.new()
+	_chat_view.size = Vector2(500, 160)
+	_chat_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bottom.add_child(_chat_view)
+	_chat_heading = _label(_chat_view, "", Rect2(20, 12, 298, 28), 24, CYAN)
+	_chat_clock = _label(_chat_view, "", Rect2(310, 16, 170, 24), 20, GREEN)
+	_chat_clock.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_chat_message = _label(_chat_view, "", Rect2(20, 44, 460, 44), 20)
+	_chat_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_chat_time_bar = ProgressBar.new()
+	_chat_time_bar.position = Vector2(20, 91)
+	_chat_time_bar.size = Vector2(460, 4)
+	_chat_time_bar.show_percentage = false
+	_chat_time_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var timer_background := StyleBoxFlat.new()
+	timer_background.bg_color = Color("302042")
+	var timer_fill := StyleBoxFlat.new()
+	timer_fill.bg_color = CYAN
+	_chat_time_bar.add_theme_stylebox_override("background", timer_background)
+	_chat_time_bar.add_theme_stylebox_override("fill", timer_fill)
+	_chat_view.add_child(_chat_time_bar)
+	_chat_time_bar.max_value = float(config.chat.answer_seconds)
+	_chat_time_bar.size = Vector2(460, 4)
+	for i in range(3):
+		var button := Button.new()
+		button.focus_mode = Control.FOCUS_NONE
+		button.add_theme_font_size_override("font_size", 20)
+		for state_name in ["normal", "hover", "pressed"]:
+			var border := CYAN if state_name == "hover" else PURPLE
+			var style := _style(Color("22153d") if state_name != "pressed" else Color("392057"), border, 6)
+			style.shadow_size = 0
+			button.add_theme_stylebox_override(state_name, style)
+		button.add_theme_color_override("font_color", INK)
+		button.add_theme_color_override("font_hover_color", GREEN)
+		button.pressed.connect(_answer_pressed.bind(i))
+		_chat_view.add_child(button)
+		_chat_buttons.append(button)
+
+func _answer_pressed(index: int) -> void:
+	if session.answer_chat(_displayed_event_id, index):
+		_refresh()
+
+func _refresh_chat() -> void:
+	var chatting: bool = session.state == Session.State.LIVE
+	_chat_view.visible = chatting
+	_bolt.visible = not chatting
+	_chat_feedback.visible = chatting
+	_bottom_title.visible = not chatting
+	_bottom_line.visible = not chatting
+	_hint.visible = not chatting
+	_action.position.y = 166.0 if chatting else 160.0
+	_action.size.y = 48.0 if chatting else 52.0
+	if session.state == Session.State.FINISHED:
+		_live_detail.text = _text.chat_result % [session.chat.correct_answers, session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions, session.chat.best_combo]
+	if not chatting:
+		return
+	_live_detail.visible = false
+	var chat: RefCounted = session.chat
+	var active: Dictionary = chat.active
+	var has_question := not active.is_empty()
+	_displayed_event_id = chat.event_serial if has_question else -1
+	_chat_time_bar.visible = has_question
+	if has_question:
+		_chat_heading.text = "%s / %s" % [_text["chat_type_" + str(active.kind)], str(active.author).to_upper()]
+		_chat_message.text = active.text
+		_chat_message.size.y = 44
+		_chat_clock.text = _text.chat_clock % [ceili(chat.seconds_left()), chat.combo]
+		_chat_clock.add_theme_color_override("font_color", RED if chat.seconds_left() <= 2.0 else GREEN)
+		_chat_time_bar.value = chat.seconds_left()
+	else:
+		_chat_heading.text = _text.chat_title
+		_chat_clock.text = _text.chat_combo % chat.combo
+		_chat_clock.add_theme_color_override("font_color", MUTED)
+		var messages := PackedStringArray()
+		var feed: Array = chat.feed
+		for i in range(maxi(0, feed.size() - 2), feed.size()):
+			messages.append("%s: %s" % [feed[i].author, feed[i].text])
+		_chat_message.text = "\n".join(messages)
+		_chat_message.size.y = 112
+	for i in range(3):
+		var button := _chat_buttons[i]
+		button.visible = has_question and i < active.answers.size()
+		if button.visible:
+			var count: int = active.answers.size()
+			var width := (460.0 - 8.0 * (count - 1)) / count
+			button.position = Vector2(20 + i * (width + 8), 100)
+			button.size = Vector2(width, 56)
+			button.text = active.answers[i]
+	var visual: int = chat.event_serial if has_question else -chat.feed_serial
+	if visual != _last_chat_visual:
+		_last_chat_visual = visual
+		if _chat_tween != null:
+			_chat_tween.kill()
+		_chat_message.modulate.a = 0.75
+		_chat_tween = create_tween()
+		_chat_tween.tween_property(_chat_message, "modulate:a", 1.0, 0.25)
+	_chat_feedback.text = ""
+	_chat_feedback.add_theme_color_override("font_color", CYAN)
+	if not chat.last_result.is_empty() and chat.elapsed - float(chat.last_result.resolved_at) <= float(config.chat.feedback_seconds):
+		var result: Dictionary = chat.last_result
+		match str(result.outcome):
+			"correct":
+				_chat_feedback.text = _text.chat_correct % [result.hype_delta, result.combo]
+			"wrong":
+				_chat_feedback.text = _text.chat_wrong % [result.correct_text, absf(float(result.hype_delta))]
+			"timeout":
+				_chat_feedback.text = _text.chat_timeout
+			"reaction":
+				_chat_feedback.text = _text.chat_reaction % result.hype_delta
+			"ignored":
+				_chat_feedback.text = _text.chat_ignored
+	if session.is_hype_cooling():
+		_chat_feedback.text = _text.hype_cooling
+		_chat_feedback.add_theme_color_override("font_color", AMBER)
+	elif chat.is_calm() and not has_question:
+		_chat_feedback.text = _text.chat_calm
 
 func _room_input(event: InputEvent) -> void:
 	# Primary touch uses Godot's mouse emulation, so it cannot count twice.
@@ -239,7 +378,8 @@ func _action_pressed() -> void:
 			session.resume()
 		Session.State.FINISHED:
 			# Return to setup so the next duration can be chosen deliberately.
-			session = Session.new(config)
+			session = Session.new(config, _chat_content)
+			_last_chat_visual = -999
 	_refresh()
 
 func _refresh() -> void:
@@ -262,8 +402,10 @@ func _refresh() -> void:
 			_hint.text = _text.live_hint
 			if session.heat >= float(config.heat_thresholds[2]):
 				_hint.text = _text.critical_hint
+				_status.text = _text.critical_status
 			elif session.heat >= float(config.heat_thresholds[1]):
 				_hint.text = _text.hot_hint
+				_status.text = _text.hot_status
 			elif session.heat >= float(config.heat_thresholds[0]):
 				_hint.text = _text.warm_hint
 			_action.text = _text.pause
@@ -281,6 +423,7 @@ func _refresh() -> void:
 	_live_detail.visible = not ready
 	_live_detail.text = _text.live_detail % [session.tap_count, session.speed]
 	_status.add_theme_color_override("font_color", RED if session.end_reason == Session.EndReason.OVERHEATED else INK)
+	_refresh_chat()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

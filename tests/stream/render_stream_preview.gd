@@ -35,6 +35,11 @@ func capture(file_name: String) -> void:
 	check(error == OK, "Screenshot failed: " + file_name)
 	check(ui._action.get_global_rect().end.y <= 960.0, "Action button extends beyond the screen")
 	check(ui._timer.get_global_rect().position.y >= ui._status.get_global_rect().end.y, "Timer must not overlap the status line")
+	if ui._chat_view.visible and not ui.session.chat.active.is_empty():
+		check(ui._chat_time_bar.get_global_rect().end.y <= ui._chat_buttons[0].get_global_rect().position.y, "Countdown must not overlap answer buttons")
+		for button in ui._chat_buttons:
+			if button.visible:
+				check(button.size.y >= 56 and button.get_global_rect().end.y <= ui._action.get_global_rect().position.y, "Answers must remain large enough and above the pause button")
 
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute(OUTPUT)
@@ -47,7 +52,7 @@ func run() -> void:
 	ui = main.get_node("Interface/StreamPrototype")
 	ui.set_process(false)
 	await process_frame
-	await capture("stream_ready_v02.png")
+	await capture("stream_ready_v03.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.LIVE, "Start button must launch the stream")
 	check(ui.session.tap_count == 0, "Start click must not leak into room tapping")
@@ -60,21 +65,30 @@ func run() -> void:
 	for effect in ui._effects.get_children():
 		effect.queue_free()
 	await process_frame
-	await capture("stream_live_v02.png")
+	await capture("stream_live_v03.png")
 	click(Vector2(340, 470))
 	check(ui.session.tap_count == 19 and ui._effects.get_child_count() == 1, "Each live click must create exactly one feedback effect")
 	ui._effects.get_child(0)._process(0.12)
-	await capture("stream_tap_v02.png")
+	await capture("stream_tap_v03.png")
 	ui._effects.get_child(0)._process(1.0)
 	await process_frame
 	check(ui._effects.get_child_count() == 0, "Tap feedback must clean itself up")
+	check(not ui.session.chat.active.is_empty() and ui._chat_view.visible, "Live room must expose its interactive chat")
+	await capture("stream_question_v03.png")
+	var tap_count_before_answer: int = ui.session.tap_count
+	var answer_index: int = ui.session.chat.active.correct
+	click(ui._chat_buttons[answer_index].get_global_rect().get_center())
+	check(ui.session.chat.correct_answers == 1, "Clicking a correct answer must resolve the current quiz")
+	check(ui.session.tap_count == tap_count_before_answer, "Answer button must never leak into room tapping")
+	check(ui.session.chat.combo == 1, "Quiz streak must reach the UI")
+	await capture("stream_chat_correct_v03.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.PAUSED, "Pause button must pause the stream")
-	await capture("stream_paused_v02.png")
+	await capture("stream_paused_v03.png")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.LIVE, "Resume button must resume the stream")
 	ui.session.advance(60.0)
-	await capture("stream_completed_v02.png")
+	await capture("stream_completed_v03.png")
 	check(ui.session.end_reason == Session.EndReason.COMPLETED, "Quick UI session must finish normally")
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.state == Session.State.READY and ui._mode.visible, "New stream must return to duration selection")
@@ -82,18 +96,28 @@ func run() -> void:
 	await process_frame
 	click(ui._action.get_global_rect().get_center())
 	check(ui.session.duration == 900.0, "Duration selector must affect the next session")
+	check(ui.session.chat.correct_answers == 0, "New UI session must clear chat results")
+	ui.session.advance(4.01)
+	ui._refresh()
+	click(ui._chat_buttons[int(ui.session.chat.active.correct)].get_global_rect().get_center())
+	ui.session.advance(12.0)
+	ui._refresh()
+	check(ui.session.chat.active.kind == "poll", "Poll must appear in the regular stream")
+	await capture("stream_poll_v03.png")
+	click(ui._chat_buttons[0].get_global_rect().get_center())
+	check(ui.session.chat.reactions == 1, "Poll button must register engagement")
 	for i in range(3000):
 		ui.session.tap()
 		ui.session.advance(1.0 / 6.0)
 		if ui.session.heat >= 95.0:
 			break
-	await capture("stream_critical_v02.png")
+	await capture("stream_critical_v03.png")
 	for i in range(300):
 		ui.session.tap()
 		ui.session.advance(1.0 / 6.0)
 		if ui.session.state == Session.State.FINISHED:
 			break
-	await capture("stream_overheated_v02.png")
+	await capture("stream_overheated_v03.png")
 	check(ui.session.end_reason == Session.EndReason.OVERHEATED, "UI session must display overheating results")
 	print("Stream UI integration: ", failures, " failures; screenshots: ", OUTPUT)
 	quit(1 if failures else 0)

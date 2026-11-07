@@ -1,6 +1,8 @@
 extends RefCounted
 ## Pure session simulation. No nodes, UI, wall clock, or persistent rewards.
 
+const Chat = preload("res://src/stream/stream_chat.gd")
+
 enum State { READY, LIVE, PAUSED, FINISHED }
 enum EndReason { NONE, COMPLETED, OVERHEATED }
 
@@ -14,13 +16,17 @@ var hype := 0.0
 var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
+var chat: RefCounted
 var _config: Dictionary
 var _taps: Array[float] = []
 var _last_tap := -INF
+var _last_activity := -INF
 
-func _init(config: Dictionary) -> void:
+func _init(config: Dictionary, chat_content: Dictionary = {}) -> void:
 	_config = config.duplicate(true)
 	speed = float(_config.base_speed)
+	if not chat_content.is_empty():
+		chat = Chat.new(config.chat, chat_content)
 
 func start(planned_seconds: float) -> bool:
 	if state == State.LIVE or state == State.PAUSED:
@@ -37,6 +43,9 @@ func start(planned_seconds: float) -> bool:
 	tap_count = 0
 	_taps.clear()
 	_last_tap = -INF
+	_last_activity = -INF
+	if chat != null:
+		chat.reset()
 	end_reason = EndReason.NONE
 	state = State.LIVE
 	return true
@@ -46,8 +55,24 @@ func tap() -> void:
 		return
 	tap_count += 1
 	_last_tap = elapsed_real
+	_last_activity = elapsed_real
 	_taps.append(elapsed_real)
-	hype = minf(100.0, hype + float(_config.hype_per_tap))
+	_change_hype(float(_config.hype_per_tap))
+
+func answer_chat(serial: int, choice: int) -> bool:
+	if state != State.LIVE or chat == null or not chat.answer(serial, choice):
+		return false
+	_last_activity = elapsed_real
+	var before := hype
+	_change_hype(float(chat.last_result.hype_delta))
+	chat.last_result.hype_delta = hype - before
+	return true
+
+func is_hype_cooling() -> bool:
+	return state == State.LIVE and hype > 0.0 and elapsed_real - _last_activity >= float(_config.hype_idle_delay_seconds)
+
+func _change_hype(amount: float) -> void:
+	hype = clampf(hype + amount, 0.0, 100.0)
 	peak_hype = maxf(peak_hype, hype)
 
 func pause() -> void:
@@ -87,7 +112,8 @@ func _step(delta: float) -> void:
 	elapsed_game += game_step
 	elapsed_real += game_step / speed
 	heat = minf(100.0, heat + heat_per_game_second * game_step)
-	hype = maxf(0.0, hype - float(_config.hype_decay_per_second) * game_step / speed)
+	var decay := float(_config.hype_idle_decay_per_second) if is_hype_cooling() else float(_config.hype_decay_per_second)
+	_change_hype(-decay * game_step / speed)
 	if heat >= 100.0 - 0.000001:
 		heat = 100.0
 		end_reason = EndReason.OVERHEATED
@@ -96,3 +122,11 @@ func _step(delta: float) -> void:
 		elapsed_game = duration
 		end_reason = EndReason.COMPLETED
 		state = State.FINISHED
+	if chat != null:
+		var before := hype
+		var change: float = chat.advance(game_step, state == State.LIVE)
+		_change_hype(change)
+		if change != 0.0:
+			chat.last_result.hype_delta = hype - before
+		if state == State.FINISHED:
+			chat.finish()
