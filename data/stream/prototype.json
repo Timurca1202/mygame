@@ -169,5 +169,19 @@
     "cycle_seconds": 4.0,
     "freeze_seconds": 0.6,
     "quality_loss": 0.1
+  },
+  "viral_moment": {
+    "chance_per_stream": 0.3333333333333333,
+    "first_real_seconds": 25.0,
+    "last_real_seconds": 65.0,
+    "catch_seconds": 2.0,
+    "hype_reward": 10.0,
+    "feedback_seconds": 2.0,
+    "text": {
+      "catch": "ПОЙМАТЬ / %.1f с  \n+%d ХАЙПА  ",
+      "accessibility": "Поймать золотой мегафон: плюс %d хайпа",
+      "caught": "ВИРУСНЫЙ МОМЕНТ! +%.1f ХАЙПА",
+      "missed": "МЕГАФОН УЛЕТЕЛ / БЕЗ ШТРАФА"
+    }
   }
 }

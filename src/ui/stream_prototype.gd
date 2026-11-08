@@ -4,6 +4,7 @@ const TitleRating = preload("res://src/stream/title_rating.gd")
 const ExitFlow = preload("res://src/ui/stream_exit.gd")
 const Results = preload("res://src/ui/stream_results.gd")
 const Cooling = preload("res://src/ui/stream_cooling.gd")
+const ViralMoment = preload("res://src/ui/stream_viral_moment.gd")
 const Studio = preload("res://src/ui/stream_studio.gd")
 const Session = preload("res://src/stream/stream_session.gd")
 const Feedback = preload("res://scenes/ui/tap_feedback.tscn")
@@ -26,6 +27,7 @@ var title_rating: RefCounted
 var _exit_flow: Control
 var _results: Control
 var _cooling: Control
+var _viral: Control
 var _block_button: Button
 var _follower_loss := 0.0
 var _studio: Control
@@ -134,6 +136,9 @@ func _ready() -> void:
 	_cooling = Cooling.new()
 	_cooling.host = self
 	add_child(_cooling)
+	_viral = ViralMoment.new()
+	_viral.host = self
+	add_child(_viral)
 	_refresh()
 
 func _new_session() -> void:
@@ -148,6 +153,8 @@ func _new_session() -> void:
 	run_config.economy.viewers = minf(float(_device.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
 	run_config.cooling_ratio = progression.cooling(wallet.inventory)
 	run_config["active_cooling_available"] = progression.has_active_cooling(wallet.inventory)
+	if randf() < float(config.viral_moment.chance_per_stream):
+		run_config["viral_spawn_real_seconds"] = randf_range(float(config.viral_moment.first_real_seconds), float(config.viral_moment.last_real_seconds))
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
 	_follower_loss = 0.0
@@ -801,6 +808,8 @@ func _refresh() -> void:
 		_results.refresh()
 	if _cooling != null:
 		_cooling.refresh()
+	if _viral != null:
+		_viral.refresh()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

@@ -27,6 +27,13 @@ var cooling_lock_remaining := 0.0
 var cooling_cooldown_remaining := 0.0
 var cooling_uses := 0
 var hot_game_seconds := 0.0
+var viral_serial := 0
+var viral_started_at := -1.0
+var viral_resolved_at := -INF
+var viral_outcome := ""
+var viral_caught := 0
+var viral_hype_gain := 0.0
+var _viral_spawned := false
 var _lag_elapsed := 0.0
 var chat: RefCounted
 var income: RefCounted
@@ -65,6 +72,12 @@ func start(planned_seconds: float) -> bool:
 	cooling_cooldown_remaining = 0.0
 	cooling_uses = 0
 	hot_game_seconds = 0.0
+	viral_started_at = -1.0
+	viral_resolved_at = -INF
+	viral_outcome = ""
+	viral_caught = 0
+	viral_hype_gain = 0.0
+	_viral_spawned = false
 	_lag_elapsed = 0.0
 	_taps.clear()
 	_last_tap = -INF
@@ -128,6 +141,36 @@ func thank_donation(serial: int) -> bool:
 	_last_activity = elapsed_real
 	return true
 
+func viral_seconds_left() -> float:
+	return maxf(0.0, viral_started_at + float(_config.viral_moment.catch_seconds) - elapsed_real) if viral_started_at >= 0.0 else 0.0
+
+func catch_viral(serial: int) -> bool:
+	if state != State.LIVE or serial != viral_serial or viral_seconds_left() <= 0.000001:
+		return false
+	viral_caught += 1
+	viral_started_at = -1.0
+	viral_outcome = "caught"
+	viral_resolved_at = elapsed_real
+	_last_activity = elapsed_real
+	var before := hype
+	_change_hype(float(_config.viral_moment.hype_reward))
+	viral_hype_gain = hype - before
+	return true
+
+func _advance_viral() -> void:
+	if state != State.LIVE:
+		viral_started_at = -1.0
+		return
+	var spawn_at := float(_config.get("viral_spawn_real_seconds", -1.0))
+	if not _viral_spawned and spawn_at >= 0.0 and elapsed_real >= spawn_at - 0.000001:
+		_viral_spawned = true
+		viral_serial += 1
+		viral_started_at = spawn_at
+	if viral_started_at >= 0.0 and viral_seconds_left() <= 0.000001:
+		viral_started_at = -1.0
+		viral_outcome = "missed"
+		viral_resolved_at = elapsed_real
+
 func is_hype_cooling() -> bool:
 	return state == State.LIVE and hype > 0.0 and elapsed_real - _last_activity >= float(_config.hype_idle_delay_seconds)
 
@@ -161,6 +204,7 @@ func finish_early() -> bool:
 	return true
 
 func _finalize() -> void:
+	viral_started_at = -1.0
 	if chat != null:
 		chat.finish()
 	income.finish()
@@ -216,6 +260,7 @@ func _step(delta: float) -> void:
 		heat = 100.0
 		end_reason = EndReason.OVERHEATED
 		state = State.FINISHED
+	_advance_viral()
 	if chat != null:
 		var before := hype
 		var change: float = chat.advance(game_step, game_step / speed, state == State.LIVE)
