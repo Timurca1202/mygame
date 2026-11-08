@@ -45,7 +45,7 @@ func _initialize() -> void:
 	check(is_equal_approx(Session.new(limited).cooling_ratio, 0.6), "Cooling must respect the configured GDD maximum")
 	limited.cooling_ratio = -1.0
 	check(Session.new(limited).cooling_ratio == 0.0, "Negative cooling must be rejected by clamping")
-	# Identical sustained moderate tapping: cooling should prevent the late P1 overheat.
+	# Passive cooling extends the same forced stream; it no longer guarantees a safe finish.
 	var normal := Session.new(config)
 	var ventilated := Session.new(cooled_config)
 	normal.start(900.0)
@@ -58,8 +58,8 @@ func _initialize() -> void:
 			ventilated.tap()
 			ventilated.advance(1.0)
 	check(normal.end_reason == Session.EndReason.OVERHEATED, "Uncooled sustained tapping must retain the existing overheat behavior")
-	check(ventilated.end_reason == Session.EndReason.COMPLETED, "Fan must make a practical difference for the same input pattern")
-	check(ventilated.heat < 100.0 and ventilated.elapsed_game == 900.0, "Cooled stream must actually finish before critical heat")
+	check(ventilated.elapsed_game > normal.elapsed_game, "Passive fan must still extend the same forced stream")
+	check(ventilated.end_reason == Session.EndReason.OVERHEATED and ventilated.heat == 100.0, "Stronger heat requires active cooling rather than passive immunity during continuous tapping")
 	# A real multi-item profile, with sales preserving all unrelated purchases.
 	var path := "user://catalog_test_%d.json" % OS.get_process_id()
 	var wallet := Wallet.new(path)

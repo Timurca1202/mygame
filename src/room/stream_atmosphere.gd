@@ -7,6 +7,7 @@ var live := false
 var frozen := false
 var heat := 0.0
 var hype := 0.0
+var cooling_active := false
 var _session: RefCounted
 var _taps := 0
 var _answers := 0
@@ -16,6 +17,8 @@ var _decor: Dictionary = {}
 var _air_origins: Array[Vector2] = []
 var _phone_origin := Vector2(340, 424)
 var _screen_material: ShaderMaterial
+var _was_lagging := false
+var _frozen_phone_clock := 0.0
 class PhoneActivity extends Node2D:
 	func _draw() -> void:
 		get_parent().draw_activity(self)
@@ -92,6 +95,7 @@ func sync_session(session: RefCounted) -> void:
 	frozen = session.state == Session.State.PAUSED
 	heat = session.heat
 	hype = session.hype
+	cooling_active = session.cooling_lock_remaining > 0.000001
 	hero.frozen = frozen
 	hero.heat = heat
 	breathing.speed_scale = 0.0 if frozen else 1.0
@@ -123,7 +127,13 @@ func _update_phone_screen() -> void:
 	if _screen_material == null:
 		return
 	_screen_material.set_shader_parameter("active", live or frozen)
-	_screen_material.set_shader_parameter("screen_time", clock)
+	var lagging: bool = _session != null and _session.is_lagging()
+	if frozen and _was_lagging:
+		lagging = true
+	if lagging and not _was_lagging:
+		_frozen_phone_clock = clock
+	_was_lagging = lagging
+	_screen_material.set_shader_parameter("screen_time", _frozen_phone_clock if lagging else clock)
 	_screen_material.set_shader_parameter("heat_ratio", heat / 100.0)
 	_screen_material.set_shader_parameter("hype_ratio", hype / 100.0)
 
@@ -132,9 +142,9 @@ func draw_activity(canvas: Node2D) -> void:
 		return
 	for origin in _air_origins:
 		for i in range(3):
-			var phase := fmod(clock * 0.8 + i / 3.0, 1.0)
+			var phase := fmod(clock * (2.4 if cooling_active else 0.8) + i / 3.0, 1.0)
 			var point := origin + Vector2(24, -19) * phase + Vector2(0, (i - 1) * 3)
-			canvas.draw_line(point.round(), (point + Vector2(5, -3)).round(), Color(0.72, 0.85, 0.87, sin(PI * phase) * 0.35), 1.0)
+			canvas.draw_line(point.round(), (point + Vector2(5, -3)).round(), Color(0.72, 0.85, 0.87, sin(PI * phase) * (0.8 if cooling_active else 0.35)), 1.0)
 	# Reflected screen light on the existing phone, with a tiny audio meter.
 	var hot := smoothstep(60.0, 95.0, heat)
 	var tint := Color("6ee8f3").lerp(Color("ff805c"), hot)

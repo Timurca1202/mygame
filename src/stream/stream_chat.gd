@@ -15,6 +15,8 @@ var correct_answers := 0
 var wrong_answers := 0
 var missed_questions := 0
 var reactions := 0
+var blocked_spam := 0
+var missed_spam := 0
 var _config: Dictionary
 var _content: Dictionary
 var _next_event := 0.0
@@ -46,6 +48,8 @@ func reset() -> void:
 	wrong_answers = 0
 	missed_questions = 0
 	reactions = 0
+	blocked_spam = 0
+	missed_spam = 0
 	_next_event = float(_config.first_event_seconds)
 	_next_ambient = float(_config.first_ambient_seconds)
 	_deadline = 0.0
@@ -73,11 +77,15 @@ func advance(game_delta: float, real_delta: float, allow_spawn: bool = true) -> 
 	var hype_delta := 0.0
 	if not active.is_empty() and real_elapsed >= _deadline - 0.000001:
 		var was_quiz: bool = active.kind == "quiz"
+		var was_spam: bool = active.kind == "spam"
 		if was_quiz:
 			combo = 0
 			missed_questions += 1
 		hype_delta = -float(_config.quiz_hype_penalty) if was_quiz else 0.0
-		_resolve("timeout" if was_quiz else "ignored", hype_delta)
+		if was_spam:
+			missed_spam += 1
+			hype_delta = -float(_config.spam_hype_penalty)
+		_resolve("spam_missed" if was_spam else ("timeout" if was_quiz else "ignored"), hype_delta)
 	if not allow_spawn:
 		return hype_delta
 	if elapsed >= _next_ambient:
@@ -91,6 +99,8 @@ func advance(game_delta: float, real_delta: float, allow_spawn: bool = true) -> 
 
 func answer(serial: int, choice: int) -> bool:
 	if _stopped or active.is_empty() or serial != event_serial or seconds_left() <= 0.0:
+		return false
+	if active.kind == "spam":
 		return false
 	var answers: Array = active.answers
 	if choice < 0 or choice >= answers.size():
@@ -111,6 +121,16 @@ func answer(serial: int, choice: int) -> bool:
 		_resolve("reaction", reward)
 	return true
 
+func block_spam(serial: int) -> bool:
+	if _stopped or active.is_empty() or active.kind != "spam" or serial != event_serial or seconds_left() <= 0.0:
+		return false
+	blocked_spam += 1
+	for index in range(feed.size() - 1, -1, -1):
+		if int(feed[index].get("serial", -1)) == serial:
+			feed.remove_at(index)
+	_resolve("blocked", 0.0)
+	return true
+
 func finish() -> void:
 	_stopped = true
 	active = {}
@@ -125,9 +145,9 @@ func _spawn_event() -> void:
 	active = pool[index % pool.size()].duplicate(true)
 	event_serial += 1
 	active["serial"] = event_serial
-	_deadline = real_elapsed + float(_config.answer_seconds)
+	_deadline = real_elapsed + float(_config.spam_seconds if kind == "spam" else _config.answer_seconds)
 	_next_event = elapsed + float(_config.event_interval_seconds)
-	_push_feed({"author": active.author, "text": active.text})
+	_push_feed({"author": active.author, "text": active.text, "kind": kind, "serial": event_serial})
 
 func _resolve(outcome: String, hype_delta: float) -> void:
 	_next_allowed_real = real_elapsed + float(_config.reply_cooldown_real_seconds)
@@ -135,7 +155,7 @@ func _resolve(outcome: String, hype_delta: float) -> void:
 	last_result = {"outcome": outcome, "hype_delta": hype_delta, "correct_text": "", "combo": combo, "resolved_at": elapsed}
 	if active.kind == "quiz":
 		last_result.correct_text = active.answers[int(active.correct)]
-	_push_feed({"author": active.author, "text": _content.replies[outcome]})
+	_push_feed({"author": "Livvo" if active.kind == "spam" else active.author, "text": _content.replies[outcome]})
 	active = {}
 
 func _push_feed(message: Dictionary) -> void:

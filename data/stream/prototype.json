@@ -77,7 +77,7 @@
     "chat_type_quiz": "ВОПРОС",
     "chat_type_poll": "ОПРОС",
     "chat_type_decor": "КОМНАТА",
-    "hot_status": "ТЕЛЕФОН ТОРМОЗИТ",
+    "hot_status": "ЛАГИ / КАЧЕСТВО −10%",
     "critical_status": "ПЕРЕГРЕВ БЛИЗКО",
     "chat_clock": "%d с / СЕРИЯ %d",
     "income_live": "+$%s / %d ЗР.",
@@ -92,7 +92,26 @@
     "save_failed": "ДОХОД НЕ СОХРАНЁН / НАЖМИ ПОВТОРИТЬ",
     "results_short": "ЭФИР %s / ПИК %d%% / ТАПОВ %d",
     "save_read_error": "КОШЕЛЁК НЕ ПРОЧИТАН / ПРОГРЕСС НЕ ЗАПИСАН",
-    "results_title": "ИТОГИ ЭФИРА"
+    "results_title": "ИТОГИ ЭФИРА",
+    "ended_early": "ЭФИР ЗАКОНЧЕН",
+    "exit_hold": "ЗАКОНЧИТЬ / УДЕРЖИВАЙ 3 С",
+    "exit_heading": "ЗАКОНЧИТЬ ЭФИР?",
+    "exit_progress": "СЫГРАНО %d%% / %s ИЗ %s",
+    "exit_followers": "ПОДПИСЧИКИ: −%d / −%.2f%%",
+    "exit_hype": "ХАЙП: СБРОС ДО 0",
+    "exit_safe": "90% ЭФИРА ПРОЙДЕНО / БЕЗ ШТРАФОВ",
+    "exit_income": "ДОХОД ЗА СЫГРАННОЕ ВРЕМЯ: $%s",
+    "exit_note": "При раннем обрыве новые подписчики\nне начисляются. Текущие могут уйти.",
+    "exit_cancel": "ВЕРНУТЬСЯ",
+    "exit_confirm": "ЗАКОНЧИТЬ",
+    "exit_saved": "СОХРАНЕНО / ПОДП. %s / ШТРАФ %.2f%%",
+    "chat_type_spam": "СПАМ",
+    "spam_block": "ЗАБЛОКИРОВАТЬ",
+    "spam_warning": "УДАЛИ СПАМ / ИНАЧЕ −6 ХАЙПА",
+    "spam_blocked": "СПАМ УДАЛЁН / ЧАТ ЧИСТ",
+    "spam_missed": "СПАМ НЕ УДАЛЁН / −%.1f ХАЙПА",
+    "lag_status": "ЛАГИ: ПРОПУСК ТАПОВ",
+    "lag_tap": "ЛАГ / ТАП НЕ ПРОШЁЛ"
   },
   "hype_idle_delay_seconds": 1.5,
   "hype_idle_decay_per_second": 1.5,
@@ -109,7 +128,9 @@
     "decor_hype_reward": 2.0,
     "first_ambient_seconds": 2.0,
     "feedback_seconds": 6.0,
-    "reply_cooldown_real_seconds": 3.0
+    "reply_cooldown_real_seconds": 3.0,
+    "spam_seconds": 10.0,
+    "spam_hype_penalty": 6.0
   },
   "economy": {
     "viewers": 3,
@@ -124,5 +145,29 @@
     "combo_bonus_step": 0.1,
     "combo_multiplier_cap": 1.5
   },
-  "max_cooling_ratio": 0.6
+  "max_cooling_ratio": 0.6,
+  "exit": {
+    "hold_seconds": 3.0,
+    "safe_completion_ratio": 0.9,
+    "follower_base_loss_ratio": 0.003,
+    "follower_remaining_loss_ratio": 0.012
+  },
+  "active_cooling": {
+    "heat_drop": 10.0,
+    "tap_lock_seconds": 2.0,
+    "cooldown_seconds": 20.0,
+    "text": {
+      "ready": "ОСТУДИТЬ −%d%%\n%d С БЕЗ ТАПОВ",
+      "paused": "ОХЛАЖДЕНИЕ\nЭФИР НА ПАУЗЕ",
+      "wait": "ОСТУДИТЬ\nЧЕРЕЗ %d С",
+      "locked": "ТАПЫ: ПАУЗА %d С",
+      "accessibility": "Вентилятор: остудить телефон. Разгоняющие тапы будут недоступны 2 секунды."
+    }
+  },
+  "heat_gain_multiplier": 1.15,
+  "lag": {
+    "cycle_seconds": 4.0,
+    "freeze_seconds": 0.6,
+    "quality_loss": 0.1
+  }
 }

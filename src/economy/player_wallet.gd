@@ -133,12 +133,14 @@ func remember_title(title: String) -> Error:
 func credit(session_id: String, amount_units: int) -> Error:
 	return settle_stream(session_id, amount_units, 0.0, last_score, false)
 
-func settle_stream(session_id: String, amount_units: int, follower_gain: float, score: float, count_stream: bool = true) -> Error:
+func settle_stream(session_id: String, amount_units: int, follower_gain: float, score: float, count_stream: bool = true, follower_loss: float = 0.0) -> Error:
 	if load_error != OK:
 		return load_error
 	if session_id.is_empty() or amount_units < 0 or amount_units > 9007199254740991 - balance_units:
 		return ERR_INVALID_PARAMETER
 	if not is_finite(follower_gain) or follower_gain < 0.0 or followers + follower_gain > 9007199254740991.0 or not is_finite(score) or score < 0.0 or score > 100.0:
+		return ERR_INVALID_PARAMETER
+	if not is_finite(follower_loss) or follower_loss < 0.0 or follower_loss > 9007199254740991.0:
 		return ERR_INVALID_PARAMETER
 	if _credited.has(session_id):
 		return OK
@@ -149,7 +151,7 @@ func settle_stream(session_id: String, amount_units: int, follower_gain: float, 
 	var payload := _payload()
 	payload.balance_units += amount_units
 	payload.credited_sessions = recent
-	payload.followers += follower_gain
+	payload.followers = maxf(0.0, followers + follower_gain - follower_loss)
 	payload.last_score = score
 	payload.completed_streams += 1 if count_stream else 0
 	return _persist(payload)

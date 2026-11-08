@@ -1,0 +1,337 @@
+{
+  "heat_scenarios": [
+    {
+      "capacity_minutes": 20,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 9.02788741504918,
+      "hot_game_seconds": 80.5696153460765,
+      "mode": "bare",
+      "planned_minutes": 15,
+      "quality_multiplier": 0.985125790113464
+    },
+    {
+      "capacity_minutes": 20,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 10.6076837943827,
+      "hot_game_seconds": 94.7877827600623,
+      "mode": "passive_fan",
+      "planned_minutes": 15,
+      "quality_multiplier": 0.985107056262641
+    },
+    {
+      "capacity_minutes": 20,
+      "completed": true,
+      "cooling_uses": 7,
+      "end_heat": 62.6933646709175,
+      "game_minutes": 15.0,
+      "hot_game_seconds": 0.0,
+      "mode": "active_fan",
+      "planned_minutes": 15,
+      "quality_multiplier": 1.0
+    },
+    {
+      "capacity_minutes": 20,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 9.02788741504918,
+      "hot_game_seconds": 80.5696153460765,
+      "mode": "bare",
+      "planned_minutes": 20,
+      "quality_multiplier": 0.985125790113464
+    },
+    {
+      "capacity_minutes": 20,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 10.6076837943827,
+      "hot_game_seconds": 94.7877827600623,
+      "mode": "passive_fan",
+      "planned_minutes": 20,
+      "quality_multiplier": 0.985107056262641
+    },
+    {
+      "capacity_minutes": 20,
+      "completed": true,
+      "cooling_uses": 11,
+      "end_heat": 67.8475919063359,
+      "game_minutes": 20.0,
+      "hot_game_seconds": 0.0,
+      "mode": "active_fan",
+      "planned_minutes": 20,
+      "quality_multiplier": 1.0
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 13.5039771565008,
+      "hot_game_seconds": 120.854423019112,
+      "mode": "bare",
+      "planned_minutes": 15,
+      "quality_multiplier": 0.985084095149834
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": true,
+      "cooling_uses": 0,
+      "end_heat": 94.4697194086092,
+      "game_minutes": 15.0,
+      "hot_game_seconds": 89.7613706101271,
+      "mode": "passive_fan",
+      "planned_minutes": 15,
+      "quality_multiplier": 0.990026514376653
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": true,
+      "cooling_uses": 3,
+      "end_heat": 61.7195012241202,
+      "game_minutes": 15.0,
+      "hot_game_seconds": 0.0,
+      "mode": "active_fan",
+      "planned_minutes": 15,
+      "quality_multiplier": 1.0
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 13.5039771565008,
+      "hot_game_seconds": 120.854423019112,
+      "mode": "bare",
+      "planned_minutes": 30,
+      "quality_multiplier": 0.985084095149834
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": false,
+      "cooling_uses": 0,
+      "end_heat": 100.0,
+      "game_minutes": 15.8736717254982,
+      "hot_game_seconds": 142.181674139976,
+      "mode": "passive_fan",
+      "planned_minutes": 30,
+      "quality_multiplier": 0.985071541039915
+    },
+    {
+      "capacity_minutes": 30,
+      "completed": true,
+      "cooling_uses": 12,
+      "end_heat": 63.2965068883159,
+      "game_minutes": 30.0,
+      "hot_game_seconds": 0.0,
+      "mode": "active_fan",
+      "planned_minutes": 30,
+      "quality_multiplier": 1.0
+    }
+  ],
+  "scenarios": [
+    {
+      "first_purchase_real_minutes": 7.49999999999786,
+      "streams": [
+        {
+          "balance_dollars": 0.2478,
+          "followers": 3.0,
+          "gain": 3.0,
+          "game_minutes": 15.0,
+          "income_dollars": 1.4978,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 9.99275362318849,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 1.7645,
+          "followers": 7.47169502529849,
+          "gain": 4.47169502529849,
+          "game_minutes": 15.0,
+          "income_dollars": 1.5167,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 10.9927536231885,
+          "stream": 2,
+          "viewers": 3.03796347825368
+        },
+        {
+          "balance_dollars": 3.8694,
+          "followers": 12.909227931623,
+          "gain": 5.43753290632452,
+          "game_minutes": 15.0,
+          "income_dollars": 2.1049,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 10.9927536231885,
+          "stream": 3,
+          "viewers": 4.21607417442009
+        },
+        {
+          "balance_dollars": 6.5639,
+          "followers": 19.2093577738093,
+          "gain": 6.30012984218631,
+          "game_minutes": 15.0,
+          "income_dollars": 2.6945,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 10.9927536231885,
+          "stream": 4,
+          "viewers": 5.39686096541217
+        },
+        {
+          "balance_dollars": 9.8851,
+          "followers": 26.3240120932475,
+          "gain": 7.11465431943821,
+          "game_minutes": 15.0,
+          "income_dollars": 3.3212,
+          "overheated": false,
+          "real_minutes": 7.49999999999786,
+          "score": 10.9927536231885,
+          "stream": 5,
+          "viewers": 6.65218152287115
+        }
+      ],
+      "style": "quiet"
+    },
+    {
+      "first_purchase_real_minutes": 6.45598833721584,
+      "streams": [
+        {
+          "balance_dollars": 0.6716,
+          "followers": 3.0,
+          "gain": 3.0,
+          "game_minutes": 14.5232744522077,
+          "income_dollars": 1.9216,
+          "overheated": true,
+          "real_minutes": 6.45598833721584,
+          "score": 38.6388213103928,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 3.5458,
+          "followers": 7.49925066149766,
+          "gain": 4.49925066149766,
+          "game_minutes": 14.5232744522077,
+          "income_dollars": 2.8742,
+          "overheated": true,
+          "real_minutes": 6.45598833721584,
+          "score": 39.6388213103928,
+          "stream": 2,
+          "viewers": 4.48856712908648
+        },
+        {
+          "balance_dollars": 7.5216,
+          "followers": 13.0106382943962,
+          "gain": 5.51138763289852,
+          "game_minutes": 14.5232744522077,
+          "income_dollars": 3.9758,
+          "overheated": true,
+          "real_minutes": 6.45598833721584,
+          "score": 39.6388213103928,
+          "stream": 3,
+          "viewers": 6.20554326279991
+        },
+        {
+          "balance_dollars": 12.6227,
+          "followers": 19.444626138067,
+          "gain": 6.43398784367085,
+          "game_minutes": 14.5232744522077,
+          "income_dollars": 5.1011,
+          "overheated": true,
+          "real_minutes": 6.45598833721584,
+          "score": 39.6388213103928,
+          "stream": 4,
+          "viewers": 7.96237872677247
+        },
+        {
+          "balance_dollars": 18.93,
+          "followers": 26.7658011479258,
+          "gain": 7.32117500985879,
+          "game_minutes": 14.5232744522077,
+          "income_dollars": 6.3073,
+          "overheated": true,
+          "real_minutes": 6.45598833721584,
+          "score": 39.6388213103928,
+          "stream": 5,
+          "viewers": 9.84312245451606
+        }
+      ],
+      "style": "engaged"
+    },
+    {
+      "first_purchase_real_minutes": 5.38800503571334,
+      "streams": [
+        {
+          "balance_dollars": 0.7011,
+          "followers": 0.0,
+          "gain": 0.0,
+          "game_minutes": 7.11766449206224,
+          "income_dollars": 0.7011,
+          "overheated": true,
+          "real_minutes": 1.79600167857111,
+          "score": 20.4255753310231,
+          "stream": 1,
+          "viewers": 3.0
+        },
+        {
+          "balance_dollars": 1.1949,
+          "followers": 0.0,
+          "gain": 0.0,
+          "game_minutes": 7.11766449206224,
+          "income_dollars": 0.4938,
+          "overheated": true,
+          "real_minutes": 1.79600167857111,
+          "score": 20.4255753310231,
+          "stream": 2,
+          "viewers": 2.11276725993069
+        },
+        {
+          "balance_dollars": 0.4387,
+          "followers": 0.0,
+          "gain": 0.0,
+          "game_minutes": 7.11766449206224,
+          "income_dollars": 0.4938,
+          "overheated": true,
+          "real_minutes": 1.79600167857111,
+          "score": 20.4255753310231,
+          "stream": 3,
+          "viewers": 2.11276725993069
+        },
+        {
+          "balance_dollars": 0.9325,
+          "followers": 0.0,
+          "gain": 0.0,
+          "game_minutes": 7.11766449206224,
+          "income_dollars": 0.4938,
+          "overheated": true,
+          "real_minutes": 1.79600167857111,
+          "score": 21.4255753310231,
+          "stream": 4,
+          "viewers": 2.11276725993069
+        },
+        {
+          "balance_dollars": 1.4333,
+          "followers": 0.0,
+          "gain": 0.0,
+          "game_minutes": 7.11766449206224,
+          "income_dollars": 0.5008,
+          "overheated": true,
+          "real_minutes": 1.79600167857111,
+          "score": 21.4255753310231,
+          "stream": 5,
+          "viewers": 2.14276725993069
+        }
+      ],
+      "style": "forced"
+    }
+  ],
+  "scope": "first five 15-minute streams, P1, one rug, early-overheat loss and moderation; plus heat comparison at three taps/second; no campaign expenses"
+}

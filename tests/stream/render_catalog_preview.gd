@@ -132,7 +132,7 @@ func run() -> void:
 	click(ui._action.get_global_rect().get_center())
 	check(is_equal_approx(ui.session.cooling_ratio, 0.15), "Start button must apply cooling from real owned equipment")
 	ui.session.advance(10.0)
-	check(is_equal_approx(ui.session.heat, 100.0 / 1200.0 * 20.0 * 0.85), "UI session must actually heat more slowly")
+	check(is_equal_approx(ui.session.heat, 100.0 / 1200.0 * 20.0 * 0.85 * float(ui.config.heat_gain_multiplier)), "UI session applies passive cooling to stronger base heat")
 	await capture("live_cooled")
 	# Inspect airflow over time independently of breathing, dust and UI effects.
 	var room: Node2D = main.get_node("StartRoom")

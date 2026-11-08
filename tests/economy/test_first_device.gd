@@ -55,8 +55,8 @@ func _initialize() -> void:
 	check(is_equal_approx(model.performance(p2, []) - model.performance(p1, []), 2.5), "P2 quality adds 2.5 PS points using existing equipment weight")
 	p1.advance(2000)
 	p2.advance(2000)
-	check(p1.end_reason == Session.EndReason.COMPLETED and p1.elapsed_game == 1200, "Twenty-minute base-speed stream finishes at exact heat boundary")
-	check(p2.end_reason == Session.EndReason.COMPLETED and p2.elapsed_game == 1800, "Thirty-minute base-speed stream finishes normally")
+	check(p1.end_reason == Session.EndReason.OVERHEATED and is_equal_approx(p1.elapsed_game, 1200 / float(config.heat_gain_multiplier)), "Starter maximum duration now requires heat management")
+	check(p2.end_reason == Session.EndReason.OVERHEATED and is_equal_approx(p2.elapsed_game, 1800 / float(config.heat_gain_multiplier)), "Upgraded maximum duration also requires heat management")
 	check(model.follower_gain(200, 70, 1800, 25) > model.follower_gain(200, 70, 1800, 10), "P2 cap relieves growth suppression without changing formula")
 	var blocked := Wallet.new("user://missing_device_dir_%d/profile.json" % OS.get_process_id())
 	blocked.balance_units = 1000000

@@ -73,6 +73,8 @@ func _run() -> void:
 	check(session.answer_chat(session.chat.event_serial, 0), "Room reaction must be answerable")
 
 	next_question(session)
+	check(session.chat.active.kind == "spam" and session.block_spam(session.chat.event_serial), "New spam slot is moderated before returning to quiz expiry fixture")
+	next_question(session)
 	var frozen_game: float = session.elapsed_game
 	var frozen_deadline: float = session.chat.seconds_left()
 	var frozen_hype: float = session.hype

@@ -44,26 +44,62 @@ func cooling(inventory: Array) -> float:
 			ratio = maxf(ratio, float(entry.get("cooling_ratio", 0.0)))
 	return clampf(ratio, 0.0, float(config.get("cooling_cap", 0.6)))
 
+func has_active_cooling(inventory: Array) -> bool:
+	for entry in config.items:
+		if inventory.has(str(entry.id)) and bool(entry.get("active_cooling", false)):
+			return true
+	return false
+
 func packaging(title_score: float, preview_score: float) -> float:
 	return clampf(title_score, 0.0, 100.0) * float(config.packaging_mix.title) + clampf(preview_score, 0.0, 100.0) * float(config.packaging_mix.preview)
 
-func performance(session: RefCounted, inventory: Array, packaging_score: float = -1.0) -> float:
+func performance_components(session: RefCounted, inventory: Array, packaging_score: float = -1.0) -> Dictionary:
 	var quizzes: int = session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions
 	var accuracy := float(session.chat.correct_answers) / quizzes if quizzes > 0 else 0.0
+	var moderated: int = session.chat.blocked_spam + session.chat.missed_spam
+	if moderated > 0:
+		accuracy = float(session.chat.correct_answers + session.chat.blocked_spam) / (quizzes + moderated)
 	var tapping := clampf(session.tap_count / maxf(1.0, session.elapsed_real * float(config.tap_activity_per_second)), 0.0, 1.0)
 	var gratitude: float = float(session.income.thanked_count) / session.income.donation_count if session.income.donation_count > 0 else 0.0
 	var activity: float = accuracy * float(config.activity_weights.chat) + tapping * float(config.activity_weights.taps) + gratitude * float(config.activity_weights.thanks)
 	var quality: float = session.device_quality if session.device_quality >= 0.0 else float(config.equipment_quality)
-	var components := {
+	quality *= session.quality_multiplier()
+	return {
 		"activity": activity * 100.0,
 		"equipment": clampf(quality / float(config.epoch_quality_reference), 0.0, 1.0) * 100.0,
 		"packaging": clampf(packaging_score, 0.0, 100.0) if packaging_score >= 0.0 else float(config.starter_packaging_score),
 		"decor": clampf(vibe(inventory) / float(config.vibe_for_full_score), 0.0, 1.0) * 100.0,
 		"reputation": float(config.starting_reputation_score)}
+
+func performance(session: RefCounted, inventory: Array, packaging_score: float = -1.0) -> float:
+	var components := performance_components(session, inventory, packaging_score)
 	var score := 0.0
 	for key in components:
 		score += float(components[key]) * float(config.score_weights[key])
 	return clampf(score, 0.0, 100.0)
+
+func performance_grade(score: float) -> String:
+	for tier in config.result_report.grades:
+		if score >= float(tier.minimum):
+			return str(tier.name)
+	return str(config.result_report.grades[-1].name)
+
+func performance_tip(session: RefCounted, components: Dictionary) -> String:
+	if session.has_exit_penalty():
+		return config.result_report.tips.early
+	if session.chat.missed_spam > session.chat.blocked_spam:
+		return config.result_report.tips.moderation
+	if session.heat >= float(config.result_report.heat_tip_threshold):
+		return config.result_report.tips.heat
+	var weakest := "activity"
+	var missing := -1.0
+	# Reputation is a fixed baseline until its own system exists.
+	for key in ["activity", "equipment", "packaging", "decor"]:
+		var gap := (100.0 - float(components[key])) * float(config.score_weights[key])
+		if gap > missing:
+			missing = gap
+			weakest = key
+	return config.result_report.tips[weakest]
 
 func item(item_id: String) -> Dictionary:
 	for entry in config.items:

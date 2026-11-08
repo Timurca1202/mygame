@@ -1,6 +1,9 @@
 extends Control
 
 const TitleRating = preload("res://src/stream/title_rating.gd")
+const ExitFlow = preload("res://src/ui/stream_exit.gd")
+const Results = preload("res://src/ui/stream_results.gd")
+const Cooling = preload("res://src/ui/stream_cooling.gd")
 const Studio = preload("res://src/ui/stream_studio.gd")
 const Session = preload("res://src/stream/stream_session.gd")
 const Feedback = preload("res://scenes/ui/tap_feedback.tscn")
@@ -20,6 +23,11 @@ const PURPLE := Color("a94fec")
 @export var wallet_path := "user://profile.json"
 
 var title_rating: RefCounted
+var _exit_flow: Control
+var _results: Control
+var _cooling: Control
+var _block_button: Button
+var _follower_loss := 0.0
 var _studio: Control
 var _launch_rating: Dictionary = {}
 var _device: Dictionary = {}
@@ -117,6 +125,15 @@ func _ready() -> void:
 	_studio = Studio.new()
 	_studio.host = self
 	add_child(_studio)
+	_exit_flow = ExitFlow.new()
+	_exit_flow.host = self
+	add_child(_exit_flow)
+	_results = Results.new()
+	_results.host = self
+	add_child(_results)
+	_cooling = Cooling.new()
+	_cooling.host = self
+	add_child(_cooling)
 	_refresh()
 
 func _new_session() -> void:
@@ -130,8 +147,10 @@ func _new_session() -> void:
 	var score: float = wallet.last_score if wallet.completed_streams > 0 else float(progression.config.first_stream_score)
 	run_config.economy.viewers = minf(float(_device.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
 	run_config.cooling_ratio = progression.cooling(wallet.inventory)
+	run_config["active_cooling_available"] = progression.has_active_cooling(wallet.inventory)
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
+	_follower_loss = 0.0
 
 func _device_changed() -> void:
 	if session.state == Session.State.READY:
@@ -227,7 +246,7 @@ func _refresh_progression() -> void:
 		_channel_label.text = _progress_text.followers_cooled % [int(floor(wallet.followers)), roundi(cooling * 100.0)]
 	_channel_detail.text = _progress_text.audience_device % [_device.short_name, session.viewers, int(_device.viewer_cap)]
 	if session.state == Session.State.FINISHED and _result_score >= 0.0:
-		_channel_detail.text = _progress_text.result % [_visible_gain, roundi(_result_score)]
+		_channel_detail.text = progression.config.result_report.text.summary % [_signed_gain(), progression.performance_grade(_result_score), roundi(_result_score)]
 	var room := get_parent().get_parent().get_node_or_null("StartRoom")
 	if room != null:
 		room.apply_inventory(wallet.inventory, progression.config.items, wallet.equipped_device)
@@ -236,6 +255,7 @@ func _process(delta: float) -> void:
 	if session != null:
 		if _studio == null or not _studio.report_visible:
 			session.advance(delta)
+		_exit_flow.advance_hold(delta)
 		_settle_income()
 		_refresh()
 
@@ -449,8 +469,11 @@ func _settle_income(retry: bool = false) -> void:
 	if _result_score < 0.0:
 		_result_score = progression.performance(session, _starting_inventory, float(_launch_rating.get("packaging_score", -1.0)))
 		_follower_gain = progression.follower_gain(_starting_followers, _result_score, session.elapsed_game, session.viewer_cap)
-		_visible_gain = int(floor(_starting_followers + _follower_gain)) - int(floor(_starting_followers))
-	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score)
+		if session.has_exit_penalty():
+			_follower_gain = 0.0
+			_follower_loss = _starting_followers * session.exit_penalty_ratio()
+		_visible_gain = floori(maxf(0.0, _starting_followers + _follower_gain - _follower_loss)) - floori(_starting_followers)
+	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score, true, _follower_loss)
 	_save_pending = error != OK
 	if error == OK:
 		_settled_id = _run_id
@@ -466,8 +489,10 @@ func _refresh_income() -> void:
 		_live_detail.visible = false
 		_income_result.text = _text.income_result % [_money(income.base_units), _money(income.chat_units), _money(income.thanks_units), _money(income.total_units())]
 		_chat_feedback.visible = true
-		_chat_feedback.text = _text.save_failed if _save_pending else _progress_text.result_saved % [_visible_gain, roundi(_result_score)]
-		_chat_feedback.add_theme_color_override("font_color", RED if _save_pending else GREEN)
+		_chat_feedback.text = _text.save_failed if _save_pending else _progress_text.result_saved % [_signed_gain(), roundi(_result_score)]
+		if session.has_exit_penalty() and not _save_pending:
+			_chat_feedback.text = _text.exit_saved % [_signed_gain(), session.exit_penalty_ratio() * 100.0]
+		_chat_feedback.add_theme_color_override("font_color", RED if _save_pending or session.has_exit_penalty() else GREEN)
 		if _save_pending:
 			_action.text = _text.save_retry
 	elif wallet.load_error != OK and session.state == Session.State.READY:
@@ -526,6 +551,23 @@ func _build_chat(bottom: Control) -> void:
 		button.pressed.connect(_answer_pressed.bind(i))
 		_chat_view.add_child(button)
 		_chat_buttons.append(button)
+	_block_button = _build_spam_button()
+	_chat_view.add_child(_block_button)
+	_block_button.pressed.connect(func():
+		if session.block_spam(_displayed_event_id):
+			_refresh())
+
+func _build_spam_button() -> Button:
+	var button := Button.new()
+	button.text = _text.spam_block
+	button.accessibility_name = _text.spam_block
+	button.position = Vector2(20, 100)
+	button.size = Vector2(460, 56)
+	button.add_theme_font_size_override("font_size", 22)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		button.add_theme_stylebox_override(state, _style(Color("392057") if state == "pressed" else Color("22153d"), CYAN if state == "focus" else RED, 6))
+	button.hide()
+	return button
 
 func _answer_pressed(index: int) -> void:
 	if session.answer_chat(_displayed_event_id, index):
@@ -549,6 +591,9 @@ func _refresh_chat() -> void:
 	var chat: RefCounted = session.chat
 	var active: Dictionary = chat.active
 	var has_question := not active.is_empty()
+	var spam: bool = has_question and active.kind == "spam"
+	_chat_heading.add_theme_color_override("font_color", RED if spam else CYAN)
+	_block_button.visible = spam
 	_displayed_event_id = chat.event_serial if has_question else -1
 	_chat_time_bar.visible = has_question
 	if has_question:
@@ -587,9 +632,21 @@ func _refresh_chat() -> void:
 		_chat_tween.tween_property(_chat_message, "modulate:a", 1.0, 0.25)
 	_chat_feedback.text = ""
 	_chat_feedback.add_theme_color_override("font_color", CYAN)
+	if spam:
+		_chat_feedback.text = _text.spam_warning
+		_chat_feedback.add_theme_color_override("font_color", AMBER)
+		return
 	if not chat.last_result.is_empty() and chat.elapsed - float(chat.last_result.resolved_at) <= float(config.chat.feedback_seconds):
 		var result: Dictionary = chat.last_result
 		match str(result.outcome):
+			"blocked":
+				_chat_feedback.text = _text.spam_blocked
+				_chat_feedback.add_theme_color_override("font_color", GREEN)
+				return
+			"spam_missed":
+				_chat_feedback.text = _text.spam_missed % absf(float(result.hype_delta))
+				_chat_feedback.add_theme_color_override("font_color", RED)
+				return
 			"correct":
 				_chat_feedback.text = _text.chat_correct % [result.hype_delta, result.combo]
 			"wrong":
@@ -615,19 +672,31 @@ func _room_input(event: InputEvent) -> void:
 func _tap(point: Vector2) -> void:
 	if session.state != Session.State.LIVE or (_shop != null and _shop.visible) or (_studio != null and _studio.report_visible):
 		return
+	if session.cooling_lock_remaining > 0.000001:
+		return
 	var before: float = session.hype
+	var lagging: bool = session.is_lagging()
 	session.tap()
 	var gain: float = session.hype - before
 	var caption: String = _text.tap_gain % gain if gain > 0.0 else _text.tap_max
+	if lagging:
+		caption = _text.lag_tap
 	while _effects.get_child_count() >= 16:
 		var oldest := _effects.get_child(0)
 		_effects.remove_child(oldest)
 		oldest.queue_free()
 	var effect := Feedback.instantiate()
 	_effects.add_child(effect)
-	effect.setup(point, caption, _font, CYAN if gain > 0.0 else GREEN)
+	effect.setup(point, caption, _font, RED if lagging else (CYAN if gain > 0.0 else GREEN))
+
+func _signed_gain() -> String:
+	return ("+%d" if _visible_gain >= 0 else "%d") % _visible_gain
 
 func _action_pressed() -> void:
+	if _results._modal.visible:
+		return
+	if _exit_flow._modal.visible:
+		return
 	if _studio._editor.visible:
 		return
 	if _studio.report_visible:
@@ -703,7 +772,7 @@ func _refresh() -> void:
 				_status.text = _text.critical_status
 			elif session.heat >= float(config.heat_thresholds[1]):
 				_hint.text = _text.hot_hint
-				_status.text = _text.hot_status
+				_status.text = _text.lag_status if session.is_lagging() else _text.hot_status
 			elif session.heat >= float(config.heat_thresholds[0]):
 				_hint.text = _text.warm_hint
 			_action.text = _text.pause
@@ -712,7 +781,7 @@ func _refresh() -> void:
 			_hint.text = _text.paused_hint
 			_action.text = _text.resume
 		Session.State.FINISHED:
-			_status.text = _text.overheated if session.end_reason == Session.EndReason.OVERHEATED else _text.completed
+			_status.text = _text.overheated if session.end_reason == Session.EndReason.OVERHEATED else (_text.ended_early if session.end_reason == Session.EndReason.EARLY else _text.completed)
 			_hint.text = _text.results % [_clock(session.elapsed_game), _clock(session.elapsed_real), roundi(session.peak_hype), session.tap_count, roundi(session.heat)]
 			_action.text = _text.again
 	_live_badge.text = _text.badge_live if session.state == Session.State.LIVE else _text.badge_idle
@@ -726,6 +795,12 @@ func _refresh() -> void:
 	_refresh_progression()
 	if _studio != null:
 		_studio.refresh()
+	if _exit_flow != null:
+		_exit_flow.refresh()
+	if _results != null:
+		_results.refresh()
+	if _cooling != null:
+		_cooling.refresh()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

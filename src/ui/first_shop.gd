@@ -76,8 +76,9 @@ func _select_tab(devices: bool) -> void:
 func _build_row(item: Dictionary) -> void:
 	var id := str(item.id)
 	var device := item.has("device")
+	var tall: bool = device or bool(item.get("active_cooling", false))
 	var row := Panel.new()
-	row.custom_minimum_size = Vector2(0, 212 if device else 164)
+	row.custom_minimum_size = Vector2(0, 212 if tall else 164)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_theme_stylebox_override("panel", host._style(Color("1a1031"), Color("704298"), 6))
@@ -95,8 +96,9 @@ func _build_row(item: Dictionary) -> void:
 	title.clip_text = true
 	var state: Label = host._label(row, "", Rect2(116, 44, 336, 20), 16, host.MUTED)
 	var effect: Label = host._label(row, str(item.benefit), Rect2(116, 70, 336, 24), 18, host.GREEN)
-	if device:
+	if tall:
 		effect.size.y = 70
+		effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var price: Label = host._label(row, "$" + host._money(int(item.price_units)), Rect2(116, 110, 128, 28), 22, host.AMBER)
 	var button := Button.new()
 	button.position = Vector2(250, 106)
@@ -108,9 +110,10 @@ func _build_row(item: Dictionary) -> void:
 	button.pressed.connect(_transact.bind(id))
 	row.add_child(button)
 	var choose: Button = null
-	if device:
+	if tall:
 		price.position.y = 162
 		button.position.y = 156
+	if device:
 		choose = Button.new()
 		choose.position = Vector2(12, 156)
 		choose.size = Vector2(92, 44)

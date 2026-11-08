@@ -5,7 +5,7 @@ const Chat = preload("res://src/stream/stream_chat.gd")
 const Income = preload("res://src/economy/stream_income.gd")
 
 enum State { READY, LIVE, PAUSED, FINISHED }
-enum EndReason { NONE, COMPLETED, OVERHEATED }
+enum EndReason { NONE, COMPLETED, OVERHEATED, EARLY }
 
 var state := State.READY
 var end_reason := EndReason.NONE
@@ -22,6 +22,12 @@ var viewer_cap := INF
 var device_quality := -1.0
 var device_id := ""
 var cooling_ratio := 0.0
+var active_cooling_available := false
+var cooling_lock_remaining := 0.0
+var cooling_cooldown_remaining := 0.0
+var cooling_uses := 0
+var hot_game_seconds := 0.0
+var _lag_elapsed := 0.0
 var chat: RefCounted
 var income: RefCounted
 var _config: Dictionary
@@ -36,6 +42,7 @@ func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []
 	device_quality = float(config.get("device_quality", -1.0))
 	device_id = str(config.get("device_id", ""))
 	cooling_ratio = clampf(float(config.get("cooling_ratio", 0.0)), 0.0, float(config.get("max_cooling_ratio", 0.6)))
+	active_cooling_available = bool(config.get("active_cooling_available", false))
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
 		chat = Chat.new(config.chat, chat_content)
@@ -54,6 +61,11 @@ func start(planned_seconds: float) -> bool:
 	peak_hype = 0.0
 	heat = 0.0
 	tap_count = 0
+	cooling_lock_remaining = 0.0
+	cooling_cooldown_remaining = 0.0
+	cooling_uses = 0
+	hot_game_seconds = 0.0
+	_lag_elapsed = 0.0
 	_taps.clear()
 	_last_tap = -INF
 	_last_activity = -INF
@@ -65,13 +77,39 @@ func start(planned_seconds: float) -> bool:
 	return true
 
 func tap() -> void:
-	if state != State.LIVE:
+	if state != State.LIVE or cooling_lock_remaining > 0.000001 or is_lagging():
 		return
 	tap_count += 1
 	_last_tap = elapsed_real
 	_last_activity = elapsed_real
 	_taps.append(elapsed_real)
 	_change_hype(float(_config.hype_per_tap))
+
+func cool_device() -> bool:
+	if state != State.LIVE or not active_cooling_available or cooling_cooldown_remaining > 0.000001 or heat <= 0.0:
+		return false
+	heat = maxf(0.0, heat - float(_config.active_cooling.heat_drop))
+	if heat < float(_config.heat_thresholds[1]):
+		_lag_elapsed = 0.0
+	cooling_lock_remaining = float(_config.active_cooling.tap_lock_seconds)
+	cooling_cooldown_remaining = float(_config.active_cooling.cooldown_seconds)
+	cooling_uses += 1
+	# Buffered taps must not continue accelerating while the player cools the phone.
+	_taps.clear()
+	_last_tap = -INF
+	return true
+
+func is_lagging() -> bool:
+	return state == State.LIVE and heat >= float(_config.heat_thresholds[1]) and fmod(_lag_elapsed, float(_config.lag.cycle_seconds)) < float(_config.lag.freeze_seconds)
+
+func quality_multiplier() -> float:
+	return 1.0 - float(_config.lag.quality_loss) * hot_game_seconds / maxf(elapsed_game, 0.000001)
+
+func block_spam(serial: int) -> bool:
+	if state != State.LIVE or chat == null or not chat.block_spam(serial):
+		return false
+	_last_activity = elapsed_real
+	return true
 
 func answer_chat(serial: int, choice: int) -> bool:
 	if state != State.LIVE or chat == null or not chat.answer(serial, choice):
@@ -105,6 +143,30 @@ func resume() -> void:
 	if state == State.PAUSED:
 		state = State.LIVE
 
+func exit_penalty_ratio() -> float:
+	if duration <= 0.0 or elapsed_game + 0.000001 >= duration * float(_config.exit.safe_completion_ratio):
+		return 0.0
+	var remaining := clampf(1.0 - elapsed_game / duration, 0.0, 1.0)
+	return float(_config.exit.follower_base_loss_ratio) + float(_config.exit.follower_remaining_loss_ratio) * remaining
+
+func has_exit_penalty() -> bool:
+	return (end_reason == EndReason.EARLY or end_reason == EndReason.OVERHEATED) and exit_penalty_ratio() > 0.0
+
+func finish_early() -> bool:
+	if state != State.LIVE and state != State.PAUSED:
+		return false
+	end_reason = EndReason.EARLY
+	state = State.FINISHED
+	_finalize()
+	return true
+
+func _finalize() -> void:
+	if chat != null:
+		chat.finish()
+	income.finish()
+	if has_exit_penalty():
+		hype = 0.0
+
 func advance(delta: float) -> void:
 	if state != State.LIVE or not is_finite(delta) or delta <= 0.0:
 		return
@@ -127,17 +189,24 @@ func _step(delta: float) -> void:
 		speed = move_toward(speed, target, float(_config.speed_deceleration) * delta)
 	var heat_per_game_second := 100.0 / float(_config.device_capacity_seconds) * pow(
 		speed / base, float(_config.heat_exponent))
-	heat_per_game_second *= 1.0 - cooling_ratio
+	heat_per_game_second *= (1.0 - cooling_ratio) * float(_config.heat_gain_multiplier)
 	var game_step := speed * delta
 	var to_overheat := maxf(0.0, (100.0 - heat) / heat_per_game_second)
 	var to_completion := maxf(0.0, duration - elapsed_game)
 	game_step = minf(game_step, minf(to_overheat, to_completion))
 	elapsed_game += game_step
-	elapsed_real += game_step / speed
+	var real_step := game_step / speed
+	elapsed_real += real_step
+	cooling_lock_remaining = maxf(0.0, cooling_lock_remaining - real_step)
+	cooling_cooldown_remaining = maxf(0.0, cooling_cooldown_remaining - real_step)
 	heat = minf(100.0, heat + heat_per_game_second * game_step)
+	var hot_step := minf(game_step, maxf(0.0, (heat - float(_config.heat_thresholds[1])) / heat_per_game_second))
+	hot_game_seconds += hot_step
+	_lag_elapsed = _lag_elapsed + hot_step / speed if heat >= float(_config.heat_thresholds[1]) else 0.0
 	var decay := float(_config.hype_idle_decay_per_second) if is_hype_cooling() else float(_config.hype_decay_per_second)
 	_change_hype(-decay * game_step / speed)
-	income.advance(game_step, game_step / speed)
+	var quality := 1.0 - float(_config.lag.quality_loss) * hot_step / maxf(game_step, 0.000001)
+	income.advance(game_step, game_step / speed, quality)
 	# At the exact scheduled finish, completion wins a simultaneous heat boundary.
 	if elapsed_game >= duration - 0.000001:
 		elapsed_game = duration
@@ -153,7 +222,5 @@ func _step(delta: float) -> void:
 		_change_hype(change)
 		if change != 0.0:
 			chat.last_result.hype_delta = hype - before
-		if state == State.FINISHED:
-			chat.finish()
 	if state == State.FINISHED:
-		income.finish()
+		_finalize()

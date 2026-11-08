@@ -26,7 +26,7 @@ func _run() -> void:
 	var baseline := fresh()
 	baseline.advance(10.0)
 	check(is_equal_approx(baseline.elapsed_game, 20.0), "Base clock must run at x2")
-	check(is_equal_approx(baseline.heat, 100.0 * 20.0 / 1200.0), "Base heat must use game seconds")
+	check(is_equal_approx(baseline.heat, 100.0 * 20.0 / 1200.0 * float(config.heat_gain_multiplier)), "Base heat uses game seconds and author's stronger heat tuning")
 	check(baseline.speed == 2.0 and baseline.hype == 0.0, "No input must not generate hype or acceleration")
 
 	var active := fresh()
@@ -48,7 +48,7 @@ func _run() -> void:
 		hot.tap()
 	hot.speed = 4.0
 	hot.advance(0.5)
-	check(absf(hot.heat / hot.elapsed_game / (100.0 / 1200.0) - pow(2.0, 1.3)) < 0.00001, "Heat multiplier at x4 must match GDD exponent")
+	check(absf(hot.heat / hot.elapsed_game / (100.0 / 1200.0 * float(config.heat_gain_multiplier)) - pow(2.0, 1.3)) < 0.00001, "Stronger base heat preserves GDD speed exponent at x4")
 	for i in range(ceili(100.0 / float(config.hype_per_tap))):
 		hot.tap()
 	check(hot.hype == 100.0 and hot.peak_hype == 100.0, "Hype must cap at 100")
