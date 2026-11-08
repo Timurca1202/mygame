@@ -43,7 +43,10 @@ func cooling(inventory: Array) -> float:
 			ratio = maxf(ratio, float(entry.get("cooling_ratio", 0.0)))
 	return clampf(ratio, 0.0, float(config.get("cooling_cap", 0.6)))
 
-func performance(session: RefCounted, inventory: Array) -> float:
+func packaging(title_score: float, preview_score: float) -> float:
+	return clampf(title_score, 0.0, 100.0) * float(config.packaging_mix.title) + clampf(preview_score, 0.0, 100.0) * float(config.packaging_mix.preview)
+
+func performance(session: RefCounted, inventory: Array, packaging_score: float = -1.0) -> float:
 	var quizzes: int = session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions
 	var accuracy := float(session.chat.correct_answers) / quizzes if quizzes > 0 else 0.0
 	var tapping := clampf(session.tap_count / maxf(1.0, session.elapsed_real * float(config.tap_activity_per_second)), 0.0, 1.0)
@@ -52,7 +55,7 @@ func performance(session: RefCounted, inventory: Array) -> float:
 	var components := {
 		"activity": activity * 100.0,
 		"equipment": clampf(float(config.equipment_quality) / float(config.epoch_quality_reference), 0.0, 1.0) * 100.0,
-		"packaging": float(config.starter_packaging_score),
+		"packaging": clampf(packaging_score, 0.0, 100.0) if packaging_score >= 0.0 else float(config.starter_packaging_score),
 		"decor": clampf(vibe(inventory) / float(config.vibe_for_full_score), 0.0, 1.0) * 100.0,
 		"reputation": float(config.starting_reputation_score)}
 	var score := 0.0

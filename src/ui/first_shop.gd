@@ -1,122 +1,121 @@
 extends Control
-## Catalog navigation, purchases and sales. All content comes from progression data.
+## Scrollable shop tab. Each row is bound to its own catalog ID.
 var host: Control
+var rows: Dictionary = {}
 var _panel: Panel
-var _action: Button
-var _message: Label
 var _balance: Label
-var _effect: Label
+var _message: Label
+var _scroll: ScrollContainer
+var _list: VBoxContainer
+var _locked: Dictionary = {}
 var _notice := ""
-var _transaction_done := false
-var _item: Dictionary
-var _selected := 0
-var _title: Label
-var _category: Label
-var _description: Label
-var _art: TextureRect
-var _previous: Button
-var _next: Button
 
 func _ready() -> void:
 	size = Vector2(540, 960)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.01, 0.09, 0.65)
-	shade.size = size
+	shade.position = Vector2(0, 206)
+	shade.size = Vector2(540, 690)
+	shade.color = Color(0.02, 0.01, 0.09, 0.88)
 	add_child(shade)
 	_panel = Panel.new()
-	_panel.position = Vector2(28, 252)
-	_panel.size = Vector2(484, 414)
+	_panel.position = Vector2(20, 212)
+	_panel.size = Vector2(500, 676)
 	_panel.add_theme_stylebox_override("panel", host._style(Color("100a29"), host.PURPLE, 10))
 	add_child(_panel)
-	host._label(_panel, host._progress_text.shop_title, Rect2(20, 14, 444, 30), 28, host.CYAN)
-	_previous = _button(Rect2(20, 54, 48, 44), func(): select_item(_selected - 1))
-	_previous.text = host._progress_text.previous
-	_next = _button(Rect2(416, 54, 48, 44), func(): select_item(_selected + 1))
-	_next.text = host._progress_text.next
-	_title = host._label(_panel, "", Rect2(76, 60, 332, 30), 24, host.INK)
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_category = host._label(_panel, "", Rect2(20, 102, 444, 20), 18, host.MUTED)
-	_art = TextureRect.new()
-	_art.position = Vector2(20, 126)
-	_art.size = Vector2(190, 120)
-	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_panel.add_child(_art)
-	_description = host._label(_panel, "", Rect2(226, 126, 238, 112), 20, host.INK)
-	_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_effect = host._label(_panel, "", Rect2(20, 250, 444, 28), 20, host.GREEN)
-	_balance = host._label(_panel, "", Rect2(20, 280, 444, 26), 20, host.AMBER)
-	_message = host._label(_panel, "", Rect2(20, 310, 444, 24), 18, host.CYAN)
-	_action = _button(Rect2(20, 350, 270, 50), _transact)
-	var close := _button(Rect2(300, 350, 164, 50), func(): hide())
-	close.text = host._progress_text.room
-	select_item(0)
+	host._label(_panel, host._progress_text.shop, Rect2(20, 14, 240, 32), 30, host.CYAN)
+	_balance = host._label(_panel, "", Rect2(252, 20, 228, 24), 20, host.AMBER)
+	_balance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	host._label(_panel, host._progress_text.list_hint, Rect2(20, 50, 460, 24), 18, host.MUTED)
+	_scroll = ScrollContainer.new()
+	_scroll.position = Vector2(12, 84)
+	_scroll.size = Vector2(476, 536)
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_panel.add_child(_scroll)
+	_list = VBoxContainer.new()
+	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_list.add_theme_constant_override("separation", 10)
+	_scroll.add_child(_list)
+	for item in host.progression.config.items:
+		_build_row(item)
+	_message = host._label(_panel, "", Rect2(20, 632, 460, 28), 18, host.CYAN)
+	refresh_catalog()
 	hide()
 
-func _button(rect: Rect2, callback: Callable) -> Button:
+func _build_row(item: Dictionary) -> void:
+	var id := str(item.id)
+	var row := Panel.new()
+	row.custom_minimum_size = Vector2(0, 164)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_theme_stylebox_override("panel", host._style(Color("1a1031"), Color("704298"), 6))
+	_list.add_child(row)
+	var art := TextureRect.new()
+	art.position = Vector2(12, 14)
+	art.size = Vector2(92, 118)
+	art.texture = load(item.texture)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(art)
+	var title: Label = host._label(row, str(item.name), Rect2(116, 12, 336, 28), 22, host.INK)
+	title.clip_text = true
+	var state: Label = host._label(row, "", Rect2(116, 44, 336, 20), 16, host.MUTED)
+	var effect: Label = host._label(row, str(item.benefit), Rect2(116, 70, 336, 24), 18, host.GREEN)
+	var price: Label = host._label(row, "$" + host._money(int(item.price_units)), Rect2(116, 110, 128, 28), 22, host.AMBER)
 	var button := Button.new()
-	button.position = rect.position
-	button.size = rect.size
+	button.position = Vector2(250, 106)
+	button.size = Vector2(202, 44)
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 22)
 	for state_name in ["normal", "hover", "pressed", "disabled"]:
 		button.add_theme_stylebox_override(state_name, host._style(Color("22153d"), host.PURPLE if state_name == "disabled" else host.GREEN, 6))
-	button.pressed.connect(callback)
-	_panel.add_child(button)
-	return button
+	button.pressed.connect(_transact.bind(id))
+	row.add_child(button)
+	rows[id] = {"panel": row, "button": button, "state": state, "effect": effect, "price": price, "item": item}
 
 func open_shop() -> void:
 	if host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED:
 		return
 	if host._save_pending or host.wallet.load_error != OK:
 		return
+	_locked.clear()
 	_notice = ""
-	_transaction_done = false
-	_refresh()
+	refresh_catalog()
 	show()
 
-func select_item(index: int) -> void:
-	var entries: Array = host.progression.config.items
-	_selected = posmod(index, entries.size())
-	_item = entries[_selected]
-	_notice = ""
-	_transaction_done = false
-	_title.text = str(_item.name)
-	_category.text = host._progress_text.catalog_position % [str(_item.category), _selected + 1, entries.size()]
-	_description.text = str(_item.description)
-	_art.texture = load(_item.texture)
-	_previous.disabled = entries.size() < 2
-	_next.disabled = entries.size() < 2
-	_refresh()
+func refresh_catalog() -> void:
+	_balance.text = "$" + host._money(host.wallet.balance_units)
+	for id in rows:
+		var view: Dictionary = rows[id]
+		var item: Dictionary = view.item
+		var owned: bool = host.wallet.inventory.has(id)
+		var price := int(item.price_units)
+		var refund := int(floor(price * float(host.progression.config.sale_ratio)))
+		view.state.text = str(item.category) + (host._progress_text.list_owned if owned else "")
+		view.state.add_theme_color_override("font_color", host.GREEN if owned else host.MUTED)
+		view.button.text = host._progress_text.list_sell % host._money(refund) if owned else host._progress_text.list_buy
+		if _locked.has(id):
+			view.button.text = host._progress_text.list_bought if owned else host._progress_text.list_sold
+		elif not owned and host.wallet.balance_units < price:
+			view.button.text = host._progress_text.list_missing % host._money(price - host.wallet.balance_units)
+		view.button.disabled = _locked.has(id) or host.wallet.load_error != OK or (not owned and host.wallet.balance_units < price)
+	_message.text = _notice if not _notice.is_empty() else host._progress_text.list_footer
 
-func _refresh() -> void:
-	var owned: bool = host.wallet.inventory.has(str(_item.id))
-	var price := int(_item.price_units)
-	var refund := int(floor(price * float(host.progression.config.sale_ratio)))
-	_balance.text = host._progress_text.balance % host._money(host.wallet.balance_units)
-	_effect.text = host._progress_text.installed % str(_item.benefit) if owned else str(_item.benefit)
-	_action.text = host._progress_text["sell" if owned else "buy"] % host._money(refund if owned else price)
-	if _transaction_done:
-		_action.text = host._progress_text.done
-	_action.disabled = _transaction_done or host.wallet.load_error != OK or (not owned and host.wallet.balance_units < price)
-	_message.text = _notice
-	if _notice.is_empty() and not owned and host.wallet.balance_units < price:
-		_message.text = host._progress_text.shortfall % host._money(price - host.wallet.balance_units)
-	elif _notice.is_empty():
-		_message.text = host._progress_text.sale_hint if owned else host._progress_text.buy_hint
-
-func _transact() -> void:
-	if _transaction_done or host._save_pending or (host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED):
+func _transact(id: String) -> void:
+	if _locked.has(id) or not visible or host._save_pending or (host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED):
 		return
-	var owned: bool = host.wallet.inventory.has(str(_item.id))
-	var price := int(_item.price_units)
-	var error: Error = host.progression.sell(host.wallet, str(_item.id)) if owned else host.progression.buy(host.wallet, str(_item.id))
+	var item: Dictionary = host.progression.item(id)
+	if item.is_empty():
+		return
+	var owned: bool = host.wallet.inventory.has(id)
+	var price := int(item.price_units)
+	var error: Error = host.progression.sell(host.wallet, id) if owned else host.progression.buy(host.wallet, id)
 	if error == OK:
-		_transaction_done = true
+		_locked[id] = true
 		_notice = host._progress_text.sold % host._money(int(floor(price * float(host.progression.config.sale_ratio)))) if owned else host._progress_text.bought_item % host._money(price)
 	else:
 		_notice = host._progress_text.save_failed
 	host._refresh()
-	_refresh()
+	refresh_catalog()

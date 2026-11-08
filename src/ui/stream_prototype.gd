@@ -1,5 +1,7 @@
 extends Control
 
+const TitleRating = preload("res://src/stream/title_rating.gd")
+const Studio = preload("res://src/ui/stream_studio.gd")
 const Session = preload("res://src/stream/stream_session.gd")
 const Feedback = preload("res://scenes/ui/tap_feedback.tscn")
 const Wallet = preload("res://src/economy/player_wallet.gd")
@@ -17,6 +19,9 @@ const PURPLE := Color("a94fec")
 
 @export var wallet_path := "user://profile.json"
 
+var title_rating: RefCounted
+var _studio: Control
+var _launch_rating: Dictionary = {}
 var session: RefCounted
 var config: Dictionary
 var _text: Dictionary
@@ -71,6 +76,10 @@ var _channel_label: Label
 var _channel_detail: Label
 var _shop_button: Button
 var _shop: Control
+var _navigation: Panel
+var _stream_tab: Button
+var _bottom_panel: Panel
+var _nav_state := ""
 var _starting_followers := 0.0
 var _starting_inventory: Array = []
 var _result_score := -1.0
@@ -92,6 +101,7 @@ func _ready() -> void:
 	var progress_data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/progression/first_steps.json"))
 	progression = Progression.new(progress_data)
 	_progress_text = progress_data.text
+	title_rating = TitleRating.new(JSON.parse_string(FileAccess.get_file_as_string("res://data/stream/title_rules.json")))
 	_new_session()
 	var font_file := load("res://assets/fonts/tiny5/Tiny5-Variable.ttf") as FontFile
 	font_file.antialiasing = TextServer.FONT_ANTIALIASING_NONE
@@ -103,12 +113,15 @@ func _ready() -> void:
 	theme = ui_theme
 	_build_interface()
 	_build_progression()
+	_studio = Studio.new()
+	_studio.host = self
+	add_child(_studio)
 	_refresh()
 
 func _new_session() -> void:
 	var run_config := config.duplicate(true)
 	var score: float = wallet.last_score if wallet.completed_streams > 0 else float(progression.config.first_stream_score)
-	run_config.economy.viewers = progression.audience(wallet.followers, score)
+	run_config.economy.viewers = minf(float(progression.config.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
 	run_config.cooling_ratio = progression.cooling(wallet.inventory)
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
@@ -116,24 +129,76 @@ func _new_session() -> void:
 func _build_progression() -> void:
 	_channel_label = _label(self, "", Rect2(28, 212, 330, 25), 20, CYAN)
 	_channel_detail = _label(self, "", Rect2(28, 237, 330, 25), 18, MUTED)
-	_shop_button = Button.new()
-	_shop_button.position = Vector2(368, 212)
-	_shop_button.size = Vector2(144, 42)
-	_shop_button.text = _progress_text.shop
-	_shop_button.focus_mode = Control.FOCUS_NONE
-	_shop_button.add_theme_font_size_override("font_size", 20)
-	for state_name in ["normal", "hover", "pressed", "disabled"]:
-		_shop_button.add_theme_stylebox_override(state_name, _style(Color("17102f"), PURPLE, 6))
-	_shop_button.pressed.connect(func(): _shop.open_shop())
-	add_child(_shop_button)
 	_shop = ShopView.new()
 	_shop.host = self
 	add_child(_shop)
+	_navigation = Panel.new()
+	_navigation.position = Vector2(28, 900)
+	_navigation.size = Vector2(484, 44)
+	_navigation.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_navigation)
+	_stream_tab = _navigation_button(_progress_text.stream_tab, 0)
+	_stream_tab.pressed.connect(_show_stream_tab)
+	_shop_button = _navigation_button(_progress_text.shop, 246)
+	_shop_button.pressed.connect(func(): _shop.open_shop())
+	_shop.visibility_changed.connect(_refresh_navigation)
+
+func _navigation_button(caption: String, x: float) -> Button:
+	var button := Button.new()
+	button.position = Vector2(x, 0)
+	button.size = Vector2(238, 44)
+	button.text = caption
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 24)
+	_navigation.add_child(button)
+	return button
+
+func _show_stream_tab() -> void:
+	_shop.hide()
+	_refresh_navigation()
+
+func _refresh_navigation() -> void:
+	var offline: bool = session.state == Session.State.READY or session.state == Session.State.FINISHED
+	_navigation.visible = offline
+	_bottom_panel.visible = not _shop.visible
+	_shop_button.disabled = _save_pending or wallet.load_error != OK
+	# Preserve the approved live chat geometry; the tabs use the setup/results area.
+	if offline:
+		_bottom_title.position.y = 6
+		_bottom_title.add_theme_font_size_override("font_size", 24)
+		_bottom_line.position.y = 34
+		_hint.position.y = 38
+		_hint.add_theme_font_size_override("font_size", 18)
+		_hint.size.y = 46
+		_mode.position.y = 86
+		_income_result.position.y = 86
+		_income_result.add_theme_font_size_override("font_size", 18)
+		_income_result.size.y = 46
+		_action.add_theme_font_size_override("font_size", 32)
+		_action.position.y = 134
+		_action.size.y = 44
+	else:
+		_bottom_title.position.y = 12
+		_bottom_title.add_theme_font_size_override("font_size", 30)
+		_bottom_line.position.y = 44
+		_hint.position.y = 54
+		_hint.add_theme_font_size_override("font_size", 20)
+		_hint.size.y = 54
+		_mode.position.y = 108
+		_income_result.position.y = 106
+		_income_result.add_theme_font_size_override("font_size", 20)
+		_action.add_theme_font_size_override("font_size", 40)
+	var state := "shop" if _shop.visible else "stream"
+	if state != _nav_state:
+		_nav_state = state
+		for button in [_stream_tab, _shop_button]:
+			var active: bool = (button == _shop_button) == _shop.visible
+			for style_name in ["normal", "hover", "pressed", "disabled"]:
+				button.add_theme_stylebox_override(style_name, _style(Color("233c36") if active else Color("17102f"), GREEN if active else PURPLE, 6))
+			button.add_theme_color_override("font_color", GREEN if active else MUTED)
 
 func _refresh_progression() -> void:
-	var offline: bool = session.state == Session.State.READY or session.state == Session.State.FINISHED
-	_shop_button.visible = offline
-	_shop_button.disabled = _save_pending or wallet.load_error != OK
+	_refresh_navigation()
 	_channel_label.text = _progress_text.followers % int(floor(wallet.followers))
 	var cooling: float = progression.cooling(wallet.inventory)
 	if cooling > 0.0:
@@ -147,7 +212,8 @@ func _refresh_progression() -> void:
 
 func _process(delta: float) -> void:
 	if session != null:
-		session.advance(delta)
+		if _studio == null or not _studio.report_visible:
+			session.advance(delta)
 		_settle_income()
 		_refresh()
 
@@ -249,6 +315,7 @@ func _build_interface() -> void:
 	add_child(_tap_area)
 
 	var bottom := _panel(Rect2(20, 720, 500, 224))
+	_bottom_panel = bottom
 	_bottom_title = _label(bottom, _text.title, Rect2(20, 12, 420, 30), 30)
 	var line := TextureRect.new()
 	_bottom_line = line
@@ -357,7 +424,7 @@ func _settle_income(retry: bool = false) -> void:
 	if retry and wallet.load_error != OK:
 		wallet = Wallet.new(wallet_path)
 	if _result_score < 0.0:
-		_result_score = progression.performance(session, _starting_inventory)
+		_result_score = progression.performance(session, _starting_inventory, float(_launch_rating.get("packaging_score", -1.0)))
 		_follower_gain = progression.follower_gain(_starting_followers, _result_score, session.elapsed_game)
 		_visible_gain = int(floor(_starting_followers + _follower_gain)) - int(floor(_starting_followers))
 	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score)
@@ -523,7 +590,7 @@ func _room_input(event: InputEvent) -> void:
 		accept_event()
 
 func _tap(point: Vector2) -> void:
-	if session.state != Session.State.LIVE or (_shop != null and _shop.visible):
+	if session.state != Session.State.LIVE or (_shop != null and _shop.visible) or (_studio != null and _studio.report_visible):
 		return
 	var before: float = session.hype
 	session.tap()
@@ -538,8 +605,26 @@ func _tap(point: Vector2) -> void:
 	effect.setup(point, caption, _font, CYAN if gain > 0.0 else GREEN)
 
 func _action_pressed() -> void:
+	if _studio._editor.visible:
+		return
+	if _studio.report_visible:
+		_studio.dismiss_report()
+		return
 	match session.state:
 		Session.State.READY:
+			var rating: Dictionary = title_rating.evaluate(_studio.title_input.text, _studio.genre, _studio.selected_themes(), wallet.recent_titles)
+			if rating.is_empty():
+				return
+			var preview: Dictionary = _studio.selected_preview()
+			if preview.is_empty():
+				return
+			rating["preview"] = preview.duplicate(true)
+			rating["packaging_score"] = progression.packaging(float(rating.score), float(preview.score))
+			if wallet.remember_title(_studio.title_input.text) != OK:
+				_studio._form.show()
+				_studio._message.text = title_rating.config.text.save_error
+				return
+			_launch_rating = rating
 			_new_session()
 			_starting_followers = wallet.followers
 			_starting_inventory = wallet.inventory.duplicate()
@@ -547,6 +632,7 @@ func _action_pressed() -> void:
 				_run_id = Crypto.new().generate_random_bytes(16).hex_encode()
 				_save_pending = false
 				_last_donation_serial = 0
+				_studio.show_report(rating)
 		Session.State.LIVE:
 			session.pause()
 		Session.State.PAUSED:
@@ -556,6 +642,7 @@ func _action_pressed() -> void:
 			if _save_pending:
 				_refresh()
 				return
+			_launch_rating = {}
 			# Return to setup so the next duration can be chosen deliberately.
 			_new_session()
 			_last_chat_visual = -999
@@ -611,6 +698,8 @@ func _refresh() -> void:
 	_refresh_chat()
 	_refresh_income()
 	_refresh_progression()
+	if _studio != null:
+		_studio.refresh()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

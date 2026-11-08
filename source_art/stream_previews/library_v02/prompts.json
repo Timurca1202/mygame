@@ -1,0 +1,29 @@
+{
+  "mode": "Built-in image_gen.imagegen",
+  "prompts": [
+    {
+      "id": "cosmos",
+      "prompt": "Use case: stylized-concept. Asset type: a standalone random stream-thumbnail illustration in the pixel-art mobile game Hypster. A luminous turquoise cosmic whale swimming among small planets and stars in a deep indigo galaxy, bold readable silhouette, magenta and golden celestial accents. Wide 16:9 landscape composition filling the entire frame. Rich expressive pixel art, carefully clustered pixels, limited cohesive vibrant palette, polished indie-game illustration with atmosphere and detail, clear focal subject visible when scaled down to 128x72. No text, no lettering, no logo, no border, no thumbnail grid, no UI. Absolutely no room, desk, furniture, workstation or streamer. This is one complete standalone illustration.",
+      "original": "source_art/stream_previews/library_v02/cosmos_original.png",
+      "game_asset": "assets/art/stream_previews/cosmos_v02.png"
+    },
+    {
+      "id": "moon_cat",
+      "prompt": "Use case: stylized-concept. Asset type: a standalone random stream-thumbnail illustration in the pixel-art mobile game Hypster. A curious orange cat perched on a crescent moon over a dreamy violet cloudscape, expressive bright eyes, blue and pink starry sky. Wide 16:9 landscape composition filling the entire frame. Rich expressive pixel art, carefully clustered pixels, limited cohesive vibrant palette, polished indie-game illustration with atmosphere and detail, clear focal subject visible when scaled down to 128x72. No text, no lettering, no logo, no border, no thumbnail grid, no UI. Absolutely no room, desk, furniture, workstation or streamer. This is one complete standalone illustration.",
+      "original": "source_art/stream_previews/library_v02/moon_cat_original.png",
+      "game_asset": "assets/art/stream_previews/moon_cat_v02.png"
+    },
+    {
+      "id": "race",
+      "prompt": "Use case: stylized-concept. Asset type: a standalone random stream-thumbnail illustration in the pixel-art mobile game Hypster. A red retro sports car speeding toward the viewer on a neon cyan racing road across a purple desert at sunset, vivid perspective, energetic arcade action. Wide 16:9 landscape composition filling the entire frame. Rich expressive pixel art, carefully clustered pixels, limited cohesive vibrant palette, polished indie-game illustration with atmosphere and detail, clear focal subject visible when scaled down to 128x72. No text, no lettering, no logo, no border, no thumbnail grid, no UI. Absolutely no room, desk, furniture, workstation or streamer. This is one complete standalone illustration.",
+      "original": "source_art/stream_previews/library_v02/race_original.png",
+      "game_asset": "assets/art/stream_previews/race_v02.png"
+    },
+    {
+      "id": "forest",
+      "prompt": "Use case: stylized-concept. Asset type: a standalone random stream-thumbnail illustration in the pixel-art mobile game Hypster. A small friendly glowing forest spirit with antlers standing beside a luminous pond in an enchanted midnight forest, moss, enormous mushrooms, cyan fireflies. Wide 16:9 landscape composition filling the entire frame. Rich expressive pixel art, carefully clustered pixels, limited cohesive vibrant palette, polished indie-game illustration with atmosphere and detail, clear focal subject visible when scaled down to 128x72. No text, no lettering, no logo, no border, no thumbnail grid, no UI. Absolutely no room, desk, furniture, workstation or streamer. This is one complete standalone illustration.",
+      "original": "source_art/stream_previews/library_v02/forest_original.png",
+      "game_asset": "assets/art/stream_previews/forest_v02.png"
+    }
+  ]
+}

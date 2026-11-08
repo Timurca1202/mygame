@@ -1,0 +1,125 @@
+{
+  "canvas_size": [
+    128,
+    72
+  ],
+  "items": [
+    {
+      "id": "cosmos",
+      "name": "КОСМИЧЕСКИЙ КИТ",
+      "score": 65,
+      "texture": "res://assets/art/stream_previews/cosmos_v02.png"
+    },
+    {
+      "id": "moon_cat",
+      "name": "ЛУННЫЙ КОТ",
+      "score": 70,
+      "texture": "res://assets/art/stream_previews/moon_cat_v02.png"
+    },
+    {
+      "id": "race",
+      "name": "НЕОНОВАЯ ГОНКА",
+      "score": 60,
+      "texture": "res://assets/art/stream_previews/race_v02.png"
+    },
+    {
+      "id": "forest",
+      "name": "ЛЕСНОЙ ДУХ",
+      "score": 75,
+      "texture": "res://assets/art/stream_previews/forest_v02.png"
+    }
+  ],
+  "text": {
+    "open": "ОТКРЫТЬ РЕДАКТОР ПРЕВЬЮ",
+    "selected": "ВЫБРАНО",
+    "note": "Превью создаётся в отдельном редакторе.",
+    "preview_score": "ПРЕВЬЮ: %d%%",
+    "packaging_score": "УПАКОВКА: %.1f%% / ВКЛАД В PS: +%.1f",
+    "edit": "НАЗВАНИЕ И ПРЕВЬЮ"
+  },
+  "editor": {
+    "palette": [
+      "121129",
+      "f4efff",
+      "aaa4c5",
+      "49345e",
+      "a94fec",
+      "ed63c7",
+      "ff8093",
+      "e04c46",
+      "ffa66e",
+      "ffd36c",
+      "b9ff69",
+      "4baa70",
+      "6ee8f3",
+      "397bd4",
+      "5146a8",
+      "6b4b3c"
+    ],
+    "brushes": [
+      1,
+      3,
+      5
+    ],
+    "undo_limit": 5,
+    "max_save_bytes": 524288,
+    "rating": {
+      "minimum": 30,
+      "coverage_ideal": [
+        0.45,
+        0.8
+      ],
+      "color_ideal": [
+        5,
+        10
+      ],
+      "contrast_reference": 0.7,
+      "focus_reference": 0.2,
+      "weights": {
+        "coverage": 30,
+        "colors": 20,
+        "contrast": 20,
+        "focus": 30
+      }
+    },
+    "text": {
+      "heading": "РЕДАКТОР ПРЕВЬЮ",
+      "cancel": "ОТМЕНА",
+      "hint": "128 × 72 / РИСУЙ ПО ПИКСЕЛЯМ",
+      "pencil": "1 PX",
+      "brush3": "3 PX",
+      "brush5": "5 PX",
+      "eraser": "ЛАСТИК",
+      "undo": "ОТМЕНИТЬ",
+      "clear": "ОЧИСТИТЬ",
+      "zoom": "МАСШТАБ",
+      "random": "РАНДОМ",
+      "apply": "ИСПОЛЬЗОВАТЬ ПРЕВЬЮ",
+      "custom_name": "МОЙ РИСУНОК",
+      "empty": "Нарисуй что-нибудь или нажми «Рандом».",
+      "random_help": "Рандом — готовая картинка.\nЕё тоже можно дорисовать.",
+      "save_error": "НЕ УДАЛОСЬ СОХРАНИТЬ ПРЕВЬЮ",
+      "load_error": "СОХРАНЁННОЕ ПРЕВЬЮ НЕ ПРОЧИТАНО",
+      "color": "ЦВЕТ %d",
+      "chosen": "ВЫБРАНО: %s"
+    },
+    "palette_names": [
+      "Ночной",
+      "Белый",
+      "Серый",
+      "Тёмно-фиолетовый",
+      "Фиолетовый",
+      "Розовый",
+      "Коралловый",
+      "Красный",
+      "Персиковый",
+      "Жёлтый",
+      "Лаймовый",
+      "Зелёный",
+      "Голубой",
+      "Синий",
+      "Индиго",
+      "Коричневый"
+    ]
+  }
+}

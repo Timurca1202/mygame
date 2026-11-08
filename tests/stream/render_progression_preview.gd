@@ -28,12 +28,15 @@ func click(point: Vector2) -> void:
 		event.pressed = pressed
 		viewport.push_input(event)
 
+	if ui._studio.report_visible:
+		ui._studio.dismiss_report()
+
 func capture(name: String) -> void:
 	ui._refresh()
 	for frame in range(2):
 		await process_frame
 		await RenderingServer.frame_post_draw
-	check(viewport.get_texture().get_image().save_png(OUTPUT + "/" + name + "_v07.png") == OK, "Screenshot: " + name)
+	check(viewport.get_texture().get_image().save_png(OUTPUT + "/" + name + "_v08.png") == OK, "Screenshot: " + name)
 
 func mount() -> void:
 	main = load("res://scenes/app/main.tscn").instantiate()
@@ -52,12 +55,12 @@ func run() -> void:
 	check(ui.wallet.balance_units == 0 and ui.wallet.followers == 0, "Fresh profile starts without money or followers")
 	check(main.get_node("StartRoom")._decor.is_empty(), "An unpurchased item must not appear in the room")
 	click(ui._shop_button.get_global_rect().get_center())
-	check(ui._shop.visible and ui._shop._action.disabled, "Shop opens but cannot spend unavailable money")
+	check(ui._shop.visible and ui._shop.rows["thrift_rug"].button.disabled, "Shop opens but cannot spend unavailable money")
 	await capture("progression_shop_locked")
 	ui._shop.hide()
 	ui._mode.select(1)
 	click(ui._action.get_global_rect().get_center())
-	check(not ui._shop_button.visible and ui.session.viewers == 3.0, "First live stream starts with three viewers and no shopping")
+	check(not ui._shop_button.is_visible_in_tree() and is_equal_approx(ui.session.viewers, 3.0 * ui._launch_rating.multiplier), "First live stream applies title rating to organic audience and disallows shopping")
 	ui._shop.open_shop()
 	check(not ui._shop.visible, "Shop cannot open during a live stream")
 	# Play a regular first stream with answers and thanks, using real domain actions.
@@ -75,16 +78,18 @@ func run() -> void:
 	check(ui.wallet.followers == 3.0 and ui.wallet.completed_streams == 1, "First result must save the three organic followers")
 	check(ui.wallet.balance_units >= 12500, "One regular stream must fund the first improvement")
 	await capture("progression_first_result")
+	check(ui._hint.get_global_rect().end.y <= ui._income_result.get_global_rect().position.y, "Result summary must not overlap income")
+	check(ui._income_result.get_global_rect().end.y <= ui._action.get_global_rect().position.y, "Income must not overlap new-stream action")
 	var earned: int = ui.wallet.balance_units
 	ui._settle_income(true)
 	check(ui.wallet.balance_units == earned and ui.wallet.followers == 3.0, "Reopening results cannot duplicate income or growth")
 	click(ui._shop_button.get_global_rect().get_center())
-	check(ui._shop.visible and not ui._shop._action.disabled, "Shop must unlock purchase after a funded stream")
+	check(ui._shop.visible and not ui._shop.rows["thrift_rug"].button.disabled, "Shop must unlock purchase after a funded stream")
 	await capture("progression_shop_available")
-	click(ui._shop._action.get_global_rect().get_center())
+	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"] and ui.wallet.balance_units == earned - 12500, "Buy button must charge once and equip the item")
-	check(ui._shop._action.disabled, "Purchase button must block an accidental double click")
-	click(ui._shop._action.get_global_rect().get_center())
+	check(ui._shop.rows["thrift_rug"].button.disabled, "Purchase button must block an accidental double click")
+	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"] and ui.wallet.balance_units == earned - 12500, "Double clicking must not sell the new rug")
 	check(main.get_node("StartRoom")._decor.has("thrift_rug"), "Purchased rug must appear in the actual room")
 	await capture("progression_purchase_receipt")
@@ -100,7 +105,8 @@ func run() -> void:
 	check(ui.session.viewers > 3.0 and ui.session.viewers <= 10.0, "Next stream must use the grown audience within the device cap")
 	await capture("progression_reloaded")
 	click(ui._shop_button.get_global_rect().get_center())
-	click(ui._shop._action.get_global_rect().get_center())
+	await capture("progression_sale_available")
+	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	await process_frame
 	check(ui.wallet.inventory.is_empty() and ui.wallet.balance_units == earned - 6250, "Sale through UI must refund exactly half")
 	check(not main.get_node("StartRoom")._decor.has("thrift_rug"), "Sold rug must disappear from the room")

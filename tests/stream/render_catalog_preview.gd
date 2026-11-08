@@ -28,16 +28,23 @@ func click(point: Vector2) -> void:
 		event.pressed = pressed
 		viewport.push_input(event)
 
+	if ui._studio.report_visible:
+		ui._studio.dismiss_report()
+
 func capture(name: String) -> void:
 	ui._refresh()
 	for frame in range(2):
 		await process_frame
 		await RenderingServer.frame_post_draw
-	check(viewport.get_texture().get_image().save_png(OUTPUT + "/catalog_" + name + "_v07.png") == OK, "Screenshot: " + name)
+	check(viewport.get_texture().get_image().save_png(OUTPUT + "/catalog_" + name + "_v08.png") == OK, "Screenshot: " + name)
+	check(ui._stream_tab.get_global_rect().position.y >= 900 and ui._shop_button.get_global_rect().position.y >= 900, "Both tabs must be at the bottom")
 	if ui._shop.visible:
-		check(ui._shop._description.get_global_rect().end.y <= ui._shop._effect.get_global_rect().position.y, "Description must not overlap effect")
-		check(ui._shop._panel.get_global_rect().end.y <= 690.0, "Catalog must fit above the bottom UI")
-		check(ui._shop._previous.size.x >= 44 and ui._shop._next.size.x >= 44, "Navigation must remain large enough for touch")
+		check(ui._shop._panel.get_global_rect().end.y < ui._navigation.get_global_rect().position.y, "List must not cover bottom navigation")
+		for view in ui._shop.rows.values():
+			check(view.button.size.y >= 44, "Every item must have a touch-sized action")
+			check(view.panel.get_global_rect().position.y >= ui._shop._scroll.get_global_rect().position.y and view.panel.get_global_rect().end.y <= ui._shop._scroll.get_global_rect().end.y, "All three items must be visible together without searching")
+	else:
+		check(ui._action.get_global_rect().end.y <= 900.0 if ui._navigation.visible else true, "Stream action must not overlap navigation")
 
 func mount() -> void:
 	main = load("res://scenes/app/main.tscn").instantiate()
@@ -57,32 +64,48 @@ func run() -> void:
 	await process_frame
 	await capture("before")
 	click(ui._shop_button.get_global_rect().get_center())
-	check(ui._shop._item.id == "thrift_rug", "Catalog must preserve the existing first item")
-	click(ui._shop._action.get_global_rect().get_center())
+	await capture("list_available")
+	# Exercise real scroll input with a shorter list viewport, as for a longer catalog.
+	var list_height: float = ui._shop._scroll.size.y
+	ui._shop._scroll.size.y = 300
+	await process_frame
+	for step in range(4):
+		for pressed in [true, false]:
+			var wheel := InputEventMouseButton.new()
+			wheel.position = ui._shop._scroll.get_global_rect().get_center()
+			wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+			wheel.pressed = pressed
+			viewport.push_input(wheel)
+	await process_frame
+	check(ui._shop._scroll.scroll_vertical > 0, "The list must actually scroll with input when content overflows")
+	check(ui._navigation.position.y == 900, "Scrolling items must not move the bottom tabs")
+	ui._shop._scroll.size.y = list_height
+	ui._shop._scroll.scroll_vertical = 0
+	for frame in range(2):
+		await process_frame
+	check(ui._shop.rows.size() == 3, "Catalog must show all three items in one list")
+	check(not ui._bottom_panel.visible, "Shop tab must hide stream controls")
+	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"], "Existing rug must still be purchasable")
-	click(ui._shop._next.get_global_rect().get_center())
-	check(ui._shop._item.id == "old_cactus" and not ui._shop._action.disabled, "Navigation must select cactus and reset transaction lock")
-	await capture("cactus_card")
-	click(ui._shop._action.get_global_rect().get_center())
-	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.balance_units == 9937500, "Cactus click must charge $5 once")
-	click(ui._shop._action.get_global_rect().get_center())
+	check(not ui._shop.rows["old_cactus"].button.disabled, "Buying one row must leave other purchases available")
+	click(ui._shop.rows["old_cactus"].button.get_global_rect().get_center())
+	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.balance_units == 9937500, "Cactus row must charge $5 once")
+	click(ui._shop.rows["old_cactus"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.balance_units == 9937500, "Double click cannot sell the purchased cactus")
-	click(ui._shop._next.get_global_rect().get_center())
-	check(ui._shop._item.id == "desk_fan" and ui._shop._effect.text.contains("15%"), "Fan card must describe the real cooling effect")
-	await capture("fan_card")
-	click(ui._shop._action.get_global_rect().get_center())
-	check(ui.wallet.balance_units == 9137500 and ui.wallet.inventory.size() == 3, "All three item prices must be charged correctly")
-	click(ui._shop._next.get_global_rect().get_center())
-	check(ui._shop._item.id == "thrift_rug", "Next must wrap from last item to first")
-	click(ui._shop._previous.get_global_rect().get_center())
-	check(ui._shop._item.id == "desk_fan", "Previous must wrap from first item to last")
-	ui._shop.hide()
+	check(ui._shop.rows["desk_fan"].effect.text.contains("15%"), "Fan row must describe actual cooling")
+	click(ui._shop.rows["desk_fan"].button.get_global_rect().get_center())
+	check(ui.wallet.balance_units == 9137500 and ui.wallet.inventory.size() == 3, "Each row must charge its own price")
+	await capture("list_purchased")
+	click(ui._stream_tab.get_global_rect().get_center())
+	check(not ui._shop.visible and ui._bottom_panel.visible, "Stream tab must restore the setup controls")
 	check(main.get_node("StartRoom")._decor.size() == 3, "All purchased items must coexist in the real room")
 	for id in ["old_cactus", "desk_fan"]:
 		var sprite: Sprite2D = main.get_node("StartRoom")._decor[id]
 		check(sprite.texture.get_image().detect_alpha() != Image.ALPHA_NONE, "New item must have actual transparency")
 		check(sprite.region_rect.size.y * sprite.scale.y <= 54.1, "New item must use its data-defined room scale")
 	await capture("room")
+	check(ui._hint.get_global_rect().end.y <= ui._mode.get_global_rect().position.y, "Ready hint must not be hidden by duration selector")
+	check(ui._mode.get_global_rect().end.y <= ui._action.get_global_rect().position.y, "Duration selector must not overlap start action")
 	var restored := Wallet.new(path)
 	check(restored.inventory.size() == 3 and restored.balance_units == 9137500, "Multi-item purchase must survive profile reload")
 	main.queue_free()
@@ -101,6 +124,9 @@ func run() -> void:
 	var room: Node2D = main.get_node("StartRoom")
 	room.set_process(false)
 	room.clock = 0.0
+	room.hero.set_process(false)
+	room.breathing.pause()
+	room.dust.pause()
 	DirAccess.make_dir_recursive_absolute("/tmp/hypster_fan_frames")
 	var first_air: PackedByteArray
 	for frame in range(12):
@@ -129,8 +155,8 @@ func run() -> void:
 	ui._refresh()
 	var before_sale: int = ui.wallet.balance_units
 	click(ui._shop_button.get_global_rect().get_center())
-	ui._shop.select_item(2)
-	click(ui._shop._action.get_global_rect().get_center())
+	await capture("list_sale")
+	click(ui._shop.rows["desk_fan"].button.get_global_rect().get_center())
 	await process_frame
 	check(ui.wallet.balance_units == before_sale + 400000, "Selling fan via UI must refund $40")
 	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.inventory.has("thrift_rug") and not ui.wallet.inventory.has("desk_fan"), "Selling one item must preserve other room purchases")

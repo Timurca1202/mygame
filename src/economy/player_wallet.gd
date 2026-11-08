@@ -1,13 +1,14 @@
 extends RefCounted
 ## Atomic profile transactions: money, audience progress and room purchases.
 ## Checksum + atomic rename + previous valid backup. No autoload is needed.
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const RECENT_LIMIT := 100
 var balance_units := 0
 var followers := 0.0
 var completed_streams := 0
 var last_score := 0.0
 var inventory: Array[String] = []
+var recent_titles: Array[String] = []
 var load_error: Error = OK
 var recovered_from_backup := false
 var _path: String
@@ -72,6 +73,13 @@ func _read(path: String) -> Dictionary:
 			if not id is String or id.is_empty() or seen.has(id):
 				return {}
 			seen[id] = true
+	if int(version) < 3:
+		payload["recent_titles"] = []
+	if not payload.get("recent_titles") is Array or payload.recent_titles.size() > 5:
+		return {}
+	for title in payload.recent_titles:
+		if not title is String or title.strip_edges().is_empty() or title.length() > 40:
+			return {}
 	return payload
 
 func _load() -> void:
@@ -97,10 +105,22 @@ func _apply(payload: Dictionary) -> void:
 	completed_streams = int(payload.completed_streams)
 	last_score = float(payload.last_score)
 	inventory.assign(payload.inventory)
+	recent_titles.assign(payload.recent_titles)
 	_credited.assign(payload.credited_sessions)
 
 func _payload() -> Dictionary:
-	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate()}
+	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate(), "recent_titles": recent_titles.duplicate()}
+
+func remember_title(title: String) -> Error:
+	if load_error != OK:
+		return load_error
+	if title.strip_edges().is_empty() or title.length() > 40:
+		return ERR_INVALID_PARAMETER
+	var payload := _payload()
+	payload.recent_titles.append(title.strip_edges())
+	if payload.recent_titles.size() > 5:
+		payload.recent_titles.pop_front()
+	return _persist(payload)
 
 func credit(session_id: String, amount_units: int) -> Error:
 	return settle_stream(session_id, amount_units, 0.0, last_score, false)
