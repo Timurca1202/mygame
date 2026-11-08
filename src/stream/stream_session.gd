@@ -18,6 +18,9 @@ var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
 var viewers := 3.0
+var viewer_cap := INF
+var device_quality := -1.0
+var device_id := ""
 var cooling_ratio := 0.0
 var chat: RefCounted
 var income: RefCounted
@@ -29,6 +32,9 @@ var _last_activity := -INF
 func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []) -> void:
 	_config = config.duplicate(true)
 	viewers = float(config.economy.viewers)
+	viewer_cap = float(config.get("viewer_cap", INF))
+	device_quality = float(config.get("device_quality", -1.0))
+	device_id = str(config.get("device_id", ""))
 	cooling_ratio = clampf(float(config.get("cooling_ratio", 0.0)), 0.0, float(config.get("max_cooling_ratio", 0.6)))
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
@@ -132,13 +138,14 @@ func _step(delta: float) -> void:
 	var decay := float(_config.hype_idle_decay_per_second) if is_hype_cooling() else float(_config.hype_decay_per_second)
 	_change_hype(-decay * game_step / speed)
 	income.advance(game_step, game_step / speed)
-	if heat >= 100.0 - 0.000001:
-		heat = 100.0
-		end_reason = EndReason.OVERHEATED
-		state = State.FINISHED
-	elif elapsed_game >= duration - 0.000001:
+	# At the exact scheduled finish, completion wins a simultaneous heat boundary.
+	if elapsed_game >= duration - 0.000001:
 		elapsed_game = duration
 		end_reason = EndReason.COMPLETED
+		state = State.FINISHED
+	elif heat >= 100.0 - 0.000001:
+		heat = 100.0
+		end_reason = EndReason.OVERHEATED
 		state = State.FINISHED
 	if chat != null:
 		var before := hype

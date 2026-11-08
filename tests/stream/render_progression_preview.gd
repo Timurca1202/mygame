@@ -31,6 +31,11 @@ func click(point: Vector2) -> void:
 	if ui._studio.report_visible:
 		ui._studio.dismiss_report()
 
+func reveal(id: String) -> void:
+	ui._shop._scroll.ensure_control_visible(ui._shop.rows[id].panel)
+	for frame in range(2):
+		await process_frame
+
 func capture(name: String) -> void:
 	ui._refresh()
 	for frame in range(2):
@@ -86,9 +91,11 @@ func run() -> void:
 	click(ui._shop_button.get_global_rect().get_center())
 	check(ui._shop.visible and not ui._shop.rows["thrift_rug"].button.disabled, "Shop must unlock purchase after a funded stream")
 	await capture("progression_shop_available")
+	await reveal("thrift_rug")
 	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"] and ui.wallet.balance_units == earned - 12500, "Buy button must charge once and equip the item")
 	check(ui._shop.rows["thrift_rug"].button.disabled, "Purchase button must block an accidental double click")
+	await reveal("thrift_rug")
 	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"] and ui.wallet.balance_units == earned - 12500, "Double clicking must not sell the new rug")
 	check(main.get_node("StartRoom")._decor.has("thrift_rug"), "Purchased rug must appear in the actual room")
@@ -106,6 +113,7 @@ func run() -> void:
 	await capture("progression_reloaded")
 	click(ui._shop_button.get_global_rect().get_center())
 	await capture("progression_sale_available")
+	await reveal("thrift_rug")
 	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	await process_frame
 	check(ui.wallet.inventory.is_empty() and ui.wallet.balance_units == earned - 6250, "Sale through UI must refund exactly half")

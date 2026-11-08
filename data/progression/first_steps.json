@@ -55,6 +55,48 @@
   },
   "items": [
     {
+      "id": "ifone_2g",
+      "name": "iFone 2G",
+      "category": "ТЕХНИКА",
+      "description": "Первый сенсорный телефон.\nЗеркальце заменяет фронталку.",
+      "price_units": 600000,
+      "vibe": 0,
+      "benefit": "ЗРИТЕЛИ: 10 → 25\nЭФИР: 20 → 30 МИН\nКАЧЕСТВО: 0.20 → 0.30",
+      "texture": "res://assets/art/equipment/ifone_2g_v01.png",
+      "position": [
+        350,
+        439
+      ],
+      "display_height": 46,
+      "flip_h": false,
+      "reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg / P2",
+      "device": {
+        "capacity_seconds": 1800,
+        "viewer_cap": 25,
+        "quality": 0.3,
+        "desk_texture": "res://assets/art/rooms/e1/desk_without_phone_v01.png",
+        "activity_position": [
+          346,
+          442
+        ],
+        "short_name": "iFone 2G",
+        "screen": {
+          "origin": [
+            142,
+            184
+          ],
+          "right": [
+            80,
+            28
+          ],
+          "down": [
+            -50,
+            175
+          ]
+        }
+      }
+    },
+    {
       "id": "thrift_rug",
       "name": "КОВЁР С БАРАХОЛКИ",
       "description": "Потёртый, зато свой.\nПервый уют в пустой комнате.",
@@ -126,7 +168,7 @@
     "sold": "ПРОДАНО / +$%s",
     "save_failed": "НЕ УДАЛОСЬ СОХРАНИТЬ / ПОПРОБУЙ СНОВА",
     "score_note": "PS: ЧАТ, ТАПЫ, СПАСИБО И КОМНАТА",
-    "future_note": "Редактор своего превью — следующий этап.",
+    "future_note": "Своё превью — в отдельном редакторе.",
     "receipt": "Покупка сразу появится в комнате.\nПродажа вернёт 50% цены.",
     "result_saved": "СОХРАНЕНО / +%d ПОДП. / PS %d",
     "done": "ГОТОВО",
@@ -140,18 +182,37 @@
     "cooling_badge": " / ОХЛ. −%d%%",
     "followers_cooled": "ПОДП. %d / ОХЛ. −%d%%",
     "stream_tab": "ЭФИР",
-    "list_hint": "ПРЕДМЕТЫ ДЛЯ КОМНАТЫ / ЦЕНЫ И ЭФФЕКТЫ",
+    "list_hint": "ДЕКОР И ТЕХНИКА / ЛИСТАЙ СПИСОК",
     "list_owned": " / В КОМНАТЕ",
     "list_buy": "КУПИТЬ",
     "list_sell": "ПРОДАТЬ $%s",
     "list_bought": "КУПЛЕНО",
     "list_sold": "ПРОДАНО",
     "list_missing": "ЕЩЁ $%s",
-    "list_footer": "ПОКУПКА СРАЗУ В КОМНАТЕ / ПРОДАЖА 50%"
+    "list_footer": "ПОКУПКА СРАЗУ В КОМНАТЕ / ПРОДАЖА 50%",
+    "device_choose": "ВЫБРАТЬ",
+    "device_selected": "ВЫБРАН",
+    "device_stored": " / ЗАПАСНОЙ",
+    "device_active": " / ВЫБРАН",
+    "device_choice": "УСТРОЙСТВО ДЛЯ ЭФИРА",
+    "device_option": "%s / %d ЗР. / %d МИН",
+    "device_changed": "ВЫБРАН: %s",
+    "audience_device": "%s: %.1f/%d ЗР.",
+    "device_chat": "ЧАТ / ВИДЕОЭФИР",
+    "shop_items_tab": "ПРЕДМЕТЫ",
+    "shop_devices_tab": "УСТРОЙСТВА"
   },
   "cooling_cap": 0.6,
   "packaging_mix": {
     "title": 0.5,
     "preview": 0.5
+  },
+  "starter_device": {
+    "id": "",
+    "name": "Кирпич 3300",
+    "capacity_seconds": 1200,
+    "viewer_cap": 10,
+    "quality": 0.2,
+    "short_name": "3300"
   }
 }

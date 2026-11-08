@@ -18,6 +18,7 @@
 ## Техника
 
 - `ref/device/Main/` — устройства для стрима.
+  - `Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg` — телефоны P1–P10. **P2: верхний ряд, второй предмет** — iFone 2G с зеркальцем, опирающийся на кружку; добавлен в игру первым апгрейдом. Происхождение: `source_art/equipment/ifone_2g/provenance.md`.
 - `ref/device/camera/` — камеры.
 - `ref/device/microphone/` — микрофоны.
 - `ref/device/light/` — свет: в просмотренном листе L1 настольная лампа, L2 LED-лента, L3 кольцевая лампа, далее студийные приборы.

@@ -9,6 +9,9 @@ var _scroll: ScrollContainer
 var _list: VBoxContainer
 var _locked: Dictionary = {}
 var _notice := ""
+var _items_tab: Button
+var _devices_tab: Button
+var _show_devices := false
 
 func _ready() -> void:
 	size = Vector2(540, 960)
@@ -26,10 +29,11 @@ func _ready() -> void:
 	host._label(_panel, host._progress_text.shop, Rect2(20, 14, 240, 32), 30, host.CYAN)
 	_balance = host._label(_panel, "", Rect2(252, 20, 228, 24), 20, host.AMBER)
 	_balance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	host._label(_panel, host._progress_text.list_hint, Rect2(20, 50, 460, 24), 18, host.MUTED)
+	_items_tab = _category_button(host._progress_text.shop_items_tab, 20, false)
+	_devices_tab = _category_button(host._progress_text.shop_devices_tab, 254, true)
 	_scroll = ScrollContainer.new()
-	_scroll.position = Vector2(12, 84)
-	_scroll.size = Vector2(476, 536)
+	_scroll.position = Vector2(12, 108)
+	_scroll.size = Vector2(476, 512)
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_panel.add_child(_scroll)
 	_list = VBoxContainer.new()
@@ -39,13 +43,41 @@ func _ready() -> void:
 	for item in host.progression.config.items:
 		_build_row(item)
 	_message = host._label(_panel, "", Rect2(20, 632, 460, 28), 18, host.CYAN)
-	refresh_catalog()
+	_select_tab(false)
 	hide()
+
+func _category_button(caption: String, x: float, devices: bool) -> Button:
+	var button := Button.new()
+	button.position = Vector2(x, 50)
+	button.size = Vector2(226, 44)
+	button.text = caption
+	button.accessibility_name = caption
+	button.toggle_mode = true
+	button.add_theme_font_size_override("font_size", 22)
+	button.pressed.connect(_select_tab.bind(devices))
+	_panel.add_child(button)
+	return button
+
+func _select_tab(devices: bool) -> void:
+	_show_devices = devices
+	_notice = ""
+	_scroll.scroll_vertical = 0
+	for view in rows.values():
+		view.panel.visible = view.item.has("device") == devices
+	for button in [_items_tab, _devices_tab]:
+		var active: bool = (button == _devices_tab) == devices
+		button.set_pressed_no_signal(active)
+		button.add_theme_color_override("font_color", host.GREEN if active else host.MUTED)
+		for state in ["normal", "hover", "pressed", "focus"]:
+			var fill := Color("233c36") if active else Color("17102f")
+			button.add_theme_stylebox_override(state, host._style(fill.lightened(0.10) if state == "pressed" else fill, host.GREEN if active or state == "focus" else host.PURPLE, 6))
+	refresh_catalog()
 
 func _build_row(item: Dictionary) -> void:
 	var id := str(item.id)
+	var device := item.has("device")
 	var row := Panel.new()
-	row.custom_minimum_size = Vector2(0, 164)
+	row.custom_minimum_size = Vector2(0, 212 if device else 164)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_theme_stylebox_override("panel", host._style(Color("1a1031"), Color("704298"), 6))
@@ -63,6 +95,8 @@ func _build_row(item: Dictionary) -> void:
 	title.clip_text = true
 	var state: Label = host._label(row, "", Rect2(116, 44, 336, 20), 16, host.MUTED)
 	var effect: Label = host._label(row, str(item.benefit), Rect2(116, 70, 336, 24), 18, host.GREEN)
+	if device:
+		effect.size.y = 70
 	var price: Label = host._label(row, "$" + host._money(int(item.price_units)), Rect2(116, 110, 128, 28), 22, host.AMBER)
 	var button := Button.new()
 	button.position = Vector2(250, 106)
@@ -73,7 +107,17 @@ func _build_row(item: Dictionary) -> void:
 		button.add_theme_stylebox_override(state_name, host._style(Color("22153d"), host.PURPLE if state_name == "disabled" else host.GREEN, 6))
 	button.pressed.connect(_transact.bind(id))
 	row.add_child(button)
-	rows[id] = {"panel": row, "button": button, "state": state, "effect": effect, "price": price, "item": item}
+	var choose: Button = null
+	if device:
+		price.position.y = 162
+		button.position.y = 156
+		choose = Button.new()
+		choose.position = Vector2(12, 156)
+		choose.size = Vector2(92, 44)
+		choose.add_theme_font_size_override("font_size", 16)
+		choose.pressed.connect(_choose_device.bind(id))
+		row.add_child(choose)
+	rows[id] = {"panel": row, "button": button, "choose": choose, "state": state, "effect": effect, "price": price, "item": item}
 
 func open_shop() -> void:
 	if host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED:
@@ -94,6 +138,12 @@ func refresh_catalog() -> void:
 		var price := int(item.price_units)
 		var refund := int(floor(price * float(host.progression.config.sale_ratio)))
 		view.state.text = str(item.category) + (host._progress_text.list_owned if owned else "")
+		if item.has("device"):
+			var selected: bool = host.wallet.equipped_device == id
+			view.state.text = str(item.category) + ((host._progress_text.device_active if selected else host._progress_text.device_stored) if owned else "")
+			view.choose.visible = owned
+			view.choose.text = host._progress_text.device_selected if selected else host._progress_text.device_choose
+			view.choose.disabled = selected or host.wallet.load_error != OK or host._save_pending
 		view.state.add_theme_color_override("font_color", host.GREEN if owned else host.MUTED)
 		view.button.text = host._progress_text.list_sell % host._money(refund) if owned else host._progress_text.list_buy
 		if _locked.has(id):
@@ -104,6 +154,8 @@ func refresh_catalog() -> void:
 	_message.text = _notice if not _notice.is_empty() else host._progress_text.list_footer
 
 func _transact(id: String) -> void:
+	if not rows.has(id) or not rows[id].panel.is_visible_in_tree():
+		return
 	if _locked.has(id) or not visible or host._save_pending or (host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED):
 		return
 	var item: Dictionary = host.progression.item(id)
@@ -115,7 +167,20 @@ func _transact(id: String) -> void:
 	if error == OK:
 		_locked[id] = true
 		_notice = host._progress_text.sold % host._money(int(floor(price * float(host.progression.config.sale_ratio)))) if owned else host._progress_text.bought_item % host._money(price)
+		if item.has("device"):
+			host._device_changed()
 	else:
 		_notice = host._progress_text.save_failed
 	host._refresh()
+	refresh_catalog()
+
+func _choose_device(id: String) -> void:
+	if not rows.has(id) or not rows[id].panel.is_visible_in_tree():
+		return
+	if not visible or host._save_pending or (host.session.state != host.Session.State.READY and host.session.state != host.Session.State.FINISHED):
+		return
+	var error: Error = host.progression.equip(host.wallet, id)
+	_notice = host._progress_text.device_changed % host.progression.item(id).name if error == OK else host._progress_text.save_failed
+	if error == OK:
+		host._device_changed()
 	refresh_catalog()

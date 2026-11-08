@@ -1,7 +1,7 @@
 extends RefCounted
 ## Atomic profile transactions: money, audience progress and room purchases.
 ## Checksum + atomic rename + previous valid backup. No autoload is needed.
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
 const RECENT_LIMIT := 100
 var balance_units := 0
 var followers := 0.0
@@ -9,6 +9,7 @@ var completed_streams := 0
 var last_score := 0.0
 var inventory: Array[String] = []
 var recent_titles: Array[String] = []
+var equipped_device := ""
 var load_error: Error = OK
 var recovered_from_backup := false
 var _path: String
@@ -80,6 +81,12 @@ func _read(path: String) -> Dictionary:
 	for title in payload.recent_titles:
 		if not title is String or title.strip_edges().is_empty() or title.length() > 40:
 			return {}
+	if int(version) < 4:
+		payload["equipped_device"] = ""
+	if not payload.get("equipped_device") is String:
+		return {}
+	if not payload.equipped_device.is_empty() and not payload.inventory.has(payload.equipped_device):
+		return {}
 	return payload
 
 func _load() -> void:
@@ -106,10 +113,11 @@ func _apply(payload: Dictionary) -> void:
 	last_score = float(payload.last_score)
 	inventory.assign(payload.inventory)
 	recent_titles.assign(payload.recent_titles)
+	equipped_device = payload.equipped_device
 	_credited.assign(payload.credited_sessions)
 
 func _payload() -> Dictionary:
-	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate(), "recent_titles": recent_titles.duplicate()}
+	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate(), "recent_titles": recent_titles.duplicate(), "equipped_device": equipped_device}
 
 func remember_title(title: String) -> Error:
 	if load_error != OK:
@@ -146,7 +154,7 @@ func settle_stream(session_id: String, amount_units: int, follower_gain: float, 
 	payload.completed_streams += 1 if count_stream else 0
 	return _persist(payload)
 
-func buy(item_id: String, price_units: int) -> Error:
+func buy(item_id: String, price_units: int, equip_on_purchase: bool = false) -> Error:
 	if load_error != OK:
 		return load_error
 	if item_id.is_empty() or price_units <= 0:
@@ -158,6 +166,19 @@ func buy(item_id: String, price_units: int) -> Error:
 	var payload := _payload()
 	payload.balance_units -= price_units
 	payload.inventory.append(item_id)
+	if equip_on_purchase:
+		payload.equipped_device = item_id
+	return _persist(payload)
+
+func select_device(item_id: String) -> Error:
+	if load_error != OK:
+		return load_error
+	if not item_id.is_empty() and not inventory.has(item_id):
+		return ERR_DOES_NOT_EXIST
+	if equipped_device == item_id:
+		return OK
+	var payload := _payload()
+	payload.equipped_device = item_id
 	return _persist(payload)
 
 func sell(item_id: String, refund_units: int) -> Error:
@@ -168,6 +189,8 @@ func sell(item_id: String, refund_units: int) -> Error:
 	var payload := _payload()
 	payload.balance_units += refund_units
 	payload.inventory.erase(item_id)
+	if payload.equipped_device == item_id:
+		payload.equipped_device = ""
 	return _persist(payload)
 
 func _persist(payload: Dictionary) -> Error:

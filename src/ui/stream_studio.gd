@@ -17,6 +17,8 @@ var preview_catalog: Dictionary
 var preview_document: RefCounted
 var _editor: Control
 var _preview_button: Button
+var _device_selector: OptionButton
+var _device_state := ""
 
 func _ready() -> void:
 	size = Vector2(540, 960)
@@ -28,10 +30,25 @@ func _ready() -> void:
 	if not preview_document.has_content():
 		preview_document.use_library(0)
 	preview_document.undo_stack.clear()
-	_form = host._panel(Rect2(20, 274, 500, 430))
+	_form = host._panel(Rect2(20, 212, 500, 492))
 	host.remove_child(_form)
 	add_child(_form)
 	host._label(_form, rules.text.studio, Rect2(20, 12, 460, 32), 28, host.CYAN)
+	_device_selector = OptionButton.new()
+	_device_selector.position = Vector2(20, 52)
+	_device_selector.size = Vector2(460, 44)
+	_device_selector.accessibility_name = host._progress_text.device_choice
+	_device_selector.add_theme_font_size_override("font_size", 20)
+	_device_selector.get_popup().add_theme_constant_override("v_separation", 24)
+	_form.add_child(_device_selector)
+	_device_selector.item_selected.connect(func(index):
+		if host.session.state != host.Session.State.READY:
+			return
+		var error: Error = host.progression.equip(host.wallet, str(_device_selector.get_item_metadata(index)))
+		if error != OK:
+			_message.text = host._progress_text.save_failed
+			_device_state = ""
+		host._device_changed())
 	host._label(_form, rules.text.title, Rect2(20, 52, 460, 24), 20)
 	title_input = LineEdit.new()
 	title_input.position = Vector2(20, 80)
@@ -62,6 +79,10 @@ func _ready() -> void:
 	_message = host._label(_form, preview_catalog.text.note, Rect2(20, 350, 460, 24), 18, host.MUTED)
 	var done := _button(_form, rules.text.done, Rect2(20, 374, 460, 44))
 	done.pressed.connect(close_form)
+	# The device selector occupies the free strip above the existing preparation fields.
+	for child in _form.get_children():
+		if child is Control and child != _device_selector and child.position.y >= 52:
+			child.position.y += 60
 	_form.hide()
 	_report_panel = host._panel(Rect2(20, 274, 500, 430))
 	host.remove_child(_report_panel)
@@ -166,6 +187,7 @@ func dismiss_report() -> void:
 	host._refresh()
 
 func refresh() -> void:
+	_refresh_device_choices()
 	var ready: bool = host.session.state == host.Session.State.READY
 	_edit_button.visible = ready
 	if ready:
@@ -188,3 +210,17 @@ func refresh() -> void:
 		host._bottom_title.visible = true
 		host._bottom_title.text = rules.text.report
 		host._live_detail.hide()
+
+func _refresh_device_choices() -> void:
+	var state := JSON.stringify([host.wallet.inventory, host.wallet.equipped_device])
+	if state == _device_state:
+		return
+	_device_state = state
+	_device_selector.clear()
+	var index := 0
+	for device in host.progression.owned_devices(host.wallet):
+		_device_selector.add_item(host._progress_text.device_option % [device.name, int(device.viewer_cap), int(device.capacity_seconds) / 60])
+		_device_selector.set_item_metadata(index, device.id)
+		if device.id == host.wallet.equipped_device:
+			_device_selector.select(index)
+		index += 1

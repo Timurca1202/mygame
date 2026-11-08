@@ -20,12 +20,13 @@ func audience(followers: float, score: float) -> float:
 func target_audience(followers: float, score: float) -> float:
 	return (organic(followers) + followers * online_ratio(followers)) * (0.5 + clampf(score, 0.0, 100.0) / 100.0)
 
-func follower_gain(followers: float, score: float, game_seconds: float) -> float:
+func follower_gain(followers: float, score: float, game_seconds: float, device_cap: float = -1.0) -> float:
 	if game_seconds <= 0.0:
 		return 0.0
 	var g := float(config.growth_base) + pow(clampf(score, 0.0, 100.0) / 100.0, float(config.growth_exponent)) * float(config.growth_factor)
 	var length_factor := sqrt(game_seconds / 60.0 / float(config.length_reference_minutes))
-	var cap_factor := pow(minf(1.0, float(config.viewer_cap) / target_audience(followers, score)), float(config.cap_exponent))
+	var cap := device_cap if device_cap >= 0.0 else float(config.viewer_cap)
+	var cap_factor := pow(minf(1.0, cap / target_audience(followers, score)), float(config.cap_exponent))
 	return followers * g * length_factor * cap_factor + organic(followers)
 
 func vibe(inventory: Array) -> int:
@@ -52,9 +53,10 @@ func performance(session: RefCounted, inventory: Array, packaging_score: float =
 	var tapping := clampf(session.tap_count / maxf(1.0, session.elapsed_real * float(config.tap_activity_per_second)), 0.0, 1.0)
 	var gratitude: float = float(session.income.thanked_count) / session.income.donation_count if session.income.donation_count > 0 else 0.0
 	var activity: float = accuracy * float(config.activity_weights.chat) + tapping * float(config.activity_weights.taps) + gratitude * float(config.activity_weights.thanks)
+	var quality: float = session.device_quality if session.device_quality >= 0.0 else float(config.equipment_quality)
 	var components := {
 		"activity": activity * 100.0,
-		"equipment": clampf(float(config.equipment_quality) / float(config.epoch_quality_reference), 0.0, 1.0) * 100.0,
+		"equipment": clampf(quality / float(config.epoch_quality_reference), 0.0, 1.0) * 100.0,
 		"packaging": clampf(packaging_score, 0.0, 100.0) if packaging_score >= 0.0 else float(config.starter_packaging_score),
 		"decor": clampf(vibe(inventory) / float(config.vibe_for_full_score), 0.0, 1.0) * 100.0,
 		"reputation": float(config.starting_reputation_score)}
@@ -71,8 +73,32 @@ func item(item_id: String) -> Dictionary:
 
 func buy(wallet: RefCounted, item_id: String) -> Error:
 	var entry := item(item_id)
-	return ERR_INVALID_PARAMETER if entry.is_empty() else wallet.buy(item_id, int(entry.price_units))
+	return ERR_INVALID_PARAMETER if entry.is_empty() else wallet.buy(item_id, int(entry.price_units), entry.has("device"))
 
 func sell(wallet: RefCounted, item_id: String) -> Error:
 	var entry := item(item_id)
 	return ERR_INVALID_PARAMETER if entry.is_empty() else wallet.sell(item_id, int(floor(float(entry.price_units) * float(config.sale_ratio))))
+
+func selected_device(wallet: RefCounted) -> Dictionary:
+	var entry := item(wallet.equipped_device)
+	if entry.is_empty() or not entry.has("device") or not wallet.inventory.has(wallet.equipped_device):
+		return config.starter_device.duplicate(true)
+	return _device_description(entry)
+
+func _device_description(entry: Dictionary) -> Dictionary:
+	var description: Dictionary = entry.device.duplicate(true)
+	description["id"] = entry.id
+	description["name"] = entry.name
+	return description
+
+func owned_devices(wallet: RefCounted) -> Array[Dictionary]:
+	var result: Array[Dictionary] = [config.starter_device.duplicate(true)]
+	for entry in config.items:
+		if entry.has("device") and wallet.inventory.has(str(entry.id)):
+			result.append(_device_description(entry))
+	return result
+
+func equip(wallet: RefCounted, item_id: String) -> Error:
+	if not item_id.is_empty() and not item(item_id).has("device"):
+		return ERR_INVALID_PARAMETER
+	return wallet.select_device(item_id)

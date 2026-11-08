@@ -22,6 +22,7 @@ const PURPLE := Color("a94fec")
 var title_rating: RefCounted
 var _studio: Control
 var _launch_rating: Dictionary = {}
+var _device: Dictionary = {}
 var session: RefCounted
 var config: Dictionary
 var _text: Dictionary
@@ -120,11 +121,32 @@ func _ready() -> void:
 
 func _new_session() -> void:
 	var run_config := config.duplicate(true)
+	_device = progression.selected_device(wallet)
+	run_config.device_name = _device.name
+	run_config.device_capacity_seconds = _device.capacity_seconds
+	run_config["viewer_cap"] = _device.viewer_cap
+	run_config["device_quality"] = _device.quality
+	run_config["device_id"] = _device.id
 	var score: float = wallet.last_score if wallet.completed_streams > 0 else float(progression.config.first_stream_score)
-	run_config.economy.viewers = minf(float(progression.config.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
+	run_config.economy.viewers = minf(float(_device.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
 	run_config.cooling_ratio = progression.cooling(wallet.inventory)
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
+
+func _device_changed() -> void:
+	if session.state == Session.State.READY:
+		_new_session()
+	_refresh()
+
+func _refresh_device_controls() -> void:
+	var last_available := 0
+	for index in range(config.durations.size()):
+		var available := float(config.durations[index].seconds) <= float(_device.capacity_seconds)
+		_mode.set_item_disabled(index, not available)
+		if available:
+			last_available = index
+	if _mode.is_item_disabled(_mode.selected):
+		_mode.select(last_available)
 
 func _build_progression() -> void:
 	_channel_label = _label(self, "", Rect2(28, 212, 330, 25), 20, CYAN)
@@ -203,12 +225,12 @@ func _refresh_progression() -> void:
 	var cooling: float = progression.cooling(wallet.inventory)
 	if cooling > 0.0:
 		_channel_label.text = _progress_text.followers_cooled % [int(floor(wallet.followers)), roundi(cooling * 100.0)]
-	_channel_detail.text = _progress_text.audience % [session.viewers, int(progression.config.viewer_cap)]
+	_channel_detail.text = _progress_text.audience_device % [_device.short_name, session.viewers, int(_device.viewer_cap)]
 	if session.state == Session.State.FINISHED and _result_score >= 0.0:
 		_channel_detail.text = _progress_text.result % [_visible_gain, roundi(_result_score)]
 	var room := get_parent().get_parent().get_node_or_null("StartRoom")
 	if room != null:
-		room.apply_inventory(wallet.inventory, progression.config.items)
+		room.apply_inventory(wallet.inventory, progression.config.items, wallet.equipped_device)
 
 func _process(delta: float) -> void:
 	if session != null:
@@ -344,6 +366,7 @@ func _build_interface() -> void:
 	_mode.get_popup().theme = theme
 	_mode.get_popup().add_theme_stylebox_override("panel", _style(Color("17102f"), PURPLE, 6))
 	_mode.get_popup().add_theme_color_override("font_color", INK)
+	_mode.get_popup().add_theme_constant_override("v_separation", 24)
 	bottom.add_child(_mode)
 	_live_detail = _label(bottom, "", Rect2(20, 116, 460, 28), 20, CYAN)
 	_income_result = _label(bottom, "", Rect2(20, 106, 460, 42), 20, AMBER)
@@ -425,7 +448,7 @@ func _settle_income(retry: bool = false) -> void:
 		wallet = Wallet.new(wallet_path)
 	if _result_score < 0.0:
 		_result_score = progression.performance(session, _starting_inventory, float(_launch_rating.get("packaging_score", -1.0)))
-		_follower_gain = progression.follower_gain(_starting_followers, _result_score, session.elapsed_game)
+		_follower_gain = progression.follower_gain(_starting_followers, _result_score, session.elapsed_game, session.viewer_cap)
 		_visible_gain = int(floor(_starting_followers + _follower_gain)) - int(floor(_starting_followers))
 	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score)
 	_save_pending = error != OK
@@ -536,7 +559,7 @@ func _refresh_chat() -> void:
 		_chat_clock.add_theme_color_override("font_color", RED if chat.seconds_left() <= 2.0 else GREEN)
 		_chat_time_bar.value = chat.seconds_left()
 	else:
-		_chat_heading.text = _text.chat_title
+		_chat_heading.text = _text.chat_title if session.device_id.is_empty() else _progress_text.device_chat
 		_chat_clock.text = _text.chat_combo % chat.combo
 		_chat_clock.add_theme_color_override("font_color", MUTED)
 		var messages := PackedStringArray()
@@ -612,6 +635,7 @@ func _action_pressed() -> void:
 		return
 	match session.state:
 		Session.State.READY:
+			_refresh_device_controls()
 			var rating: Dictionary = title_rating.evaluate(_studio.title_input.text, _studio.genre, _studio.selected_themes(), wallet.recent_titles)
 			if rating.is_empty():
 				return
@@ -656,6 +680,8 @@ func _refresh() -> void:
 	if room != null and room.has_method("sync_session"):
 		room.sync_session(session)
 	var ready: bool = session.state == Session.State.READY
+	if ready:
+		_refresh_device_controls()
 	_mode.visible = ready
 	var planned: float = float(config.durations[_mode.selected].seconds) if ready else session.duration
 	_timer.text = _text.timer % [_clock(session.elapsed_game), _clock(planned)]

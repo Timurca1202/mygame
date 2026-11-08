@@ -31,6 +31,11 @@ func click(point: Vector2) -> void:
 	if ui._studio.report_visible:
 		ui._studio.dismiss_report()
 
+func reveal(id: String) -> void:
+	ui._shop._scroll.ensure_control_visible(ui._shop.rows[id].panel)
+	for frame in range(2):
+		await process_frame
+
 func capture(name: String) -> void:
 	ui._refresh()
 	for frame in range(2):
@@ -41,8 +46,10 @@ func capture(name: String) -> void:
 	if ui._shop.visible:
 		check(ui._shop._panel.get_global_rect().end.y < ui._navigation.get_global_rect().position.y, "List must not cover bottom navigation")
 		for view in ui._shop.rows.values():
+			if not view.panel.visible:
+				continue
 			check(view.button.size.y >= 44, "Every item must have a touch-sized action")
-			check(view.panel.get_global_rect().position.y >= ui._shop._scroll.get_global_rect().position.y and view.panel.get_global_rect().end.y <= ui._shop._scroll.get_global_rect().end.y, "All three items must be visible together without searching")
+			check(view.panel.get_global_rect().position.x >= ui._shop._scroll.get_global_rect().position.x and view.panel.get_global_rect().end.x <= ui._shop._scroll.get_global_rect().end.x, "Rows must fit the scroll viewport horizontally")
 	else:
 		check(ui._action.get_global_rect().end.y <= 900.0 if ui._navigation.visible else true, "Stream action must not overlap navigation")
 
@@ -69,6 +76,9 @@ func run() -> void:
 	var list_height: float = ui._shop._scroll.size.y
 	ui._shop._scroll.size.y = 300
 	await process_frame
+	var scroll_hover := InputEventMouseMotion.new()
+	scroll_hover.position = ui._shop._scroll.get_global_rect().get_center()
+	viewport.push_input(scroll_hover)
 	for step in range(4):
 		for pressed in [true, false]:
 			var wheel := InputEventMouseButton.new()
@@ -83,16 +93,20 @@ func run() -> void:
 	ui._shop._scroll.scroll_vertical = 0
 	for frame in range(2):
 		await process_frame
-	check(ui._shop.rows.size() == 3, "Catalog must show all three items in one list")
+	check(ui._shop.rows.size() == ui.progression.config.items.size(), "Catalog must include all items in one scrollable list")
 	check(not ui._bottom_panel.visible, "Shop tab must hide stream controls")
+	await reveal("thrift_rug")
 	click(ui._shop.rows["thrift_rug"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory == ["thrift_rug"], "Existing rug must still be purchasable")
 	check(not ui._shop.rows["old_cactus"].button.disabled, "Buying one row must leave other purchases available")
+	await reveal("old_cactus")
 	click(ui._shop.rows["old_cactus"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.balance_units == 9937500, "Cactus row must charge $5 once")
+	await reveal("old_cactus")
 	click(ui._shop.rows["old_cactus"].button.get_global_rect().get_center())
 	check(ui.wallet.inventory.has("old_cactus") and ui.wallet.balance_units == 9937500, "Double click cannot sell the purchased cactus")
 	check(ui._shop.rows["desk_fan"].effect.text.contains("15%"), "Fan row must describe actual cooling")
+	await reveal("desk_fan")
 	click(ui._shop.rows["desk_fan"].button.get_global_rect().get_center())
 	check(ui.wallet.balance_units == 9137500 and ui.wallet.inventory.size() == 3, "Each row must charge its own price")
 	await capture("list_purchased")
@@ -156,6 +170,7 @@ func run() -> void:
 	var before_sale: int = ui.wallet.balance_units
 	click(ui._shop_button.get_global_rect().get_center())
 	await capture("list_sale")
+	await reveal("desk_fan")
 	click(ui._shop.rows["desk_fan"].button.get_global_rect().get_center())
 	await process_frame
 	check(ui.wallet.balance_units == before_sale + 400000, "Selling fan via UI must refund $40")

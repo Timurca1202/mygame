@@ -1,6 +1,7 @@
 extends Node2D
 ## Presentation adapter: observes a session, never changes the simulation.
 const Session = preload("res://src/stream/stream_session.gd")
+const PhoneScreen = preload("res://src/room/phone_screen.gdshader")
 var clock := 0.0
 var live := false
 var frozen := false
@@ -13,6 +14,8 @@ var _thanks := 0
 var _activity: Node2D
 var _decor: Dictionary = {}
 var _air_origins: Array[Vector2] = []
+var _phone_origin := Vector2(340, 424)
+var _screen_material: ShaderMaterial
 class PhoneActivity extends Node2D:
 	func _draw() -> void:
 		get_parent().draw_activity(self)
@@ -20,17 +23,27 @@ class PhoneActivity extends Node2D:
 @onready var hero: Node2D = $Furniture/SeatedHero
 @onready var breathing: AnimationPlayer = $Furniture/SeatedHero/IdleAnimation
 @onready var dust: AnimationPlayer = $WindowDust/DriftAnimation
+@onready var desk: Sprite2D = $Furniture/DeskWithProps
+@onready var _original_desk: Texture2D = desk.texture
 
 func _ready() -> void:
 	_activity = PhoneActivity.new()
 	_activity.name = "PhoneActivity"
 	add_child(_activity)
 
-func apply_inventory(inventory: Array, items: Array) -> void:
+func apply_inventory(inventory: Array, items: Array, equipped_device: String = "") -> void:
 	_air_origins.clear()
+	_screen_material = null
+	var desk_texture: Texture2D = _original_desk
+	_phone_origin = Vector2(340, 424)
 	for item in items:
 		var id := str(item.id)
-		if inventory.has(id) and not _decor.has(id):
+		var device: bool = item.has("device")
+		var shown: bool = inventory.has(id) and (not device or id == equipped_device)
+		if shown and device:
+			desk_texture = load(str(item.device.desk_texture))
+			_phone_origin = Vector2(float(item.device.activity_position[0]), float(item.device.activity_position[1]))
+		if shown and not _decor.has(id):
 			var sprite := Sprite2D.new()
 			sprite.name = id.to_pascal_case()
 			sprite.texture = load(item.texture)
@@ -43,14 +56,29 @@ func apply_inventory(inventory: Array, items: Array) -> void:
 			else:
 				sprite.scale = Vector2.ONE * float(item.scale)
 			sprite.flip_h = bool(item.get("flip_h", false))
-			add_child(sprite)
-			move_child(sprite, $Furniture.get_index())
+			if device:
+				if item.device.has("screen"):
+					var material := ShaderMaterial.new()
+					material.shader = PhoneScreen
+					for key in ["origin", "right", "down"]:
+						var value: Array = item.device.screen[key]
+						material.set_shader_parameter("screen_" + key, Vector2(float(value[0]), float(value[1])))
+					sprite.material = material
+				$Furniture.add_child(sprite)
+				$Furniture.move_child(sprite, desk.get_index() + 1)
+			else:
+				add_child(sprite)
+				move_child(sprite, $Furniture.get_index())
 			_decor[id] = sprite
-		elif not inventory.has(id) and _decor.has(id):
+		elif not shown and _decor.has(id):
 			_decor[id].queue_free()
 			_decor.erase(id)
+		if shown and device:
+			_screen_material = _decor[id].material as ShaderMaterial
 		if inventory.has(id) and item.has("air_origin"):
 			_air_origins.append(Vector2(float(item.air_origin[0]), float(item.air_origin[1])))
+	desk.texture = desk_texture
+	_update_phone_screen()
 
 func sync_session(session: RefCounted) -> void:
 	if _session != session or session.tap_count < _taps:
@@ -83,11 +111,21 @@ func sync_session(session: RefCounted) -> void:
 	_answers = session.chat.resolution_serial
 	_thanks = session.income.thanked_count
 	_activity.queue_redraw()
+	_update_phone_screen()
 
 func _process(delta: float) -> void:
 	if not frozen:
 		clock += delta
 		_activity.queue_redraw()
+	_update_phone_screen()
+
+func _update_phone_screen() -> void:
+	if _screen_material == null:
+		return
+	_screen_material.set_shader_parameter("active", live or frozen)
+	_screen_material.set_shader_parameter("screen_time", clock)
+	_screen_material.set_shader_parameter("heat_ratio", heat / 100.0)
+	_screen_material.set_shader_parameter("hype_ratio", hype / 100.0)
 
 func draw_activity(canvas: Node2D) -> void:
 	if not live and not frozen:
@@ -102,7 +140,9 @@ func draw_activity(canvas: Node2D) -> void:
 	var tint := Color("6ee8f3").lerp(Color("ff805c"), hot)
 	for i in range(3):
 		var alpha := (0.025 + hype * 0.0004) * (1.0 - float(i) / 3.0)
-		canvas.draw_circle(Vector2(340, 424), 7.0 + i * 4.0, Color(tint, alpha))
+		canvas.draw_circle(_phone_origin, 7.0 + i * 4.0, Color(tint, alpha))
+	if _screen_material != null:
+		return
 	for i in range(3):
 		var height: float = 1.0 + floorf((sin(clock * (5.0 + i) + i * 2.0) * 0.5 + 0.5) * (2.0 + hype * 0.035))
-		canvas.draw_rect(Rect2(337 + i * 2, 428 - height, 1, height), Color(tint, 0.65))
+		canvas.draw_rect(Rect2(_phone_origin.x - 3 + i * 2, _phone_origin.y + 4 - height, 1, height), Color(tint, 0.65))

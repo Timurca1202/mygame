@@ -41,9 +41,9 @@ func _initialize() -> void:
 			followers += gain
 			balance += session.income.total_units()
 			real_total += session.elapsed_real
-			if inventory.is_empty() and balance >= int(parameters.items[0].price_units):
+			if inventory.is_empty() and balance >= int(model.item("thrift_rug").price_units):
 				inventory.append("thrift_rug")
-				balance -= int(parameters.items[0].price_units)
+				balance -= int(model.item("thrift_rug").price_units)
 				first_purchase_minutes = real_total / 60.0
 			previous_score = score
 			results.append({"stream": stream + 1, "viewers": session.viewers, "score": score, "game_minutes": session.elapsed_game / 60.0, "real_minutes": session.elapsed_real / 60.0, "followers": followers, "gain": gain, "income_dollars": session.income.total_units() / 10000.0, "balance_dollars": balance / 10000.0, "overheated": session.end_reason == Session.EndReason.OVERHEATED})

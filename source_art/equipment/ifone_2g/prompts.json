@@ -1,0 +1,17 @@
+{
+  "mode": "Built-in image_gen.imagegen",
+  "jobs": [
+    {
+      "id": "phone",
+      "prompt": "Use case: precise-object-edit / background-extraction. Image 1 is a reference sheet of streamer phones, NOT an edit target. Extract and faithfully recreate only the P2 assembly in the TOP ROW SECOND COLUMN: early black/silver touchscreen phone leaning slightly to the left, tiny round home button, small mirror on a short clip/rod above the phone. Keep precisely the P2 design, angle, proportions, palette and pixel-art material detail. Omit the tan mug because the game already has that mug as a separate existing prop; produce ONLY the phone and its attached mirror. No other phones, no table, no books, no scene, no text, labels, logos, shadows on a floor, frame or extra equipment. Genuine transparent background, clean isolated sprite, detail and clustered pixels matching the reference, comfortable transparent margin. Do not invent a newer phone or another orientation.",
+      "reference": "/Users/timur/Desktop/my_game/ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+      "transparent_background": true
+    },
+    {
+      "id": "clean_desk",
+      "prompt": "Use case: precise-object-edit. Edit target: this exact transparent desk sprite at 1280 by 1280. Remove ONLY the single upright old black button phone with its long antenna near the center of the tabletop, immediately to the right of the pile of books, and reconstruct the tiny revealed tabletop surface/back edge naturally. The removed phone is in source pixel region x397..462, y388..504. Preserve canvas dimensions, transparent background, object position, camera, desk geometry, wood grain, cupboard, legs, books, foil antenna on the books, the other small flat object on the books, paper, eraser, mug and all other pixels and objects unchanged. No new objects. Do not remove or redraw the entire desk. No shelves. This is a surgical removal of that one upright phone only. Match the original exactly everywhere else.",
+      "reference": "/Users/timur/Desktop/my_game/assets/art/rooms/e1/desk_with_props_v01.png",
+      "transparent_background": true
+    }
+  ]
+}
