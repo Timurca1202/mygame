@@ -5,6 +5,7 @@ const ExitFlow = preload("res://src/ui/stream_exit.gd")
 const Results = preload("res://src/ui/stream_results.gd")
 const Cooling = preload("res://src/ui/stream_cooling.gd")
 const ViralMoment = preload("res://src/ui/stream_viral_moment.gd")
+const SoundFault = preload("res://src/ui/stream_sound_fault.gd")
 const Studio = preload("res://src/ui/stream_studio.gd")
 const Session = preload("res://src/stream/stream_session.gd")
 const Feedback = preload("res://scenes/ui/tap_feedback.tscn")
@@ -28,6 +29,7 @@ var _exit_flow: Control
 var _results: Control
 var _cooling: Control
 var _viral: Control
+var _sound_fault: Control
 var _block_button: Button
 var _follower_loss := 0.0
 var _studio: Control
@@ -85,6 +87,7 @@ var progression: RefCounted
 var _progress_text: Dictionary
 var _channel_label: Label
 var _channel_detail: Label
+var _audience_status: Label
 var _shop_button: Button
 var _shop: Control
 var _navigation: Panel
@@ -139,6 +142,9 @@ func _ready() -> void:
 	_viral = ViralMoment.new()
 	_viral.host = self
 	add_child(_viral)
+	_sound_fault = SoundFault.new()
+	_sound_fault.host = self
+	add_child(_sound_fault)
 	_refresh()
 
 func _new_session() -> void:
@@ -153,8 +159,9 @@ func _new_session() -> void:
 	run_config.economy.viewers = minf(float(_device.viewer_cap), progression.target_audience(wallet.followers, score) * float(_launch_rating.get("multiplier", 1.0)))
 	run_config.cooling_ratio = progression.cooling(wallet.inventory)
 	run_config["active_cooling_available"] = progression.has_active_cooling(wallet.inventory)
-	if randf() < float(config.viral_moment.chance_per_stream):
-		run_config["viral_spawn_real_seconds"] = randf_range(float(config.viral_moment.first_real_seconds), float(config.viral_moment.last_real_seconds))
+	if randf() < float(config.live_events.chance_per_stream):
+		var event_key := "viral_spawn_real_seconds" if randf() < 0.5 else "sound_fault_spawn_real_seconds"
+		run_config[event_key] = randf_range(float(config.live_events.first_real_seconds), float(config.live_events.last_real_seconds))
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
 	_follower_loss = 0.0
@@ -177,6 +184,10 @@ func _refresh_device_controls() -> void:
 func _build_progression() -> void:
 	_channel_label = _label(self, "", Rect2(28, 212, 330, 25), 20, CYAN)
 	_channel_detail = _label(self, "", Rect2(28, 237, 330, 25), 18, MUTED)
+	_audience_status = _label(self, "", Rect2(28, 536, 484, 28), 20, GREEN)
+	_audience_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_audience_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_audience_status.add_theme_stylebox_override("normal", _style(Color("22153d"), CYAN, 6))
 	_shop = ShopView.new()
 	_shop.host = self
 	add_child(_shop)
@@ -252,6 +263,10 @@ func _refresh_progression() -> void:
 	if cooling > 0.0:
 		_channel_label.text = _progress_text.followers_cooled % [int(floor(wallet.followers)), roundi(cooling * 100.0)]
 	_channel_detail.text = _progress_text.audience_device % [_device.short_name, session.viewers, int(_device.viewer_cap)]
+	_audience_status.visible = session.state == Session.State.LIVE and not _studio.report_visible and not _exit_flow._modal.visible and session.elapsed_game - session.audience_notice_at < float(config.audience.notice_game_seconds)
+	if _audience_status.visible:
+		_audience_status.text = config.audience.text[session.audience_notice]
+		_audience_status.add_theme_color_override("font_color", GREEN if session.audience_notice in ["growing", "returning"] else RED)
 	if session.state == Session.State.FINISHED and _result_score >= 0.0:
 		_channel_detail.text = progression.config.result_report.text.summary % [_signed_gain(), progression.performance_grade(_result_score), roundi(_result_score)]
 	var room := get_parent().get_parent().get_node_or_null("StartRoom")
@@ -810,6 +825,8 @@ func _refresh() -> void:
 		_cooling.refresh()
 	if _viral != null:
 		_viral.refresh()
+	if _sound_fault != null:
+		_sound_fault.refresh()
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

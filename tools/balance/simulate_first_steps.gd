@@ -2,7 +2,7 @@ extends SceneTree
 ## Small deterministic balance audit, not a campaign-scale calibration.
 const Session = preload("res://src/stream/stream_session.gd")
 const Progression = preload("res://src/economy/channel_progression.gd")
-const OUTPUT := "res://source_art/prototypes/stream/moderation_v22/first_steps_balance.json"
+const OUTPUT := "res://source_art/prototypes/stream/live_audience_v27/first_steps_balance.json"
 
 func _initialize() -> void:
 	var parameters: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/progression/first_steps.json"))
@@ -23,6 +23,7 @@ func _initialize() -> void:
 		for stream in range(5):
 			var run_config := config.duplicate(true)
 			run_config.economy.viewers = model.audience(followers, previous_score)
+			run_config["viewer_cap"] = parameters.viewer_cap
 			var session := Session.new(run_config, chat, donors.donors)
 			session.start(900.0)
 			var steps := 0
@@ -51,8 +52,8 @@ func _initialize() -> void:
 				balance -= int(model.item("thrift_rug").price_units)
 				first_purchase_minutes = real_total / 60.0
 			previous_score = score
-			results.append({"stream": stream + 1, "viewers": session.viewers, "score": score, "game_minutes": session.elapsed_game / 60.0, "real_minutes": session.elapsed_real / 60.0, "followers": followers, "gain": gain, "income_dollars": session.income.total_units() / 10000.0, "balance_dollars": balance / 10000.0, "overheated": session.end_reason == Session.EndReason.OVERHEATED})
-			if balance < 0 or session.viewers > float(parameters.viewer_cap):
+			results.append({"stream": stream + 1, "viewers": session.viewers, "starting_viewers": session.starting_viewers, "average_viewers": session.average_viewers(), "peak_viewers": session.peak_viewers, "viewer_hours": session.viewer_game_seconds / 3600.0, "score": score, "game_minutes": session.elapsed_game / 60.0, "real_minutes": session.elapsed_real / 60.0, "followers": followers, "gain": gain, "income_dollars": session.income.total_units() / 10000.0, "balance_dollars": balance / 10000.0, "overheated": session.end_reason == Session.EndReason.OVERHEATED})
+			if balance < 0 or session.peak_viewers > float(parameters.viewer_cap) or not is_finite(session.viewer_game_seconds):
 				failures += 1
 		report.scenarios.append({"style": style, "first_purchase_real_minutes": first_purchase_minutes, "streams": results})
 		if style != "forced" and followers <= 0:
@@ -63,6 +64,7 @@ func _initialize() -> void:
 			for mode in ["bare", "passive_fan", "active_fan"]:
 				var settings := config.duplicate(true)
 				settings.device_capacity_seconds = capacity
+				settings["viewer_cap"] = parameters.starter_device.viewer_cap if capacity == 1200 else model.item("ifone_2g").device.viewer_cap
 				settings.cooling_ratio = 0.0 if mode == "bare" else model.cooling(["desk_fan"])
 				settings["active_cooling_available"] = mode == "active_fan"
 				var session := Session.new(settings)

@@ -18,6 +18,12 @@ var peak_hype := 0.0
 var heat := 0.0
 var tap_count := 0
 var viewers := 3.0
+var starting_viewers := 3.0
+var peak_viewers := 3.0
+var viewer_game_seconds := 0.0
+var audience_notice := ""
+var audience_notice_at := -INF
+var _audience_announced_count := 3
 var viewer_cap := INF
 var device_quality := -1.0
 var device_id := ""
@@ -34,6 +40,13 @@ var viral_outcome := ""
 var viral_caught := 0
 var viral_hype_gain := 0.0
 var _viral_spawned := false
+var sound_fault_active := false
+var sound_fault_serial := 0
+var sound_fault_repairs := 0
+var sound_fault_game_seconds := 0.0
+var sound_fault_repaired_at := -INF
+var _sound_fault_spawned := false
+var _sound_fault_quality_loss := 0.0
 var _lag_elapsed := 0.0
 var chat: RefCounted
 var income: RefCounted
@@ -46,6 +59,10 @@ func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []
 	_config = config.duplicate(true)
 	viewers = float(config.economy.viewers)
 	viewer_cap = float(config.get("viewer_cap", INF))
+	starting_viewers = clampf(viewers, 0.0, viewer_cap)
+	viewers = starting_viewers
+	peak_viewers = viewers
+	_config.economy.viewers = starting_viewers
 	device_quality = float(config.get("device_quality", -1.0))
 	device_id = str(config.get("device_id", ""))
 	cooling_ratio = clampf(float(config.get("cooling_ratio", 0.0)), 0.0, float(config.get("max_cooling_ratio", 0.6)))
@@ -53,7 +70,7 @@ func _init(config: Dictionary, chat_content: Dictionary = {}, donors: Array = []
 	speed = float(_config.base_speed)
 	if not chat_content.is_empty():
 		chat = Chat.new(config.chat, chat_content)
-	income = Income.new(config.economy, donors)
+	income = Income.new(_config.economy, donors)
 
 func start(planned_seconds: float) -> bool:
 	if state == State.LIVE or state == State.PAUSED:
@@ -61,6 +78,12 @@ func start(planned_seconds: float) -> bool:
 	if not is_finite(planned_seconds) or planned_seconds <= 0.0 or planned_seconds > float(_config.device_capacity_seconds):
 		return false
 	duration = planned_seconds
+	viewers = starting_viewers
+	peak_viewers = viewers
+	viewer_game_seconds = 0.0
+	audience_notice = ""
+	audience_notice_at = -INF
+	_audience_announced_count = roundi(viewers)
 	elapsed_game = 0.0
 	elapsed_real = 0.0
 	speed = float(_config.base_speed)
@@ -78,6 +101,12 @@ func start(planned_seconds: float) -> bool:
 	viral_caught = 0
 	viral_hype_gain = 0.0
 	_viral_spawned = false
+	sound_fault_active = false
+	sound_fault_repairs = 0
+	sound_fault_game_seconds = 0.0
+	sound_fault_repaired_at = -INF
+	_sound_fault_spawned = false
+	_sound_fault_quality_loss = 0.0
 	_lag_elapsed = 0.0
 	_taps.clear()
 	_last_tap = -INF
@@ -116,7 +145,55 @@ func is_lagging() -> bool:
 	return state == State.LIVE and heat >= float(_config.heat_thresholds[1]) and fmod(_lag_elapsed, float(_config.lag.cycle_seconds)) < float(_config.lag.freeze_seconds)
 
 func quality_multiplier() -> float:
-	return 1.0 - float(_config.lag.quality_loss) * hot_game_seconds / maxf(elapsed_game, 0.000001)
+	return 1.0 - (float(_config.lag.quality_loss) * hot_game_seconds + _sound_fault_quality_loss) / maxf(elapsed_game, 0.000001)
+
+func average_viewers() -> float:
+	return viewer_game_seconds / elapsed_game if elapsed_game > 0.0 else starting_viewers
+
+func _advance_audience(game_step: float, hot_step: float, fault_step: float) -> float:
+	var rules: Dictionary = _config.audience
+	var active_step := minf(game_step, maxf(0.0, elapsed_game - float(rules.grace_game_seconds)))
+	var integral := viewers * (game_step - active_step)
+	if active_step > 0.0:
+		var target := starting_viewers * (1.0 + float(rules.hype_bonus) * hype / 100.0)
+		target *= 1.0 - float(rules.heat_loss) * hot_step / maxf(game_step, 0.000001)
+		target *= 1.0 - float(rules.sound_loss) * fault_step / maxf(game_step, 0.000001)
+		target = clampf(target, 0.0, viewer_cap)
+		var response := float(rules.response_game_seconds)
+		var decay := exp(-active_step / response)
+		# Integrate audience over the whole interval, rather than paying the final headcount retroactively.
+		integral += target * active_step + (viewers - target) * response * (1.0 - decay)
+		viewers = clampf(target + (viewers - target) * decay, 0.0, viewer_cap)
+		peak_viewers = maxf(peak_viewers, viewers)
+	viewer_game_seconds += integral
+	var count := roundi(viewers)
+	if count != _audience_announced_count and elapsed_game - audience_notice_at >= float(rules.notice_cooldown_game_seconds):
+		if count > _audience_announced_count:
+			audience_notice = "growing" if hype >= float(rules.hype_notice_threshold) else "returning"
+		else:
+			audience_notice = "sound" if fault_step > 0.0 else ("heat" if hot_step > 0.0 else "quiet")
+		audience_notice_at = elapsed_game
+		_audience_announced_count = count
+	return integral / maxf(game_step, 0.000001)
+
+func repair_sound(serial: int) -> bool:
+	if state != State.LIVE or not sound_fault_active or serial != sound_fault_serial:
+		return false
+	sound_fault_active = false
+	sound_fault_repairs += 1
+	sound_fault_repaired_at = elapsed_real
+	_last_activity = elapsed_real
+	return true
+
+func _advance_sound_fault() -> void:
+	if state != State.LIVE:
+		sound_fault_active = false
+		return
+	var spawn_at := float(_config.get("sound_fault_spawn_real_seconds", -1.0))
+	if not _sound_fault_spawned and spawn_at >= 0.0 and elapsed_real >= spawn_at - 0.000001:
+		_sound_fault_spawned = true
+		sound_fault_serial += 1
+		sound_fault_active = true
 
 func block_spam(serial: int) -> bool:
 	if state != State.LIVE or chat == null or not chat.block_spam(serial):
@@ -205,6 +282,7 @@ func finish_early() -> bool:
 
 func _finalize() -> void:
 	viral_started_at = -1.0
+	sound_fault_active = false
 	if chat != null:
 		chat.finish()
 	income.finish()
@@ -249,8 +327,17 @@ func _step(delta: float) -> void:
 	_lag_elapsed = _lag_elapsed + hot_step / speed if heat >= float(_config.heat_thresholds[1]) else 0.0
 	var decay := float(_config.hype_idle_decay_per_second) if is_hype_cooling() else float(_config.hype_decay_per_second)
 	_change_hype(-decay * game_step / speed)
-	var quality := 1.0 - float(_config.lag.quality_loss) * hot_step / maxf(game_step, 0.000001)
-	income.advance(game_step, game_step / speed, quality)
+	var fault_step := game_step if sound_fault_active else 0.0
+	var fault_at := float(_config.get("sound_fault_spawn_real_seconds", -1.0))
+	if not _sound_fault_spawned and fault_at >= 0.0:
+		fault_step = minf(game_step, maxf(0.0, elapsed_real - fault_at) * speed)
+	sound_fault_game_seconds += fault_step
+	# Both effects cover trailing intervals of this step; their overlap multiplies.
+	var fault_loss := float(_config.sound_fault.quality_loss) * (fault_step - float(_config.lag.quality_loss) * minf(fault_step, hot_step)) if fault_step > 0.0 else 0.0
+	_sound_fault_quality_loss += fault_loss
+	var quality := 1.0 - (float(_config.lag.quality_loss) * hot_step + fault_loss) / maxf(game_step, 0.000001)
+	var step_viewers := _advance_audience(game_step, hot_step, fault_step)
+	income.advance(game_step, game_step / speed, quality, step_viewers)
 	# At the exact scheduled finish, completion wins a simultaneous heat boundary.
 	if elapsed_game >= duration - 0.000001:
 		elapsed_game = duration
@@ -261,6 +348,7 @@ func _step(delta: float) -> void:
 		end_reason = EndReason.OVERHEATED
 		state = State.FINISHED
 	_advance_viral()
+	_advance_sound_fault()
 	if chat != null:
 		var before := hype
 		var change: float = chat.advance(game_step, game_step / speed, state == State.LIVE)

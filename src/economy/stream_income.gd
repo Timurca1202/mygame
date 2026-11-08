@@ -43,12 +43,13 @@ func start(planned_game_seconds: float) -> void:
 func _base_for_seconds(seconds: float) -> float:
 	return float(_config.viewers) * seconds / 3600.0 * float(_config.money_per_viewer_hour) * float(_config.units_per_dollar)
 
-func advance(game_delta: float, real_delta: float, quality_multiplier: float = 1.0) -> void:
-	if _finished:
+func advance(game_delta: float, real_delta: float, quality_multiplier: float = 1.0, average_viewers: float = -1.0) -> void:
+	if _finished or not is_finite(average_viewers) or (average_viewers < 0.0 and average_viewers != -1.0):
 		return
 	game_elapsed += game_delta
 	real_elapsed += real_delta
-	_accrued_units += _base_for_seconds(game_delta) * clampf(quality_multiplier, 0.0, 1.0)
+	var audience := float(_config.viewers) if average_viewers < 0.0 else average_viewers
+	_accrued_units += audience * game_delta / 3600.0 * float(_config.money_per_viewer_hour) * float(_config.units_per_dollar) * clampf(quality_multiplier, 0.0, 1.0)
 	if not donation.is_empty() and seconds_left() <= 0.000001:
 		donation = {}
 	if not _donors.is_empty() and donation.is_empty() and game_elapsed >= _next_donation - 0.000001:

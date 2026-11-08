@@ -91,6 +91,8 @@ func performance_tip(session: RefCounted, components: Dictionary) -> String:
 		return config.result_report.tips.moderation
 	if session.heat >= float(config.result_report.heat_tip_threshold):
 		return config.result_report.tips.heat
+	if session.sound_fault_game_seconds > 0.0 and session.sound_fault_repairs == 0:
+		return config.result_report.tips.sound_fault
 	var weakest := "activity"
 	var missing := -1.0
 	# Reputation is a fixed baseline until its own system exists.
@@ -113,6 +115,8 @@ func buy(wallet: RefCounted, item_id: String) -> Error:
 
 func sell(wallet: RefCounted, item_id: String) -> Error:
 	var entry := item(item_id)
+	if bool(entry.get("renovation", false)):
+		return ERR_UNAVAILABLE
 	return ERR_INVALID_PARAMETER if entry.is_empty() else wallet.sell(item_id, int(floor(float(entry.price_units) * float(config.sale_ratio))))
 
 func selected_device(wallet: RefCounted) -> Dictionary:

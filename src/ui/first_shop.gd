@@ -11,7 +11,8 @@ var _locked: Dictionary = {}
 var _notice := ""
 var _items_tab: Button
 var _devices_tab: Button
-var _show_devices := false
+var _repair_tab: Button
+enum Tab { ITEMS, DEVICES, REPAIR }
 
 func _ready() -> void:
 	size = Vector2(540, 960)
@@ -29,8 +30,9 @@ func _ready() -> void:
 	host._label(_panel, host._progress_text.shop, Rect2(20, 14, 240, 32), 30, host.CYAN)
 	_balance = host._label(_panel, "", Rect2(252, 20, 228, 24), 20, host.AMBER)
 	_balance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_items_tab = _category_button(host._progress_text.shop_items_tab, 20, false)
-	_devices_tab = _category_button(host._progress_text.shop_devices_tab, 254, true)
+	_items_tab = _category_button(host._progress_text.shop_items_tab, 20, Tab.ITEMS)
+	_devices_tab = _category_button(host._progress_text.shop_devices_tab, 176, Tab.DEVICES)
+	_repair_tab = _category_button(host._progress_text.shop_repair_tab, 332, Tab.REPAIR)
 	_scroll = ScrollContainer.new()
 	_scroll.position = Vector2(12, 108)
 	_scroll.size = Vector2(476, 512)
@@ -43,29 +45,31 @@ func _ready() -> void:
 	for item in host.progression.config.items:
 		_build_row(item)
 	_message = host._label(_panel, "", Rect2(20, 632, 460, 28), 18, host.CYAN)
-	_select_tab(false)
+	_select_tab(Tab.ITEMS)
 	hide()
 
-func _category_button(caption: String, x: float, devices: bool) -> Button:
+func _category_button(caption: String, x: float, tab: Tab) -> Button:
 	var button := Button.new()
 	button.position = Vector2(x, 50)
-	button.size = Vector2(226, 44)
+	button.size = Vector2(148, 44)
 	button.text = caption
 	button.accessibility_name = caption
 	button.toggle_mode = true
 	button.add_theme_font_size_override("font_size", 22)
-	button.pressed.connect(_select_tab.bind(devices))
+	button.pressed.connect(_select_tab.bind(tab))
 	_panel.add_child(button)
 	return button
 
-func _select_tab(devices: bool) -> void:
-	_show_devices = devices
+func _select_tab(tab: Tab) -> void:
 	_notice = ""
 	_scroll.scroll_vertical = 0
 	for view in rows.values():
-		view.panel.visible = view.item.has("device") == devices
-	for button in [_items_tab, _devices_tab]:
-		var active: bool = (button == _devices_tab) == devices
+		var category := Tab.REPAIR if bool(view.item.get("renovation", false)) else (Tab.DEVICES if view.item.has("device") else Tab.ITEMS)
+		view.panel.visible = category == tab
+	var buttons := [_items_tab, _devices_tab, _repair_tab]
+	for index in range(buttons.size()):
+		var button: Button = buttons[index]
+		var active := index == tab
 		button.set_pressed_no_signal(active)
 		button.add_theme_color_override("font_color", host.GREEN if active else host.MUTED)
 		for state in ["normal", "hover", "pressed", "focus"]:
@@ -76,7 +80,7 @@ func _select_tab(devices: bool) -> void:
 func _build_row(item: Dictionary) -> void:
 	var id := str(item.id)
 	var device := item.has("device")
-	var tall: bool = device or bool(item.get("active_cooling", false))
+	var tall: bool = device or bool(item.get("active_cooling", false)) or bool(item.get("renovation", false))
 	var row := Panel.new()
 	row.custom_minimum_size = Vector2(0, 212 if tall else 164)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -154,6 +158,9 @@ func refresh_catalog() -> void:
 		elif not owned and host.wallet.balance_units < price:
 			view.button.text = host._progress_text.list_missing % host._money(price - host.wallet.balance_units)
 		view.button.disabled = _locked.has(id) or host.wallet.load_error != OK or (not owned and host.wallet.balance_units < price)
+		if owned and bool(item.get("renovation", false)):
+			view.button.text = host._progress_text.renovation_done
+			view.button.disabled = true
 	_message.text = _notice if not _notice.is_empty() else host._progress_text.list_footer
 
 func _transact(id: String) -> void:
@@ -165,6 +172,8 @@ func _transact(id: String) -> void:
 	if item.is_empty():
 		return
 	var owned: bool = host.wallet.inventory.has(id)
+	if owned and bool(item.get("renovation", false)):
+		return
 	var price := int(item.price_units)
 	var error: Error = host.progression.sell(host.wallet, id) if owned else host.progression.buy(host.wallet, id)
 	if error == OK:

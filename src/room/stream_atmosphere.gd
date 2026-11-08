@@ -30,17 +30,24 @@ class PhoneActivity extends Node2D:
 @onready var _original_desk: Texture2D = desk.texture
 
 func _ready() -> void:
+	$RoomShell.material = $RoomShell.material.duplicate()
 	_activity = PhoneActivity.new()
 	_activity.name = "PhoneActivity"
 	add_child(_activity)
 
 func apply_inventory(inventory: Array, items: Array, equipped_device: String = "") -> void:
 	_air_origins.clear()
+	$RoomShell.material.set_shader_parameter("walls_repaired", false)
 	_screen_material = null
 	var desk_texture: Texture2D = _original_desk
 	_phone_origin = Vector2(340, 424)
 	for item in items:
 		var id := str(item.id)
+		if bool(item.get("renovation", false)):
+			if inventory.has(id):
+				$RoomShell.material.set_shader_parameter("repair_texture", load(item.texture))
+				$RoomShell.material.set_shader_parameter("walls_repaired", true)
+			continue
 		var device: bool = item.has("device")
 		var shown: bool = inventory.has(id) and (not device or id == equipped_device)
 		if shown and device:

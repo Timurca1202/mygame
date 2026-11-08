@@ -149,6 +149,18 @@
       ],
       "reference": "ref/device/wind/Gemini_Generated_Image_z1lscpz1lscpz1ls-2.jpg / верхний ряд, №2",
       "active_cooling": true
+    },
+    {
+      "id": "fresh_wallpaper",
+      "name": "РЕМОНТ СТЕН",
+      "category": "РЕМОНТ",
+      "description": "Светлые обои вместо облезлых стен.",
+      "price_units": 250000,
+      "vibe": 2,
+      "benefit": "НОВЫЕ ОБОИ / VIBE +2\nРАЗОВЫЙ РЕМОНТ / БЕЗ ПРОДАЖИ",
+      "texture": "res://assets/art/rooms/e1/repaired_walls_v01.png",
+      "renovation": true,
+      "reference": "ref/location/renovation_variants_v01.webp / вариант 1, только стены"
     }
   ],
   "sale_ratio": 0.5,
@@ -190,7 +202,7 @@
     "list_bought": "КУПЛЕНО",
     "list_sold": "ПРОДАНО",
     "list_missing": "ЕЩЁ $%s",
-    "list_footer": "ПОКУПКА СРАЗУ В КОМНАТЕ / ПРОДАЖА 50%",
+    "list_footer": "ПРЕДМЕТЫ: ПРОДАЖА 50% / РЕМОНТ БЕЗ ПРОДАЖИ",
     "device_choose": "ВЫБРАТЬ",
     "device_selected": "ВЫБРАН",
     "device_stored": " / ЗАПАСНОЙ",
@@ -201,7 +213,9 @@
     "audience_device": "%s: %.1f/%d ЗР.",
     "device_chat": "ЧАТ / ВИДЕОЭФИР",
     "shop_items_tab": "ПРЕДМЕТЫ",
-    "shop_devices_tab": "УСТРОЙСТВА"
+    "shop_devices_tab": "УСТРОЙСТВА",
+    "renovation_done": "ОТРЕМОНТИРОВАНО",
+    "shop_repair_tab": "РЕМОНТ"
   },
   "cooling_cap": 0.6,
   "packaging_mix": {
@@ -254,7 +268,9 @@
       "close": "К ИТОГАМ",
       "summary": "%s ПОДП. / ОЦЕНКА %s / PS %d",
       "retry": "СОХРАНИТЬ",
-      "technical_stats": "СПАМ: %d/%d УДАЛЕНО / ЛАГИ: %s ИГР."
+      "technical_stats": "СПАМ: %d/%d УДАЛЕНО / ЛАГИ: %s ИГР.",
+      "sound_fault_stats": "ЗВУК: СБОЙ %s / ВОССТАНОВЛЕНО %d",
+      "audience_stats": "ЗРИТЕЛИ: СРЕДНЕЕ %.1f / ПИК %.1f"
     },
     "tips": {
       "early": "Дойди до 90% длительности, чтобы закончить без потери подписчиков.",
@@ -263,7 +279,8 @@
       "equipment": "Более качественный телефон повысит оценку техники. Сравни устройства на барахолке.",
       "packaging": "Доработай название и превью перед эфиром: вместе они дают до 20 баллов.",
       "decor": "Добавь уюта: предметы с Vibe на барахолке повышают оценку комнаты.",
-      "moderation": "Блокируй рекламный спам в чате до конца таймера: пропуски отнимают хайп."
+      "moderation": "Блокируй рекламный спам в чате до конца таймера: пропуски отнимают хайп.",
+      "sound_fault": "Если в эфире пропал звук, нажми\n«Перезапустить звук» сразу."
     },
     "heat_tip_threshold": 85.0
   }

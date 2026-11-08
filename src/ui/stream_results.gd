@@ -8,6 +8,8 @@ var _close: Button
 var _grade: Label
 var _stats: Label
 var _technical_stats: Label
+var _fault_stats: Label
+var _audience_stats: Label
 var _tip: Label
 var _values := {}
 var _bars := {}
@@ -27,16 +29,18 @@ func _ready() -> void:
 	shade.color = Color(0.02, 0.01, 0.09, 0.88)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_modal.add_child(shade)
-	_panel = host._panel(Rect2(20, 194, 500, 548))
+	_panel = host._panel(Rect2(20, 194, 500, 596))
 	host.remove_child(_panel)
 	_modal.add_child(_panel)
 	host._label(_panel, text.heading, Rect2(20, 12, 460, 36), 28, host.CYAN)
 	_grade = host._label(_panel, "", Rect2(20, 56, 460, 32), 28, host.GREEN)
 	_stats = host._label(_panel, "", Rect2(20, 100, 460, 28), 18, host.MUTED)
 	_technical_stats = host._label(_panel, "", Rect2(20, 128, 460, 24), 18, host.AMBER)
+	_fault_stats = host._label(_panel, "", Rect2(20, 152, 460, 24), 18, host.AMBER)
+	_audience_stats = host._label(_panel, "", Rect2(20, 176, 460, 24), 18, host.CYAN)
 	var index := 0
 	for key in host.progression.config.score_weights:
-		var y := 156 + index * 48
+		var y := 204 + index * 48
 		host._label(_panel, text[key], Rect2(20, y, 310, 26), 20)
 		_values[key] = host._label(_panel, "", Rect2(340, y, 140, 26), 20, host.CYAN)
 		var track := ColorRect.new()
@@ -52,10 +56,10 @@ func _ready() -> void:
 		track.add_child(bar)
 		_bars[key] = bar
 		index += 1
-	host._label(_panel, text.next, Rect2(20, 394, 460, 26), 20, host.AMBER)
-	_tip = host._label(_panel, "", Rect2(20, 428, 460, 54), 20)
+	host._label(_panel, text.next, Rect2(20, 442, 460, 26), 20, host.AMBER)
+	_tip = host._label(_panel, "", Rect2(20, 476, 460, 54), 20)
 	_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_close = host._studio._button(_panel, text.close, Rect2(20, 492, 460, 44))
+	_close = host._studio._button(_panel, text.close, Rect2(20, 540, 460, 44))
 	_close.pressed.connect(close_report)
 	_close.focus_next = NodePath(".")
 	_close.focus_previous = NodePath(".")
@@ -73,6 +77,8 @@ func open_report() -> void:
 	var quizzes: int = session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions
 	_stats.text = text.stats % [session.chat.correct_answers, quizzes, session.income.thanked_count, session.income.donation_count, session.tap_count]
 	_technical_stats.text = text.technical_stats % [session.chat.blocked_spam, session.chat.blocked_spam + session.chat.missed_spam, host._clock(session.hot_game_seconds)]
+	_fault_stats.text = text.sound_fault_stats % [host._clock(session.sound_fault_game_seconds), session.sound_fault_repairs]
+	_audience_stats.text = text.audience_stats % [session.average_viewers(), session.peak_viewers]
 	for key in components:
 		var maximum: float = float(model.config.score_weights[key]) * 100.0
 		_values[key].text = text.points % [float(components[key]) * maximum / 100.0, maximum]
