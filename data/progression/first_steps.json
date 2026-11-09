@@ -215,7 +215,8 @@
     "shop_items_tab": "ПРЕДМЕТЫ",
     "shop_devices_tab": "УСТРОЙСТВА",
     "renovation_done": "ОТРЕМОНТИРОВАНО",
-    "shop_repair_tab": "РЕМОНТ"
+    "shop_repair_tab": "РЕМОНТ",
+    "audience_cooled_device": "%s %.1f/%d / −%d%% ТЕПЛО"
   },
   "cooling_cap": 0.6,
   "packaging_mix": {
@@ -283,5 +284,24 @@
       "sound_fault": "Если в эфире пропал звук, нажми\n«Перезапустить звук» сразу."
     },
     "heat_tip_threshold": 85.0
+  },
+  "experience": {
+    "max_level": 40,
+    "level_base": 80,
+    "level_step": 22,
+    "hourly_base": 100,
+    "hourly_quality_bonus": 40,
+    "early_multiplier": 0.5,
+    "text": {
+      "progress": "УР. %d / XP %d/%d",
+      "maximum": "УР. %d / XP MAX",
+      "energy_soon": "ЭНЕРГИЯ: СКОРО",
+      "gems_soon": "АЛМАЗЫ: СКОРО",
+      "energy_accessibility": "Энергия: механика ещё не реализована",
+      "gems_accessibility": "Будущая премиум-валюта: покупки ещё недоступны",
+      "result": "ОПЫТ: +%d XP / УРОВЕНЬ %d",
+      "level_up": "НОВЫЙ УРОВЕНЬ %d / +%d XP",
+      "pending": "ОПЫТ: +%d XP / ОЖИДАЕТ СОХРАНЕНИЯ"
+    }
   }
 }

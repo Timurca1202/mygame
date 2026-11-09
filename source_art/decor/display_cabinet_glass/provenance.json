@@ -1,0 +1,26 @@
+{
+  "id": "display_cabinet_glass",
+  "code": "U6_8",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Стеклянная витрина с мерчем",
+  "role": "Мебель E3",
+  "resolution": "94x193",
+  "item_bbox": [
+    237,
+    325,
+    90,
+    189
+  ],
+  "sheet_crop_box": [
+    235,
+    323,
+    328,
+    515
+  ],
+  "pixel_count": 12059,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

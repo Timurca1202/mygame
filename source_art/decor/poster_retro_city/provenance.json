@@ -1,0 +1,26 @@
+{
+  "id": "poster_retro_city",
+  "code": "W2",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Ретро-постер с городским пейзажем",
+  "role": "Постер эпохи E1, стена",
+  "resolution": "116x194",
+  "item_bbox": [
+    257,
+    41,
+    112,
+    190
+  ],
+  "sheet_crop_box": [
+    255,
+    39,
+    370,
+    232
+  ],
+  "pixel_count": 11866,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

@@ -1,0 +1,25 @@
+{
+  "id": "mic_clip_lapel_ref",
+  "code": "MIC_1",
+  "source_reference": "ref/device/microphone/Gemini_Generated_Image_84hlag84hlag84hl.jpg",
+  "category": "equipment/microphones",
+  "description": "Петличный микрофон-клипса с проводом",
+  "role": "Микрофон ступени 1",
+  "resolution": "329x399",
+  "item_bbox": [
+    231,
+    77,
+    322,
+    397
+  ],
+  "sheet_crop_box": [
+    227,
+    76,
+    555,
+    474
+  ],
+  "pixel_count": 56840,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

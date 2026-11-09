@@ -1,0 +1,26 @@
+{
+  "id": "acoustic_guitar_stand",
+  "code": "U4_8",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Акустическая гитара на напольной стойке",
+  "role": "Музыкальный инструмент",
+  "resolution": "102x222",
+  "item_bbox": [
+    243,
+    303,
+    98,
+    218
+  ],
+  "sheet_crop_box": [
+    241,
+    301,
+    342,
+    522
+  ],
+  "pixel_count": 8367,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

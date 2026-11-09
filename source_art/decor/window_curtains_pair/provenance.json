@@ -1,0 +1,26 @@
+{
+  "id": "window_curtains_pair",
+  "code": "U4_1",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Окно со шторами и занавесками",
+  "role": "Окно и текстиль",
+  "resolution": "153x233",
+  "item_bbox": [
+    47,
+    38,
+    149,
+    229
+  ],
+  "sheet_crop_box": [
+    45,
+    36,
+    197,
+    268
+  ],
+  "pixel_count": 15409,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

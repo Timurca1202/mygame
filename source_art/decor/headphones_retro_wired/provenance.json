@@ -1,0 +1,26 @@
+{
+  "id": "headphones_retro_wired",
+  "code": "D7",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Проводные ретро-наушники с оголовьем",
+  "role": "Аудио стола D7",
+  "resolution": "159x122",
+  "item_bbox": [
+    367,
+    363,
+    155,
+    118
+  ],
+  "sheet_crop_box": [
+    365,
+    361,
+    523,
+    482
+  ],
+  "pixel_count": 5303,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

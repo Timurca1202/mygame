@@ -1,0 +1,26 @@
+{
+  "id": "diploma_framed_wall",
+  "code": "S1",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Диплом в деревянной рамке под стеклом",
+  "role": "Награда стола S1",
+  "resolution": "141x119",
+  "item_bbox": [
+    676,
+    365,
+    137,
+    115
+  ],
+  "sheet_crop_box": [
+    674,
+    363,
+    814,
+    481
+  ],
+  "pixel_count": 9616,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

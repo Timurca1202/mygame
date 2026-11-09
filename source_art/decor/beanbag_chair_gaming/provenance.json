@@ -1,0 +1,26 @@
+{
+  "id": "beanbag_chair_gaming",
+  "code": "U5_7",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Мягкое кресло-мешок для стримера",
+  "role": "Мебель E2",
+  "resolution": "152x151",
+  "item_bbox": [
+    36,
+    361,
+    148,
+    147
+  ],
+  "sheet_crop_box": [
+    34,
+    359,
+    185,
+    509
+  ],
+  "pixel_count": 15821,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

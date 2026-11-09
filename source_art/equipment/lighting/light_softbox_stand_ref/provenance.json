@@ -1,0 +1,25 @@
+{
+  "id": "light_softbox_stand_ref",
+  "code": "LIGHT_4",
+  "source_reference": "ref/device/light/Gemini_Generated_Image_phzj9aphzj9aphzj.jpg",
+  "category": "equipment/lighting",
+  "description": "Студийный прямоугольный софтбокс на высокой стойке",
+  "role": "Освещение ступени 4",
+  "resolution": "539x449",
+  "item_bbox": [
+    147,
+    517,
+    537,
+    447
+  ],
+  "sheet_crop_box": [
+    146,
+    516,
+    684,
+    964
+  ],
+  "pixel_count": 116770,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

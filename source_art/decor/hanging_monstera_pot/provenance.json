@@ -1,0 +1,26 @@
+{
+  "id": "hanging_monstera_pot",
+  "code": "U6_2",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Подвесная монстера в макраме-кашпо",
+  "role": "Растение E3",
+  "resolution": "112x215",
+  "item_bbox": [
+    219,
+    38,
+    108,
+    211
+  ],
+  "sheet_crop_box": [
+    217,
+    36,
+    328,
+    250
+  ],
+  "pixel_count": 8112,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

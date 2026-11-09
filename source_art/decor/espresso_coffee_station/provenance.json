@@ -1,0 +1,26 @@
+{
+  "id": "espresso_coffee_station",
+  "code": "U7_12",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Рожковая кофемашина с чашками",
+  "role": "Кухня E4",
+  "resolution": "115x157",
+  "item_bbox": [
+    866,
+    358,
+    111,
+    153
+  ],
+  "sheet_crop_box": [
+    864,
+    356,
+    978,
+    512
+  ],
+  "pixel_count": 6280,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

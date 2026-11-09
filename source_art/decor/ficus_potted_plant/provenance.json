@@ -1,0 +1,26 @@
+{
+  "id": "ficus_potted_plant",
+  "code": "U5_6",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Фикус в современном белом кашпо",
+  "role": "Растение E2",
+  "resolution": "112x199",
+  "item_bbox": [
+    873,
+    63,
+    108,
+    195
+  ],
+  "sheet_crop_box": [
+    871,
+    61,
+    982,
+    259
+  ],
+  "pixel_count": 9749,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

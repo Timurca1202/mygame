@@ -1,0 +1,25 @@
+{
+  "id": "phone_p03_slider_ref",
+  "code": "P3",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "Телефон-слайдер с выдвижной панелью",
+  "role": "Ступень телефона P3",
+  "resolution": "350x594",
+  "item_bbox": [
+    1243,
+    112,
+    337,
+    592
+  ],
+  "sheet_crop_box": [
+    1234,
+    111,
+    1583,
+    704
+  ],
+  "pixel_count": 122043,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

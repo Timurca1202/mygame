@@ -1,0 +1,25 @@
+{
+  "id": "light_desk_lamp_ref",
+  "code": "LIGHT_1",
+  "source_reference": "ref/device/light/Gemini_Generated_Image_phzj9aphzj9aphzj.jpg",
+  "category": "equipment/lighting",
+  "description": "Настольная шарнирная лампа на струбцине",
+  "role": "Освещение ступени 1",
+  "resolution": "282x314",
+  "item_bbox": [
+    247,
+    109,
+    277,
+    310
+  ],
+  "sheet_crop_box": [
+    243,
+    106,
+    524,
+    419
+  ],
+  "pixel_count": 39311,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

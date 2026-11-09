@@ -1,0 +1,26 @@
+{
+  "id": "vinyl_turntable_audio",
+  "code": "U6_11",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Виниловый проигрыватель с пластинкой",
+  "role": "Аудио E3",
+  "resolution": "157x141",
+  "item_bbox": [
+    672,
+    356,
+    153,
+    137
+  ],
+  "sheet_crop_box": [
+    670,
+    354,
+    826,
+    494
+  ],
+  "pixel_count": 7198,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

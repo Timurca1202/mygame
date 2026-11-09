@@ -1,0 +1,26 @@
+{
+  "id": "streamer_banner_vert",
+  "code": "U5_4",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Вертикальный стримерский баннер",
+  "role": "Декор стены E2",
+  "resolution": "125x152",
+  "item_bbox": [
+    537,
+    92,
+    121,
+    148
+  ],
+  "sheet_crop_box": [
+    535,
+    90,
+    659,
+    241
+  ],
+  "pixel_count": 10568,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

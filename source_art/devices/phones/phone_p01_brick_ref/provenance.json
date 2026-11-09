@@ -1,0 +1,25 @@
+{
+  "id": "phone_p01_brick_ref",
+  "code": "P1",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "Кнопочный сотовый телефон ('Кирпич 3300')",
+  "role": "Стартовый стримерский телефон P1",
+  "resolution": "514x669",
+  "item_bbox": [
+    86,
+    37,
+    507,
+    667
+  ],
+  "sheet_crop_box": [
+    83,
+    36,
+    596,
+    704
+  ],
+  "pixel_count": 158942,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

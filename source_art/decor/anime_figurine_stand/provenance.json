@@ -1,0 +1,26 @@
+{
+  "id": "anime_figurine_stand",
+  "code": "U5_11",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Коллекционная фигурка на подставке",
+  "role": "Сувенир стола E2",
+  "resolution": "91x124",
+  "item_bbox": [
+    725,
+    385,
+    87,
+    120
+  ],
+  "sheet_crop_box": [
+    723,
+    383,
+    813,
+    506
+  ],
+  "pixel_count": 3355,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

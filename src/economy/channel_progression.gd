@@ -36,6 +36,33 @@ func vibe(inventory: Array) -> int:
 			total += int(item.vibe)
 	return total
 
+func level_progress(total_experience: int) -> Dictionary:
+	var rules: Dictionary = config.experience
+	var remaining := maxi(0, total_experience)
+	var level := 1
+	while level < int(rules.max_level):
+		var required := int(rules.level_base) + int(rules.level_step) * level
+		if remaining < required:
+			return {"level": level, "current": remaining, "required": required}
+		remaining -= required
+		level += 1
+	return {"level": level, "current": 0, "required": 0}
+
+func maximum_experience() -> int:
+	var rules: Dictionary = config.experience
+	var transitions := int(rules.max_level) - 1
+	return int(rules.level_base) * transitions + int(rules.level_step) * transitions * (transitions + 1) / 2
+
+func stream_experience(session: RefCounted, score: float, current_experience: int) -> int:
+	if not is_finite(score) or session.elapsed_game <= 0.0:
+		return 0
+	var rules: Dictionary = config.experience
+	var rate := float(rules.hourly_base) + float(rules.hourly_quality_bonus) * clampf(score, 0.0, 100.0) / 100.0
+	var reward: float = rate * float(session.elapsed_game) / 3600.0
+	if session.has_exit_penalty():
+		reward *= float(rules.early_multiplier)
+	return mini(maxi(0, maximum_experience() - current_experience), int(floor(reward + 0.000001)))
+
 func cooling(inventory: Array) -> float:
 	# Cooling equipment uses the strongest owned tier; duplicates never stack.
 	var ratio := 0.0

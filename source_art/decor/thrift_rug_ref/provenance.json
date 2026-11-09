@@ -1,0 +1,26 @@
+{
+  "id": "thrift_rug_ref",
+  "code": "F1",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Потёртый тканый напольный ковёр с барахолки",
+  "role": "Напольный ковёр F1 эпохи E1",
+  "resolution": "307x171",
+  "item_bbox": [
+    561,
+    344,
+    303,
+    167
+  ],
+  "sheet_crop_box": [
+    559,
+    342,
+    865,
+    512
+  ],
+  "pixel_count": 23610,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

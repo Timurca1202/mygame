@@ -1,0 +1,26 @@
+{
+  "id": "folding_chair_metal",
+  "code": "F3",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Складной металлический стул со спинкой",
+  "role": "Мебель F3 эпохи E1",
+  "resolution": "164x213",
+  "item_bbox": [
+    30,
+    38,
+    160,
+    209
+  ],
+  "sheet_crop_box": [
+    28,
+    36,
+    191,
+    248
+  ],
+  "pixel_count": 12066,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

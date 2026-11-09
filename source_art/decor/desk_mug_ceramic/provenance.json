@@ -1,0 +1,26 @@
+{
+  "id": "desk_mug_ceramic",
+  "code": "D6",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Керамическая кофейная кружка для стола",
+  "role": "Посуда стола D6",
+  "resolution": "123x157",
+  "item_bbox": [
+    220,
+    344,
+    119,
+    153
+  ],
+  "sheet_crop_box": [
+    218,
+    342,
+    340,
+    498
+  ],
+  "pixel_count": 2920,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

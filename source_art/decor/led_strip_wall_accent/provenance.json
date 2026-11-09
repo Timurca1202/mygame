@@ -1,0 +1,26 @@
+{
+  "id": "led_strip_wall_accent",
+  "code": "U5_3",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Светодиодная LED-лента настенный контур",
+  "role": "Освещение E2",
+  "resolution": "128x99",
+  "item_bbox": [
+    370,
+    148,
+    124,
+    95
+  ],
+  "sheet_crop_box": [
+    368,
+    146,
+    495,
+    244
+  ],
+  "pixel_count": 3783,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

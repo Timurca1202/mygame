@@ -1,0 +1,26 @@
+{
+  "id": "wall_shelf_books",
+  "code": "W4",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Настенная деревянная полка с книгами",
+  "role": "Полка эпохи E1, стена",
+  "resolution": "183x179",
+  "item_bbox": [
+    627,
+    44,
+    179,
+    175
+  ],
+  "sheet_crop_box": [
+    625,
+    42,
+    807,
+    220
+  ],
+  "pixel_count": 10733,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

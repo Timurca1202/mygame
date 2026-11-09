@@ -1,0 +1,25 @@
+{
+  "id": "mic_usb_podcast_ref",
+  "code": "MIC_3",
+  "source_reference": "ref/device/microphone/Gemini_Generated_Image_84hlag84hlag84hl.jpg",
+  "category": "equipment/microphones",
+  "description": "USB-конденсаторный микрофон на настольной треноге",
+  "role": "Микрофон ступени 3",
+  "resolution": "499x429",
+  "item_bbox": [
+    837,
+    467,
+    497,
+    427
+  ],
+  "sheet_crop_box": [
+    836,
+    466,
+    1334,
+    894
+  ],
+  "pixel_count": 108254,
+  "border_clearance": true,
+  "status": "PROBLEMATIC",
+  "notes": "Отклонён при визуальной проверке 2026-11-09: в PNG остались номер 16 и вертикальная линия листа. Требуется повторное выделение."
+}

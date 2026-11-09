@@ -1,0 +1,26 @@
+{
+  "id": "fishbowl_goldfish",
+  "code": "U4_6",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Круглая стеклянная банка с золотой рыбкой",
+  "role": "Питомец на столе",
+  "resolution": "74x115",
+  "item_bbox": [
+    896,
+    111,
+    70,
+    111
+  ],
+  "sheet_crop_box": [
+    894,
+    109,
+    967,
+    223
+  ],
+  "pixel_count": 6282,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

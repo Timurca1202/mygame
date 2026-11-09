@@ -1,0 +1,26 @@
+{
+  "id": "window_glass_brick",
+  "code": "U4_2",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Большое светлое окно с рамой",
+  "role": "Оконный проём",
+  "resolution": "140x212",
+  "item_bbox": [
+    227,
+    47,
+    136,
+    208
+  ],
+  "sheet_crop_box": [
+    225,
+    45,
+    364,
+    256
+  ],
+  "pixel_count": 17617,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

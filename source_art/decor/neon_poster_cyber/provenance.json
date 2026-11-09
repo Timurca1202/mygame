@@ -1,0 +1,26 @@
+{
+  "id": "neon_poster_cyber",
+  "code": "U5_1",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Неоновый кибер-постер на стену",
+  "role": "Постер эпохи E2",
+  "resolution": "102x207",
+  "item_bbox": [
+    61,
+    62,
+    98,
+    203
+  ],
+  "sheet_crop_box": [
+    59,
+    60,
+    160,
+    266
+  ],
+  "pixel_count": 14895,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

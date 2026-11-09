@@ -10,6 +10,7 @@ var _stats: Label
 var _technical_stats: Label
 var _fault_stats: Label
 var _audience_stats: Label
+var _xp_stats: Label
 var _tip: Label
 var _values := {}
 var _bars := {}
@@ -29,7 +30,7 @@ func _ready() -> void:
 	shade.color = Color(0.02, 0.01, 0.09, 0.88)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_modal.add_child(shade)
-	_panel = host._panel(Rect2(20, 194, 500, 596))
+	_panel = host._panel(Rect2(20, 182, 500, 620))
 	host.remove_child(_panel)
 	_modal.add_child(_panel)
 	host._label(_panel, text.heading, Rect2(20, 12, 460, 36), 28, host.CYAN)
@@ -38,9 +39,10 @@ func _ready() -> void:
 	_technical_stats = host._label(_panel, "", Rect2(20, 128, 460, 24), 18, host.AMBER)
 	_fault_stats = host._label(_panel, "", Rect2(20, 152, 460, 24), 18, host.AMBER)
 	_audience_stats = host._label(_panel, "", Rect2(20, 176, 460, 24), 18, host.CYAN)
+	_xp_stats = host._label(_panel, "", Rect2(20, 200, 460, 24), 18, host.GREEN)
 	var index := 0
 	for key in host.progression.config.score_weights:
-		var y := 204 + index * 48
+		var y := 228 + index * 48
 		host._label(_panel, text[key], Rect2(20, y, 310, 26), 20)
 		_values[key] = host._label(_panel, "", Rect2(340, y, 140, 26), 20, host.CYAN)
 		var track := ColorRect.new()
@@ -56,10 +58,10 @@ func _ready() -> void:
 		track.add_child(bar)
 		_bars[key] = bar
 		index += 1
-	host._label(_panel, text.next, Rect2(20, 442, 460, 26), 20, host.AMBER)
-	_tip = host._label(_panel, "", Rect2(20, 476, 460, 54), 20)
+	host._label(_panel, text.next, Rect2(20, 466, 460, 26), 20, host.AMBER)
+	_tip = host._label(_panel, "", Rect2(20, 500, 460, 54), 20)
 	_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_close = host._studio._button(_panel, text.close, Rect2(20, 540, 460, 44))
+	_close = host._studio._button(_panel, text.close, Rect2(20, 564, 460, 44))
 	_close.pressed.connect(close_report)
 	_close.focus_next = NodePath(".")
 	_close.focus_previous = NodePath(".")
@@ -79,6 +81,14 @@ func open_report() -> void:
 	_technical_stats.text = text.technical_stats % [session.chat.blocked_spam, session.chat.blocked_spam + session.chat.missed_spam, host._clock(session.hot_game_seconds)]
 	_fault_stats.text = text.sound_fault_stats % [host._clock(session.sound_fault_game_seconds), session.sound_fault_repairs]
 	_audience_stats.text = text.audience_stats % [session.average_viewers(), session.peak_viewers]
+	var xp: Dictionary = model.level_progress(host.wallet.experience)
+	var xp_text: Dictionary = model.config.experience.text
+	if host._save_pending:
+		_xp_stats.text = xp_text.pending % host._experience_gain
+	elif int(xp.level) > int(model.level_progress(host._starting_experience).level):
+		_xp_stats.text = xp_text.level_up % [xp.level, host._experience_gain]
+	else:
+		_xp_stats.text = xp_text.result % [host._experience_gain, xp.level]
 	for key in components:
 		var maximum: float = float(model.config.score_weights[key]) * 100.0
 		_values[key].text = text.points % [float(components[key]) * maximum / 100.0, maximum]

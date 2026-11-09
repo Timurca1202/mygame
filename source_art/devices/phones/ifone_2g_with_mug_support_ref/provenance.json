@@ -1,0 +1,25 @@
+{
+  "id": "ifone_2g_with_mug_support_ref",
+  "code": "P2_MUG",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "iFone 2G с опорной керамической кружкой",
+  "role": "Телефон P2 вместе с кружкой-подставкой из референса",
+  "resolution": "399x509",
+  "item_bbox": [
+    712,
+    167,
+    391,
+    507
+  ],
+  "sheet_crop_box": [
+    708,
+    166,
+    1106,
+    674
+  ],
+  "pixel_count": 115836,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

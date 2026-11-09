@@ -1,0 +1,26 @@
+{
+  "id": "silver_play_button_frame",
+  "code": "U6_12",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Серебряная наградная кнопка в рамке",
+  "role": "Награда E3",
+  "resolution": "103x150",
+  "item_bbox": [
+    874,
+    362,
+    99,
+    146
+  ],
+  "sheet_crop_box": [
+    872,
+    360,
+    974,
+    509
+  ],
+  "pixel_count": 8137,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

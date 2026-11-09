@@ -1,0 +1,26 @@
+{
+  "id": "wall_art_picture_vintage",
+  "code": "W1",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Картина в деревянной раме, винтажный стиль",
+  "role": "Ретро-декор эпохи E1, стена",
+  "resolution": "110x161",
+  "item_bbox": [
+    58,
+    50,
+    106,
+    157
+  ],
+  "sheet_crop_box": [
+    56,
+    48,
+    165,
+    208
+  ],
+  "pixel_count": 11349,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

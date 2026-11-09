@@ -1,0 +1,26 @@
+{
+  "id": "neon_sign_live",
+  "code": "U5_2",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Светящаяся неоновая вывеска LIVE",
+  "role": "Световой декор E2",
+  "resolution": "133x134",
+  "item_bbox": [
+    214,
+    110,
+    129,
+    130
+  ],
+  "sheet_crop_box": [
+    212,
+    108,
+    344,
+    241
+  ],
+  "pixel_count": 10705,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

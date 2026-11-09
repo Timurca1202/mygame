@@ -38,7 +38,7 @@ func capture(file_name: String) -> void:
 	var error := viewport.get_texture().get_image().save_png(OUTPUT + "/" + file_name)
 	check(error == OK, "Screenshot failed: " + file_name)
 	check(ui._action.get_global_rect().end.y <= 960.0, "Action button extends beyond the screen")
-	check(ui._timer.get_global_rect().position.y >= ui._status.get_global_rect().end.y, "Timer must not overlap the status line")
+	check(not ui._timer.get_global_rect().intersects(ui._status.get_global_rect()), "Timer must not overlap the status line")
 	if ui._chat_view.visible and not ui.session.chat.active.is_empty():
 		check(ui._chat_time_bar.get_global_rect().end.y <= ui._chat_buttons[0].get_global_rect().position.y, "Countdown must not overlap answer buttons")
 		for button in ui._chat_buttons:

@@ -1,0 +1,26 @@
+{
+  "id": "telescope_brass_tripod",
+  "code": "U7_10",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Оптический телескоп на латунном штативе",
+  "role": "Декор E4",
+  "resolution": "122x175",
+  "item_bbox": [
+    539,
+    350,
+    118,
+    171
+  ],
+  "sheet_crop_box": [
+    537,
+    348,
+    658,
+    522
+  ],
+  "pixel_count": 3498,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

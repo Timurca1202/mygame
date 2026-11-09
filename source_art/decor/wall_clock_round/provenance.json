@@ -1,0 +1,26 @@
+{
+  "id": "wall_clock_round",
+  "code": "W5",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Круглые настенные часы со стрелками",
+  "role": "Часы эпохи E1, стена",
+  "resolution": "88x108",
+  "item_bbox": [
+    877,
+    88,
+    84,
+    104
+  ],
+  "sheet_crop_box": [
+    875,
+    86,
+    962,
+    193
+  ],
+  "pixel_count": 5996,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

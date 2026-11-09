@@ -1,0 +1,26 @@
+{
+  "id": "skateboard_deck_wall",
+  "code": "U5_9",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Скейтборд с ярким принтом у стены",
+  "role": "Спорт E2",
+  "resolution": "157x100",
+  "item_bbox": [
+    379,
+    409,
+    153,
+    96
+  ],
+  "sheet_crop_box": [
+    377,
+    407,
+    533,
+    506
+  ],
+  "pixel_count": 4599,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

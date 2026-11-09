@@ -1,0 +1,25 @@
+{
+  "id": "cooling_pad_ref",
+  "code": "WIND_1",
+  "source_reference": "ref/device/wind/Gemini_Generated_Image_z1lscpz1lscpz1ls-2.jpg",
+  "category": "equipment",
+  "description": "Охлаждающая подставка для устройств с вентилятором",
+  "role": "Ступень охлаждения 1",
+  "resolution": "409x449",
+  "item_bbox": [
+    104,
+    229,
+    402,
+    415
+  ],
+  "sheet_crop_box": [
+    100,
+    196,
+    508,
+    644
+  ],
+  "pixel_count": 57171,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

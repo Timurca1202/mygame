@@ -86,6 +86,17 @@ var _save_pending := false
 var progression: RefCounted
 var _progress_text: Dictionary
 var _channel_label: Label
+var _top_panel: Panel
+var _resource_panel: Panel
+var _resource_icons: Array[TextureRect] = []
+var _level_label: Label
+var _studio_caption: Label
+var _xp_label: Label
+var _xp_bar: ProgressBar
+var _energy_label: Label
+var _gems_label: Label
+var _experience_gain := 0
+var _starting_experience := 0
 var _channel_detail: Label
 var _audience_status: Label
 var _shop_button: Button
@@ -165,6 +176,8 @@ func _new_session() -> void:
 	session = Session.new(run_config, _chat_content, _donors)
 	_result_score = -1.0
 	_follower_loss = 0.0
+	_experience_gain = 0
+	_starting_experience = wallet.experience
 
 func _device_changed() -> void:
 	if session.state == Session.State.READY:
@@ -182,7 +195,8 @@ func _refresh_device_controls() -> void:
 		_mode.select(last_available)
 
 func _build_progression() -> void:
-	_channel_label = _label(self, "", Rect2(28, 212, 330, 25), 20, CYAN)
+	_channel_label = _label(_resource_panel, "", Rect2(138, 18, 60, 26), 15, CYAN)
+	_channel_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_channel_detail = _label(self, "", Rect2(28, 237, 330, 25), 18, MUTED)
 	_audience_status = _label(self, "", Rect2(28, 536, 484, 28), 20, GREEN)
 	_audience_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -258,11 +272,19 @@ func _refresh_navigation() -> void:
 
 func _refresh_progression() -> void:
 	_refresh_navigation()
-	_channel_label.text = _progress_text.followers % int(floor(wallet.followers))
+	_channel_label.text = _short_resource(wallet.followers) if wallet.followers >= 10000 else str(int(floor(wallet.followers)))
+	_channel_label.accessibility_name = "Подписчики: %d" % int(floor(wallet.followers))
+	var xp: Dictionary = progression.level_progress(wallet.experience)
+	var xp_text: Dictionary = progression.config.experience.text
+	_level_label.text = str(xp.level)
+	_xp_label.text = "XP %d/%d" % [xp.current, xp.required] if xp.required > 0 else "XP MAX"
+	_level_label.accessibility_name = xp_text.progress % [xp.level, xp.current, xp.required] if xp.required > 0 else xp_text.maximum % xp.level
+	_xp_bar.max_value = maxi(1, int(xp.required))
+	_xp_bar.value = xp.current if xp.required > 0 else 1
+	_channel_detail.text = _progress_text.audience_device % [_device.short_name, session.viewers, int(_device.viewer_cap)]
 	var cooling: float = progression.cooling(wallet.inventory)
 	if cooling > 0.0:
-		_channel_label.text = _progress_text.followers_cooled % [int(floor(wallet.followers)), roundi(cooling * 100.0)]
-	_channel_detail.text = _progress_text.audience_device % [_device.short_name, session.viewers, int(_device.viewer_cap)]
+		_channel_detail.text = _progress_text.audience_cooled_device % [_device.short_name, session.viewers, int(_device.viewer_cap), roundi(cooling * 100)]
 	_audience_status.visible = session.state == Session.State.LIVE and not _studio.report_visible and not _exit_flow._modal.visible and session.elapsed_game - session.audience_notice_at < float(config.audience.notice_game_seconds)
 	if _audience_status.visible:
 		_audience_status.text = config.audience.text[session.audience_notice]
@@ -352,23 +374,75 @@ func _bar(parent: Node, rect: Rect2, colors: PackedColorArray) -> ProgressBar:
 
 func _build_interface() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top := _panel(Rect2(20, 18, 500, 184))
-	var studio := _label(top, _text.studio, Rect2(18, 10, 344, 20), 18, MUTED)
-	studio.clip_text = true
-	_live_badge = _label(top, "", Rect2(380, 10, 100, 20), 20, MUTED)
+	_resource_panel = _panel(Rect2(20, 14, 500, 80))
+	_resource_panel.add_theme_stylebox_override("panel", _style(Color("17102f"), CYAN, 8))
+	var hud_font := FontVariation.new()
+	hud_font.base_font = load("res://assets/fonts/rubik/Rubik-Variable.ttf")
+	hud_font.variation_opentype = {"wght": 600.0}
+	var hud_theme := Theme.new()
+	hud_theme.default_font = hud_font
+	_resource_panel.theme = hud_theme
+	var resources := [
+		["balance", "Баланс", AMBER],
+		["followers", "Подписчики", CYAN],
+		["level", "Уровень", GREEN],
+		["energy", "Энергия — скоро", Color(AMBER, 0.65)],
+		["gems", "Алмазы — скоро", Color("ca8cf2")]
+	]
+	for index in range(resources.size()):
+		var icon := TextureRect.new()
+		icon.name = "ResourceIcon" + str(resources[index][0]).to_pascal_case()
+		icon.position = Vector2(12 + 96 * index, 18)
+		icon.size = Vector2(24, 24)
+		icon.texture = load("res://assets/ui/icons/resources/%s.svg" % resources[index][0])
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.self_modulate = resources[index][2]
+		icon.tooltip_text = resources[index][1]
+		icon.accessibility_name = resources[index][1]
+		_resource_panel.add_child(icon)
+		_resource_icons.append(icon)
+		if index > 0:
+			var divider := ColorRect.new()
+			divider.position = Vector2(10 + index * 96, 10)
+			divider.size = Vector2(1, 58)
+			divider.color = Color("704298")
+			divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_resource_panel.add_child(divider)
+	_wallet_label = _label(_resource_panel, "", Rect2(42, 18, 60, 26), 14, AMBER)
+	_wallet_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_level_label = _label(_resource_panel, "", Rect2(234, 18, 60, 26), 20, GREEN)
+	_level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_xp_label = _label(_resource_panel, "", Rect2(208, 47, 84, 14), 10, GREEN)
+	_xp_label.size = Vector2(84, 14)
+	_xp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_xp_bar = _bar(_resource_panel, Rect2(208, 65, 84, 6), PackedColorArray([CYAN, GREEN]))
+	var xp_text: Dictionary = progression.config.experience.text
+	_energy_label = _label(_resource_panel, "СКОРО", Rect2(330, 18, 60, 26), 11, MUTED)
+	_energy_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_energy_label.accessibility_name = xp_text.energy_accessibility
+	_gems_label = _label(_resource_panel, "СКОРО", Rect2(426, 18, 60, 26), 11, MUTED)
+	_gems_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_gems_label.accessibility_name = xp_text.gems_accessibility
+	var top := _panel(Rect2(20, 102, 500, 100))
+	_top_panel = top
+	top.theme = hud_theme
+	_studio_caption = _label(top, _text.studio, Rect2(18, 5, 344, 18), 11, MUTED)
+	_studio_caption.clip_text = true
+	_live_badge = _label(top, "", Rect2(380, 5, 100, 18), 11, MUTED)
 	_live_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_status = _label(top, "", Rect2(18, 32, 464, 40), 40)
-	_hype_label = _label(top, "", Rect2(18, 78, 95, 24), 20, CYAN)
-	_hype_bar = _bar(top, Rect2(114, 85, 284, 16), PackedColorArray([Color("f035c8"), Color("a767ff"), CYAN, GREEN]))
-	_speed = _label(top, "", Rect2(403, 76, 78, 28), 30, GREEN)
+	_status = _label(top, "", Rect2(18, 24, 296, 30), 23)
+	_hype_label = _label(top, "", Rect2(18, 54, 95, 20), 13, CYAN)
+	_hype_bar = _bar(top, Rect2(114, 60, 284, 14), PackedColorArray([Color("f035c8"), Color("a767ff"), CYAN, GREEN]))
+	_speed = _label(top, "", Rect2(403, 52, 78, 24), 18, GREEN)
 	_speed.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_heat_label = _label(top, "", Rect2(18, 110, 95, 24), 20, RED)
-	_heat_bar = _bar(top, Rect2(114, 117, 284, 16), PackedColorArray([AMBER, Color("ff955b"), Color("f14d80")]))
-	var heat_value := _label(top, "", Rect2(403, 110, 78, 24), 20, AMBER)
+	_heat_label = _label(top, "", Rect2(18, 76, 95, 20), 13, RED)
+	_heat_bar = _bar(top, Rect2(114, 82, 284, 14), PackedColorArray([AMBER, Color("ff955b"), Color("f14d80")]))
+	var heat_value := _label(top, "", Rect2(403, 76, 78, 20), 14, AMBER)
 	heat_value.name = "HeatValue"
 	heat_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_wallet_label = _label(top, "", Rect2(18, 148, 208, 24), 20, AMBER)
-	_timer = _label(top, "", Rect2(222, 144, 260, 28), 20, CYAN)
+	_timer = _label(top, "", Rect2(322, 28, 160, 24), 16, CYAN)
 	_timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 	_tap_area = Control.new()
@@ -495,7 +569,8 @@ func _settle_income(retry: bool = false) -> void:
 			_follower_gain = 0.0
 			_follower_loss = _starting_followers * session.exit_penalty_ratio()
 		_visible_gain = floori(maxf(0.0, _starting_followers + _follower_gain - _follower_loss)) - floori(_starting_followers)
-	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score, true, _follower_loss)
+		_experience_gain = progression.stream_experience(session, _result_score, _starting_experience)
+	var error: Error = wallet.settle_stream(_run_id, session.income.total_units(), _follower_gain, _result_score, true, _follower_loss, _experience_gain)
 	_save_pending = error != OK
 	if error == OK:
 		_settled_id = _run_id
@@ -504,7 +579,9 @@ func _refresh_income() -> void:
 	var income: RefCounted = session.income
 	var finished: bool = session.state == Session.State.FINISHED
 	_bottom_title.text = _text.results_title if finished else _text.title
-	_wallet_label.text = _text.income_live % [_money(income.total_units()), roundi(session.viewers)] if session.state == Session.State.LIVE or session.state == Session.State.PAUSED else _text.wallet_ready % _money(wallet.balance_units)
+	_wallet_label.text = "$" + (_short_resource(float(wallet.balance_units) / 10000) if wallet.balance_units >= 100000000 else _money(wallet.balance_units))
+	_wallet_label.accessibility_name = "Баланс: $" + _money(wallet.balance_units)
+	_studio_caption.text = _text.income_live % [_money(income.earned_total_units()), roundi(session.viewers)] if session.state == Session.State.LIVE or session.state == Session.State.PAUSED else _text.studio
 	_income_result.visible = finished
 	if finished:
 		_hint.text = _text.results_short % [_clock(session.elapsed_game), roundi(session.peak_hype), session.tap_count] + "\n" + _text.chat_result % [session.chat.correct_answers, session.chat.correct_answers + session.chat.wrong_answers + session.chat.missed_questions, session.chat.best_combo]
@@ -827,6 +904,15 @@ func _refresh() -> void:
 		_viral.refresh()
 	if _sound_fault != null:
 		_sound_fault.refresh()
+
+func _short_resource(value: float) -> String:
+	if value >= 1000000000000:
+		return "%.1fT" % (value / 1000000000000)
+	if value >= 1000000000:
+		return "%.1fB" % (value / 1000000000)
+	if value >= 1000000:
+		return "%.1fM" % (value / 1000000)
+	return "%.1fK" % (value / 1000)
 
 func _clock(seconds: float) -> String:
 	var whole := int(floor(seconds + 0.00001))

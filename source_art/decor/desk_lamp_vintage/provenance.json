@@ -1,0 +1,26 @@
+{
+  "id": "desk_lamp_vintage",
+  "code": "D4",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Настольная винтажная лампа с круглым абажуром",
+  "role": "Освещение стола D4",
+  "resolution": "155x170",
+  "item_bbox": [
+    838,
+    62,
+    151,
+    166
+  ],
+  "sheet_crop_box": [
+    836,
+    60,
+    990,
+    229
+  ],
+  "pixel_count": 4512,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

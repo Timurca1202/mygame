@@ -1,0 +1,26 @@
+{
+  "id": "dumbbells_floor_set",
+  "code": "F6",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Пара литых спортивных гантелей на полу",
+  "role": "Спорт F6 эпохи E1",
+  "resolution": "179x120",
+  "item_bbox": [
+    627,
+    115,
+    175,
+    116
+  ],
+  "sheet_crop_box": [
+    625,
+    113,
+    803,
+    232
+  ],
+  "pixel_count": 6974,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

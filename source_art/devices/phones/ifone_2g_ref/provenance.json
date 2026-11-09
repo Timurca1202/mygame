@@ -1,0 +1,25 @@
+{
+  "id": "ifone_2g_ref",
+  "code": "P2",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "iFone 2G с зеркальцем (авторский ракурс, без зеркалирования)",
+  "role": "Первый апгрейд телефона P2. Настоящий референсный спрайт без отражения.",
+  "resolution": "399x509",
+  "item_bbox": [
+    712,
+    167,
+    391,
+    507
+  ],
+  "sheet_crop_box": [
+    708,
+    166,
+    1106,
+    674
+  ],
+  "pixel_count": 115694,
+  "border_clearance": true,
+  "status": "PROBLEMATIC",
+  "notes": "Отклонён при визуальной проверке 2026-11-09: в заявленном изолированном телефоне остались кружка, зеркало и вертикальная линия листа. Не заменять утверждённый игровой iFone этим PNG."
+}

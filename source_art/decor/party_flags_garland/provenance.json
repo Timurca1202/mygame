@@ -1,0 +1,26 @@
+{
+  "id": "party_flags_garland",
+  "code": "W6",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Праздничная гирлянда из разноцветных флажков",
+  "role": "Гирлянда E1, стена",
+  "resolution": "174x120",
+  "item_bbox": [
+    28,
+    331,
+    170,
+    116
+  ],
+  "sheet_crop_box": [
+    26,
+    329,
+    199,
+    448
+  ],
+  "pixel_count": 3192,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

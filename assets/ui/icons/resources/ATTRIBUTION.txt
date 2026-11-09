@@ -1,0 +1,9 @@
+Resource HUD icons: Streamline Pixel by Streamline.
+Source: https://www.streamlinehq.com/
+Repository: https://github.com/webalys-hq/streamline-vectors
+License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+Retrieved via Iconify API: https://api.iconify.design/
+Changes: currentColor replaced with white for Godot tinting; colored in the game UI.
+Original icon bodies and IDs: source_art/ui/resource_icons_v01/iconify_selected.json
+
+level.svg replaced 2026-11-09 with an original geometric pixel trophy authored for Hypster. Other resource icons retain the attribution above.

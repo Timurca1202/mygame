@@ -1,0 +1,26 @@
+{
+  "id": "arcade_cabinet_mini",
+  "code": "U6_4",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Ретро-аркадный автомат с джойстиком",
+  "role": "Гейминг E3",
+  "resolution": "115x196",
+  "item_bbox": [
+    541,
+    65,
+    111,
+    192
+  ],
+  "sheet_crop_box": [
+    539,
+    63,
+    653,
+    258
+  ],
+  "pixel_count": 13219,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

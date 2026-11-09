@@ -1,0 +1,25 @@
+{
+  "id": "phone_p06_modern_touch_ref",
+  "code": "P6",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "Современный безрамочный смартфон",
+  "role": "Ступень телефона P6",
+  "resolution": "569x689",
+  "item_bbox": [
+    66,
+    767,
+    567,
+    686
+  ],
+  "sheet_crop_box": [
+    65,
+    766,
+    633,
+    1454
+  ],
+  "pixel_count": 107767,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

@@ -1,10 +1,11 @@
 extends RefCounted
 ## Atomic profile transactions: money, audience progress and room purchases.
 ## Checksum + atomic rename + previous valid backup. No autoload is needed.
-const SCHEMA_VERSION := 4
+const SCHEMA_VERSION := 5
 const RECENT_LIMIT := 100
 var balance_units := 0
 var followers := 0.0
+var experience := 0
 var completed_streams := 0
 var last_score := 0.0
 var inventory: Array[String] = []
@@ -87,6 +88,11 @@ func _read(path: String) -> Dictionary:
 		return {}
 	if not payload.equipped_device.is_empty() and not payload.inventory.has(payload.equipped_device):
 		return {}
+	if int(version) < 5:
+		payload["experience"] = 0
+	var xp: Variant = payload.get("experience")
+	if (not xp is int and not xp is float) or not is_finite(float(xp)) or float(xp) < 0.0 or float(xp) != floor(float(xp)) or float(xp) > 9007199254740991.0:
+		return {}
 	return payload
 
 func _load() -> void:
@@ -109,6 +115,7 @@ func _load() -> void:
 func _apply(payload: Dictionary) -> void:
 	balance_units = int(payload.balance_units)
 	followers = float(payload.followers)
+	experience = int(payload.experience)
 	completed_streams = int(payload.completed_streams)
 	last_score = float(payload.last_score)
 	inventory.assign(payload.inventory)
@@ -117,7 +124,7 @@ func _apply(payload: Dictionary) -> void:
 	_credited.assign(payload.credited_sessions)
 
 func _payload() -> Dictionary:
-	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate(), "recent_titles": recent_titles.duplicate(), "equipped_device": equipped_device}
+	return {"version": SCHEMA_VERSION, "balance_units": balance_units, "credited_sessions": _credited.duplicate(), "followers": followers, "experience": experience, "completed_streams": completed_streams, "last_score": last_score, "inventory": inventory.duplicate(), "recent_titles": recent_titles.duplicate(), "equipped_device": equipped_device}
 
 func remember_title(title: String) -> Error:
 	if load_error != OK:
@@ -133,7 +140,7 @@ func remember_title(title: String) -> Error:
 func credit(session_id: String, amount_units: int) -> Error:
 	return settle_stream(session_id, amount_units, 0.0, last_score, false)
 
-func settle_stream(session_id: String, amount_units: int, follower_gain: float, score: float, count_stream: bool = true, follower_loss: float = 0.0) -> Error:
+func settle_stream(session_id: String, amount_units: int, follower_gain: float, score: float, count_stream: bool = true, follower_loss: float = 0.0, experience_gain: int = 0) -> Error:
 	if load_error != OK:
 		return load_error
 	if session_id.is_empty() or amount_units < 0 or amount_units > 9007199254740991 - balance_units:
@@ -141,6 +148,8 @@ func settle_stream(session_id: String, amount_units: int, follower_gain: float, 
 	if not is_finite(follower_gain) or follower_gain < 0.0 or followers + follower_gain > 9007199254740991.0 or not is_finite(score) or score < 0.0 or score > 100.0:
 		return ERR_INVALID_PARAMETER
 	if not is_finite(follower_loss) or follower_loss < 0.0 or follower_loss > 9007199254740991.0:
+		return ERR_INVALID_PARAMETER
+	if experience_gain < 0 or experience_gain > 9007199254740991 - experience or (not count_stream and experience_gain > 0):
 		return ERR_INVALID_PARAMETER
 	if _credited.has(session_id):
 		return OK
@@ -153,6 +162,7 @@ func settle_stream(session_id: String, amount_units: int, follower_gain: float, 
 	payload.credited_sessions = recent
 	payload.followers = maxf(0.0, followers + follower_gain - follower_loss)
 	payload.last_score = score
+	payload.experience += experience_gain
 	payload.completed_streams += 1 if count_stream else 0
 	return _persist(payload)
 

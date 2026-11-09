@@ -1,0 +1,26 @@
+{
+  "id": "string_lights_garland",
+  "code": "W7",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Светящаяся гирлянда-нить на проводе",
+  "role": "Гирлянда E1, стена",
+  "resolution": "178x161",
+  "item_bbox": [
+    223,
+    324,
+    174,
+    157
+  ],
+  "sheet_crop_box": [
+    221,
+    322,
+    398,
+    482
+  ],
+  "pixel_count": 1145,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

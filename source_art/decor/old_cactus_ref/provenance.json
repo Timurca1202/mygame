@@ -1,0 +1,26 @@
+{
+  "id": "old_cactus_ref",
+  "code": "F2",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Старый кактус в глиняном горшке с блюдцем",
+  "role": "Растение F2 эпохи E1",
+  "resolution": "73x163",
+  "item_bbox": [
+    887,
+    335,
+    69,
+    159
+  ],
+  "sheet_crop_box": [
+    885,
+    333,
+    957,
+    495
+  ],
+  "pixel_count": 7469,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

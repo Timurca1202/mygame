@@ -1,0 +1,26 @@
+{
+  "id": "designer_chandelier_pendant",
+  "code": "U7_2",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Дизайнерская подвесная люстра",
+  "role": "Освещение потолка E4",
+  "resolution": "138x156",
+  "item_bbox": [
+    208,
+    78,
+    134,
+    152
+  ],
+  "sheet_crop_box": [
+    206,
+    76,
+    343,
+    231
+  ],
+  "pixel_count": 11060,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

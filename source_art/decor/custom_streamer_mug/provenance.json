@@ -1,0 +1,26 @@
+{
+  "id": "custom_streamer_mug",
+  "code": "U6_10",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Большая стримерская кружка с логотипом",
+  "role": "Посуда E3",
+  "resolution": "97x112",
+  "item_bbox": [
+    552,
+    384,
+    93,
+    108
+  ],
+  "sheet_crop_box": [
+    550,
+    382,
+    646,
+    493
+  ],
+  "pixel_count": 5646,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

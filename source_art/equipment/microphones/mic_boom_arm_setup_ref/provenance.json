@@ -1,0 +1,25 @@
+{
+  "id": "mic_boom_arm_setup_ref",
+  "code": "MIC_5",
+  "source_reference": "ref/device/microphone/Gemini_Generated_Image_84hlag84hlag84hl.jpg",
+  "category": "equipment/microphones",
+  "description": "Профессиональный микрофон на регулируемом пантографе",
+  "role": "Микрофон ступени 5",
+  "resolution": "514x564",
+  "item_bbox": [
+    1437,
+    907,
+    512,
+    562
+  ],
+  "sheet_crop_box": [
+    1436,
+    906,
+    1949,
+    1469
+  ],
+  "pixel_count": 200554,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

@@ -1,0 +1,26 @@
+{
+  "id": "pet_plush_bed",
+  "code": "U5_8",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Уютная круглая плюшевая лежанка",
+  "role": "Питомец E2",
+  "resolution": "128x109",
+  "item_bbox": [
+    224,
+    393,
+    124,
+    105
+  ],
+  "sheet_crop_box": [
+    222,
+    391,
+    349,
+    499
+  ],
+  "pixel_count": 9377,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

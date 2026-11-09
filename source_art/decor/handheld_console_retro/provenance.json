@@ -1,0 +1,26 @@
+{
+  "id": "handheld_console_retro",
+  "code": "U4_12",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Портативная игровая консоль ретро",
+  "role": "Гаджет",
+  "resolution": "130x94",
+  "item_bbox": [
+    866,
+    386,
+    126,
+    90
+  ],
+  "sheet_crop_box": [
+    864,
+    384,
+    993,
+    477
+  ],
+  "pixel_count": 6145,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

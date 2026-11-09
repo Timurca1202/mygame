@@ -1,0 +1,26 @@
+{
+  "id": "calendar_wall_hanging",
+  "code": "W3",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Настенный отрывной календарь",
+  "role": "Календарь эпохи E1, стена",
+  "resolution": "92x165",
+  "item_bbox": [
+    467,
+    59,
+    88,
+    161
+  ],
+  "sheet_crop_box": [
+    465,
+    57,
+    556,
+    221
+  ],
+  "pixel_count": 10149,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

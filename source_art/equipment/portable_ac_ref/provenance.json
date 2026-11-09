@@ -1,0 +1,25 @@
+{
+  "id": "portable_ac_ref",
+  "code": "WIND_4",
+  "source_reference": "ref/device/wind/Gemini_Generated_Image_z1lscpz1lscpz1ls-2.jpg",
+  "category": "equipment",
+  "description": "Мобильный напольный кондиционер с гофрой",
+  "role": "Ступень охлаждения 4",
+  "resolution": "544x584",
+  "item_bbox": [
+    2121,
+    87,
+    536,
+    582
+  ],
+  "sheet_crop_box": [
+    2117,
+    86,
+    2660,
+    669
+  ],
+  "pixel_count": 185227,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

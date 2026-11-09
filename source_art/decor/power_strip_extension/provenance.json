@@ -1,0 +1,26 @@
+{
+  "id": "power_strip_extension",
+  "code": "D8",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Удлинитель-сетевой фильтр с кнопкой",
+  "role": "Электрика стола D8",
+  "resolution": "115x163",
+  "item_bbox": [
+    542,
+    337,
+    111,
+    159
+  ],
+  "sheet_crop_box": [
+    540,
+    335,
+    654,
+    497
+  ],
+  "pixel_count": 11803,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

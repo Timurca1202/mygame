@@ -1,0 +1,25 @@
+{
+  "id": "light_led_strip_spool_ref",
+  "code": "LIGHT_2",
+  "source_reference": "ref/device/light/Gemini_Generated_Image_phzj9aphzj9aphzj.jpg",
+  "category": "equipment/lighting",
+  "description": "Катушка светодиодной RGB LED-ленты с контроллером",
+  "role": "Освещение ступени 2",
+  "resolution": "366x299",
+  "item_bbox": [
+    882,
+    67,
+    362,
+    297
+  ],
+  "sheet_crop_box": [
+    879,
+    66,
+    1244,
+    364
+  ],
+  "pixel_count": 54107,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

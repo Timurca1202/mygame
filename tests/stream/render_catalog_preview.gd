@@ -127,7 +127,7 @@ func run() -> void:
 	mount()
 	await process_frame
 	check(main.get_node("StartRoom")._decor.size() == 3, "Recreated main scene must restore every purchased sprite")
-	check(ui._channel_label.text.contains("15%"), "Equipped fan must be visible in the room status")
+	check(ui._channel_detail.text.contains("15%"), "Equipped fan must be visible in the room status")
 	await capture("loaded")
 	click(ui._action.get_global_rect().get_center())
 	check(is_equal_approx(ui.session.cooling_ratio, 0.15), "Start button must apply cooling from real owned equipment")

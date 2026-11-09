@@ -1,0 +1,26 @@
+{
+  "id": "books_stack_table",
+  "code": "U4_9",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Стопка книг в твердом переплете",
+  "role": "Декор стола",
+  "resolution": "143x134",
+  "item_bbox": [
+    369,
+    357,
+    139,
+    130
+  ],
+  "sheet_crop_box": [
+    367,
+    355,
+    509,
+    488
+  ],
+  "pixel_count": 7124,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

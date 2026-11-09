@@ -1,0 +1,26 @@
+{
+  "id": "pennant_banner_flag",
+  "code": "W8",
+  "source_reference": "ref/items/Unknown-2.webp",
+  "category": "decor",
+  "description": "Треугольный вымпел на стену",
+  "role": "Вымпел E1, стена",
+  "resolution": "109x143",
+  "item_bbox": [
+    450,
+    342,
+    105,
+    139
+  ],
+  "sheet_crop_box": [
+    448,
+    340,
+    556,
+    482
+  ],
+  "pixel_count": 4096,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

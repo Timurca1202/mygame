@@ -1,0 +1,25 @@
+{
+  "id": "mic_budget_gooseneck_ref",
+  "code": "MIC_2",
+  "source_reference": "ref/device/microphone/Gemini_Generated_Image_84hlag84hlag84hl.jpg",
+  "category": "equipment/microphones",
+  "description": "Бюджетный настольный микрофон на гибкой стойке",
+  "role": "Микрофон ступени 2",
+  "resolution": "499x389",
+  "item_bbox": [
+    157,
+    467,
+    497,
+    387
+  ],
+  "sheet_crop_box": [
+    156,
+    466,
+    654,
+    854
+  ],
+  "pixel_count": 107122,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

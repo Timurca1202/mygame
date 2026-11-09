@@ -1,0 +1,26 @@
+{
+  "id": "box_pet_bed_cozy",
+  "code": "F4",
+  "source_reference": "ref/items/Unknown-3.webp",
+  "category": "decor",
+  "description": "Коробка-лежанка для питомца с пледом",
+  "role": "Лежанка F4 эпохи E1",
+  "resolution": "181x142",
+  "item_bbox": [
+    219,
+    91,
+    177,
+    138
+  ],
+  "sheet_crop_box": [
+    217,
+    89,
+    397,
+    230
+  ],
+  "pixel_count": 15658,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

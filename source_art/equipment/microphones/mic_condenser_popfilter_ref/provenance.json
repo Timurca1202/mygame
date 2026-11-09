@@ -1,0 +1,25 @@
+{
+  "id": "mic_condenser_popfilter_ref",
+  "code": "MIC_4",
+  "source_reference": "ref/device/microphone/Gemini_Generated_Image_84hlag84hlag84hl.jpg",
+  "category": "equipment/microphones",
+  "description": "Студийный микрофон в пауке с поп-фильтром",
+  "role": "Микрофон ступени 4",
+  "resolution": "488x544",
+  "item_bbox": [
+    837,
+    937,
+    486,
+    542
+  ],
+  "sheet_crop_box": [
+    836,
+    936,
+    1323,
+    1479
+  ],
+  "pixel_count": 157186,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

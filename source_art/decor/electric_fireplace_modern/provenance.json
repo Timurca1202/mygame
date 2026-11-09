@@ -1,0 +1,26 @@
+{
+  "id": "electric_fireplace_modern",
+  "code": "U7_11",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Современный настенный электрокамин с пламенем",
+  "role": "Уют E4",
+  "resolution": "112x151",
+  "item_bbox": [
+    705,
+    361,
+    108,
+    147
+  ],
+  "sheet_crop_box": [
+    703,
+    359,
+    814,
+    509
+  ],
+  "pixel_count": 7323,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

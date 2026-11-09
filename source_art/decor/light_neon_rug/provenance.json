@@ -1,0 +1,26 @@
+{
+  "id": "light_neon_rug",
+  "code": "U6_7",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Световой неоновый напольный коврик",
+  "role": "Ковер E3",
+  "resolution": "148x85",
+  "item_bbox": [
+    38,
+    399,
+    144,
+    81
+  ],
+  "sheet_crop_box": [
+    36,
+    397,
+    183,
+    481
+  ],
+  "pixel_count": 7571,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

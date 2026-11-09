@@ -1,0 +1,25 @@
+{
+  "id": "phone_p04_qwerty_ref",
+  "code": "P4",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "Телефон с физической QWERTY-клавиатурой",
+  "role": "Ступень телефона P4",
+  "resolution": "313x456",
+  "item_bbox": [
+    1776,
+    223,
+    305,
+    451
+  ],
+  "sheet_crop_box": [
+    1772,
+    219,
+    2084,
+    674
+  ],
+  "pixel_count": 87136,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

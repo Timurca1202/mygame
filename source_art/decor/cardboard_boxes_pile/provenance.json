@@ -1,0 +1,26 @@
+{
+  "id": "cardboard_boxes_pile",
+  "code": "U4_11",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Стопка картонных коробок для переезда",
+  "role": "Хранение",
+  "resolution": "152x182",
+  "item_bbox": [
+    693,
+    341,
+    148,
+    178
+  ],
+  "sheet_crop_box": [
+    691,
+    339,
+    842,
+    520
+  ],
+  "pixel_count": 17827,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

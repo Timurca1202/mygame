@@ -1,0 +1,26 @@
+{
+  "id": "lounge_armchair_ottoman",
+  "code": "U7_6",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Дизайнерское лаунж-кресло с пуфом",
+  "role": "Мебель E4",
+  "resolution": "171x186",
+  "item_bbox": [
+    825,
+    89,
+    167,
+    182
+  ],
+  "sheet_crop_box": [
+    823,
+    87,
+    993,
+    272
+  ],
+  "pixel_count": 2653,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

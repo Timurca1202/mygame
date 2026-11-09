@@ -1,0 +1,26 @@
+{
+  "id": "aquarium_tank_led",
+  "code": "U6_6",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Стеклянный аквариум с LED-подсветкой",
+  "role": "Аквариум E3",
+  "resolution": "159x165",
+  "item_bbox": [
+    844,
+    80,
+    155,
+    161
+  ],
+  "sheet_crop_box": [
+    842,
+    78,
+    1000,
+    242
+  ],
+  "pixel_count": 14319,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

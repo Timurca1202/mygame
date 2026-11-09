@@ -1,0 +1,26 @@
+{
+  "id": "studio_sofa_modern",
+  "code": "U6_3",
+  "source_reference": "ref/items/Unknown-6.webp",
+  "category": "decor",
+  "description": "Современный двухместный диван для гостей",
+  "role": "Мебель E3",
+  "resolution": "151x138",
+  "item_bbox": [
+    362,
+    112,
+    147,
+    134
+  ],
+  "sheet_crop_box": [
+    360,
+    110,
+    510,
+    247
+  ],
+  "pixel_count": 6541,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

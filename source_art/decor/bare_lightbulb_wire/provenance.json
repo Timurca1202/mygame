@@ -1,0 +1,26 @@
+{
+  "id": "bare_lightbulb_wire",
+  "code": "U4_3",
+  "source_reference": "ref/items/Unknown-4.webp",
+  "category": "decor",
+  "description": "Подвесная лампочка на черном проводе",
+  "role": "Потолочный свет",
+  "resolution": "78x183",
+  "item_bbox": [
+    446,
+    45,
+    74,
+    179
+  ],
+  "sheet_crop_box": [
+    444,
+    43,
+    521,
+    225
+  ],
+  "pixel_count": 1302,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

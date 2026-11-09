@@ -1,0 +1,26 @@
+{
+  "id": "energy_drink_cans_pile",
+  "code": "U5_12",
+  "source_reference": "ref/items/Unknown-5.webp",
+  "category": "decor",
+  "description": "Банки энергетических напитков на столе",
+  "role": "Напитки E2",
+  "resolution": "105x99",
+  "item_bbox": [
+    875,
+    403,
+    101,
+    95
+  ],
+  "sheet_crop_box": [
+    873,
+    401,
+    977,
+    499
+  ],
+  "pixel_count": 5404,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

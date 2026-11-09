@@ -1,0 +1,25 @@
+{
+  "id": "phone_p05_touch_early_ref",
+  "code": "P5",
+  "source_reference": "ref/device/Main/Gemini_Generated_Image_tjhcjitjhcjitjhc.jpg",
+  "category": "devices/phones",
+  "description": "Ранний сенсорный смартфон со стилусом",
+  "role": "Ступень телефона P5",
+  "resolution": "329x569",
+  "item_bbox": [
+    2258,
+    120,
+    322,
+    564
+  ],
+  "sheet_crop_box": [
+    2255,
+    116,
+    2583,
+    684
+  ],
+  "pixel_count": 75091,
+  "border_clearance": true,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}

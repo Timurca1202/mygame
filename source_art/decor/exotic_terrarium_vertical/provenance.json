@@ -1,0 +1,26 @@
+{
+  "id": "exotic_terrarium_vertical",
+  "code": "U7_8",
+  "source_reference": "ref/items/Unknown-7.webp",
+  "category": "decor",
+  "description": "Вертикальный террариум с подсветкой",
+  "role": "Питомец E4",
+  "resolution": "128x169",
+  "item_bbox": [
+    212,
+    350,
+    124,
+    165
+  ],
+  "sheet_crop_box": [
+    210,
+    348,
+    337,
+    516
+  ],
+  "pixel_count": 14987,
+  "border_clearance": true,
+  "edge_fringe_pixels": 0,
+  "status": "UNREVIEWED",
+  "notes": "Технические проверки пройдены; индивидуальная визуальная приёмка не завершена. Предыдущая автоматическая пометка READY не доказывает чистоту вырезки."
+}
